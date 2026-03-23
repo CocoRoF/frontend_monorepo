@@ -1,6 +1,6 @@
 # XGEN Frontend — 설계 원칙 해설서 (Principle Documents)
 
-> 이 문서는 `Principle.MD`에서 선언한 원칙을 **왜 그렇게 해야 하는지**, **실제로 어떻게 적용하는지**,
+> 이 문서는 `README.md`에서 선언한 원칙을 **왜 그렇게 해야 하는지**, **실제로 어떻게 적용하는지**,
 > 그리고 **잘못 적용하면 어떤 일이 벌어지는지**를 구체적 예시와 함께 설명합니다.
 >
 > 목표: 이 문서를 읽고 나면 **"아, 그래서 이렇게 하는 거구나"**라고 말할 수 있어야 합니다.
@@ -490,10 +490,10 @@ function MyProtectedPage() {
 각 저자가 자기 번역을 따로 하면 → 같은 단어를 다르게 번역하는 사태 발생.
 
 ```typescript
-import { useLanguage } from '@xgen/i18n';
+import { useTranslation } from '@xgen/i18n';
 
 function MyComponent() {
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   return <h1>{t('workspace.myFeature.title')}</h1>;
   //            ↑ ko.json/en.json에서 이 키의 값을 가져옴
 }
@@ -771,11 +771,12 @@ Feature 내부의 컴포넌트 파일:
 ### 9.3 package.json의 name 규칙
 
 ```jsonc
-// Feature의 경우
-"name": "@xgen/feature-{kebab-case}"
+// Feature의 경우 — 디렉토리명을 그대로 사용
+"name": "@xgen/feature-{디렉토리명}"
 // 예: "@xgen/feature-canvas-core"
-// 예: "@xgen/feature-admin-users"
-// 예: "@xgen/feature-main-current-chat"
+// 예: "@xgen/feature-admin-Admin"
+// 예: "@xgen/feature-main-CurrentChat"
+// 예: "@xgen/feature-main-Dashboard"
 
 // Package의 경우
 "name": "@xgen/{name}"
@@ -920,7 +921,7 @@ mkdir -p features/main-NotificationCenter/src
 # 2) package.json 생성
 cat > features/main-NotificationCenter/package.json << 'EOF'
 {
-  "name": "@xgen/feature-main-notification-center",
+  "name": "@xgen/feature-main-NotificationCenter",
   "version": "0.0.0",
   "private": true,
   "main": "src/index.ts",
@@ -989,7 +990,7 @@ export default notificationCenterFeature;
 ```typescript
 // apps/web/src/features.ts
 
-import notificationCenter from '@xgen/feature-main-notification-center'; // ← 추가!
+import notificationCenter from '@xgen/feature-main-NotificationCenter'; // ← 추가!
 
 // ... 기존 코드 ...
 
@@ -1000,7 +1001,7 @@ registry.register(notificationCenter); // ← 등록!
 
 ```jsonc
 // apps/web/package.json 의 dependencies에 추가:
-"@xgen/feature-main-notification-center": "workspace:*"
+"@xgen/feature-main-NotificationCenter": "workspace:*"
 ```
 
 #### Step 6: i18n 키 추가
