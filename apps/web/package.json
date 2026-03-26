@@ -15,6 +15,7 @@
     "@xgen/feature-auth-intro-features": "workspace:*",
     "@xgen/feature-auth-intro-cta": "workspace:*",
     "@xgen/feature-auth-intro-footer": "workspace:*",
+    "@xgen/feature-auth-LoginForm": "workspace:*",
     "@xgen/feature-main-Dashboard": "workspace:*",
     "@xgen/feature-main-ChatIntro": "workspace:*",
     "@xgen/feature-main-ChatHistory": "workspace:*",

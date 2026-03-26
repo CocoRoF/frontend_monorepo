@@ -55,4 +55,6 @@ export {
   FiKey,
   FiToggleLeft,
   FiToggleRight,
+  FiEye,
+  FiEyeOff,
 } from 'react-icons/fi';

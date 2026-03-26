@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Sidebar } from '@xgen/ui';
 import type { SidebarConfig, SidebarSection as SidebarSectionType, SidebarMenuItem } from '@xgen/ui';
 import { useTranslation } from '@xgen/i18n';
+import { AuthGuard, useAuth } from '@xgen/auth-provider';
 import { featureRegistry, initializeFeatures } from '@/features';
 import { getRoutePath, DEFAULT_ROUTE } from '@/features/routeConfig';
 import type { SidebarSection as FeatureSidebarSection } from '@/features';
@@ -48,6 +49,7 @@ function MainPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { t } = useTranslation();
+  const { user, logout } = useAuth();
 
   const [initialized, setInitialized] = useState(false);
   const [activeItemId, setActiveItemId] = useState<string>(DEFAULT_ROUTE);
@@ -127,20 +129,19 @@ function MainPageContent() {
       ],
     },
     user: {
-      name: 'User', // TODO: Get from auth context
-      role: 'Member',
+      name: user?.username || 'User',
+      role: user?.is_admin ? 'Admin' : 'Member',
     },
     onNavigate: handleNavigate,
     onLogoClick: () => handleNavigate('main-dashboard'),
     onLogout: () => {
-      // TODO: Implement logout with @xgen/auth-provider
-      router.push('/');
+      logout();
     },
     collapsed: sidebarCollapsed,
     onToggle: handleSidebarToggle,
     activeItemId,
     variant: 'main',
-  }), [sidebarSections, handleNavigate, sidebarCollapsed, handleSidebarToggle, activeItemId, router]);
+  }), [sidebarSections, handleNavigate, sidebarCollapsed, handleSidebarToggle, activeItemId, user, logout]);
 
   if (!initialized) {
     return <LoadingSpinner />;
@@ -172,8 +173,10 @@ function MainPageContent() {
 
 export default function MainPage() {
   return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <MainPageContent />
-    </Suspense>
+    <AuthGuard>
+      <Suspense fallback={<LoadingSpinner />}>
+        <MainPageContent />
+      </Suspense>
+    </AuthGuard>
   );
 }

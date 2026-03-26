@@ -1,74 +1,209 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from './auth-provider';
 import { isAdminMode } from '@xgen/config';
+import { validateToken, getCookie } from '@xgen/api-client';
 
 // ─────────────────────────────────────────────────────────────
 // AuthGuard - 인증 필요 페이지 보호
+// xgen-frontend의 AuthGuard.tsx를 기반으로 구현
 // ─────────────────────────────────────────────────────────────
 
 interface AuthGuardProps {
   children: React.ReactNode;
-  /** 인증 안됐을 때 보여줄 컴포넌트 */
-  fallback?: React.ReactNode;
+  /** 인증 안됐을 때 리다이렉트할 URL (기본: /login) */
+  redirectTo?: string;
+  /** 필요한 섹션 ID */
+  requiredSection?: string;
+  /** 섹션 권한 없을 때 리다이렉트할 URL (기본: /main) */
+  sectionRedirectTo?: string;
   /** 로딩 중 보여줄 컴포넌트 */
   loadingFallback?: React.ReactNode;
-  /** 인증 안됐을 때 리다이렉트할 URL */
-  redirectTo?: string;
 }
 
 /**
- * 인증이 필요한 페이지를 보호하는 컴포넌트
+ * 인증이 필요한 페이지를 보호하는 컴포넌트.
  *
- * @example
- * ```tsx
- * <AuthGuard redirectTo="/auth/login">
- *   <DashboardPage />
- * </AuthGuard>
- * ```
+ * 1. CookieProvider(AuthProvider) 초기화 대기
+ * 2. 쿠키에 user 정보가 없으면 → 로그인 페이지로 리다이렉트
+ * 3. validateToken()으로 토큰 유효성 검증
+ * 4. 무효 → clearAuth + 로그인으로 리다이렉트
+ * 5. 유효 → 섹션 권한 확인 → children 렌더
  */
 export const AuthGuard: React.FC<AuthGuardProps> = ({
   children,
-  fallback,
+  redirectTo = '/login',
+  requiredSection,
+  sectionRedirectTo = '/main',
   loadingFallback,
-  redirectTo,
 }) => {
-  const { isAuthenticated, isLoading, login } = useAuth();
+  const {
+    user,
+    isInitialized,
+    isLoggingOut,
+    redirectToLogin,
+    hasAccessToSection,
+  } = useAuth();
+
+  const [isValidated, setIsValidated] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
+  const lastCheckedTokenRef = useRef<string | null>(null);
 
   // ADMIN_MODE가 true면 인증 우회
   if (isAdminMode()) {
     return <>{children}</>;
   }
 
-  // 로딩 중
-  if (isLoading) {
+  // 초기화 대기
+  useEffect(() => {
+    if (!isInitialized || isLoggingOut) return;
+
+    const token = getCookie('access_token');
+
+    // 유저 없음 → 로그인으로
+    if (!user || !token) {
+      if (typeof window !== 'undefined') {
+        const currentUrl = window.location.href;
+        const encodedRedirect = encodeURIComponent(currentUrl);
+        window.location.href = `${redirectTo}?redirect=${encodedRedirect}`;
+      }
+      return;
+    }
+
+    // 이미 같은 토큰으로 검증했으면 스킵
+    if (lastCheckedTokenRef.current === token) {
+      setIsValidated(true);
+      return;
+    }
+
+    // 토큰 검증
+    setIsValidating(true);
+    validateToken(token)
+      .then((result) => {
+        if (result.valid) {
+          lastCheckedTokenRef.current = token;
+          setIsValidated(true);
+        } else {
+          // 토큰 무효 → 로그인으로
+          redirectToLogin();
+        }
+      })
+      .catch(() => {
+        // 검증 실패해도 쿠키 기반으로 통과시킴 (네트워크 에러 등)
+        setIsValidated(true);
+      })
+      .finally(() => {
+        setIsValidating(false);
+      });
+  }, [isInitialized, isLoggingOut, user, redirectTo, redirectToLogin]);
+
+  // 섹션 권한 확인
+  useEffect(() => {
+    if (!isValidated || !requiredSection) return;
+
+    if (!hasAccessToSection(requiredSection)) {
+      if (typeof window !== 'undefined') {
+        window.location.href = sectionRedirectTo;
+      }
+    }
+  }, [isValidated, requiredSection, hasAccessToSection, sectionRedirectTo]);
+
+  // 아직 초기화 안됨 또는 검증 중
+  if (!isInitialized || isValidating || !isValidated) {
     return loadingFallback ? <>{loadingFallback}</> : (
-      <div className="auth-guard-loading">
-        <div className="loading-spinner" />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <div>로딩중...</div>
       </div>
     );
   }
 
-  // 인증 안됨
-  if (!isAuthenticated) {
-    if (redirectTo) {
-      // 리다이렉트 옵션이 있으면 SSO로 이동
-      login(redirectTo);
-      return loadingFallback ? <>{loadingFallback}</> : null;
+  // 유저가 없으면 렌더하지 않음 (리다이렉트 중)
+  if (!user) {
+    return null;
+  }
+
+  return <>{children}</>;
+};
+
+// ─────────────────────────────────────────────────────────────
+// ReverseAuthGuard - 이미 로그인된 사용자는 접근 차단
+// 로그인/회원가입 페이지에서 사용
+// ─────────────────────────────────────────────────────────────
+
+interface ReverseAuthGuardProps {
+  children: React.ReactNode;
+  /** 로그인 상태일 때 리다이렉트할 URL (기본: /main?section=main-dashboard) */
+  redirectTo?: string;
+  /** 로딩 중 보여줄 컴포넌트 */
+  loadingFallback?: React.ReactNode;
+}
+
+/**
+ * 이미 로그인된 사용자가 로그인/회원가입 페이지에 접근하면
+ * 이전 페이지 또는 대시보드로 리다이렉트하는 컴포넌트
+ */
+export const ReverseAuthGuard: React.FC<ReverseAuthGuardProps> = ({
+  children,
+  redirectTo = '/main?section=main-dashboard',
+  loadingFallback,
+}) => {
+  const { user, isInitialized, isLoggingOut } = useAuth();
+  const [shouldRender, setShouldRender] = useState(false);
+
+  // ADMIN_MODE가 true면 항상 렌더
+  if (isAdminMode()) {
+    return <>{children}</>;
+  }
+
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    // 로그아웃 중이면 로그인 페이지 보여줌
+    if (isLoggingOut) {
+      setShouldRender(true);
+      return;
     }
 
-    if (fallback) {
-      return <>{fallback}</>;
+    // 유저 없음 → 로그인 페이지 보여줌
+    if (!user) {
+      setShouldRender(true);
+      return;
     }
 
-    // 기본 fallback
-    return (
-      <div className="auth-guard-unauthorized">
-        <p>로그인이 필요합니다.</p>
-        <button onClick={() => login()}>로그인</button>
-      </div>
-    );
+    // 유저 있음 → 토큰 검증 후 리다이렉트
+    const token = getCookie('access_token');
+    if (!token) {
+      setShouldRender(true);
+      return;
+    }
+
+    validateToken(token)
+      .then((result) => {
+        if (result.valid) {
+          // 이미 로그인됨 → 리다이렉트
+          if (typeof window !== 'undefined') {
+            // URL에 redirect 파라미터가 있으면 그쪽으로
+            const params = new URLSearchParams(window.location.search);
+            const redirectParam = params.get('redirect');
+            if (redirectParam) {
+              window.location.href = decodeURIComponent(redirectParam);
+            } else {
+              window.location.href = redirectTo;
+            }
+          }
+        } else {
+          // 토큰 무효 → 로그인 페이지 보여줌
+          setShouldRender(true);
+        }
+      })
+      .catch(() => {
+        setShouldRender(true);
+      });
+  }, [isInitialized, isLoggingOut, user, redirectTo]);
+
+  if (!isInitialized || !shouldRender) {
+    return loadingFallback ? <>{loadingFallback}</> : null;
   }
 
   return <>{children}</>;
@@ -86,16 +221,6 @@ interface SectionGuardProps {
   fallback?: React.ReactNode;
 }
 
-/**
- * 특정 섹션에 대한 접근 권한을 확인하는 컴포넌트
- *
- * @example
- * ```tsx
- * <SectionGuard section="admin" fallback={<NoAccessPage />}>
- *   <AdminDashboard />
- * </SectionGuard>
- * ```
- */
 export const SectionGuard: React.FC<SectionGuardProps> = ({
   children,
   section,
@@ -114,7 +239,7 @@ export const SectionGuard: React.FC<SectionGuardProps> = ({
 
   if (!hasAccessToSection(section)) {
     return fallback ? <>{fallback}</> : (
-      <div className="section-guard-no-access">
+      <div style={{ textAlign: 'center', padding: '40px' }}>
         <p>이 섹션에 접근할 권한이 없습니다.</p>
       </div>
     );
@@ -137,16 +262,6 @@ interface PermissionGuardProps {
   fallback?: React.ReactNode;
 }
 
-/**
- * 특정 권한을 가진 사용자만 접근 가능하게 하는 컴포넌트
- *
- * @example
- * ```tsx
- * <PermissionGuard permissions={['workflow:create', 'workflow:edit']}>
- *   <CreateWorkflowButton />
- * </PermissionGuard>
- * ```
- */
 export const PermissionGuard: React.FC<PermissionGuardProps> = ({
   children,
   permissions,

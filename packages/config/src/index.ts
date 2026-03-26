@@ -49,7 +49,7 @@ export const config: EnvironmentConfig = {
   SSO_URL: getEnvVar('SSO_URL', 'http://localhost:8080'),
   ENABLE_MOCK: getBoolEnvVar('ENABLE_MOCK', false),
   DEBUG_MODE: getBoolEnvVar('DEBUG_MODE', false),
-  ADMIN_MODE: true, // 테스트용: true면 모든 페이지 접근 가능 (프로덕션에서는 false로 변경)
+  ADMIN_MODE: getBoolEnvVar('ADMIN_MODE', false),
 };
 
 /**

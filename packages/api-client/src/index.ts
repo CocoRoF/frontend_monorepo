@@ -97,3 +97,27 @@ export function getApiClient(): ApiClient {
 export { ApiClient } from './client';
 export type { ApiClientConfig, RequestConfig } from './client';
 export type { ApiResponse, ApiError, PaginatedResponse } from '@xgen/types';
+
+// Auth exports
+export {
+  login,
+  logout,
+  signup,
+  signupGuest,
+  validateToken,
+  getCurrentUser,
+  getUserFromCookie,
+  hashPassword,
+  getCookie,
+  setCookie,
+  deleteCookie,
+  clearAllAuthCookies,
+} from './auth';
+export type {
+  LoginData,
+  LoginResult,
+  SignupData,
+  SignupResult,
+  TokenValidationResult,
+  UserInfo,
+} from './auth';

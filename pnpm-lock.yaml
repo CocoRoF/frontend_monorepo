@@ -26,6 +26,9 @@ importers:
       '@xgen/feature-auth-Introduction':
         specifier: workspace:*
         version: link:../../features/auth-Introduction
+      '@xgen/feature-auth-LoginForm':
+        specifier: workspace:*
+        version: link:../../features/auth-LoginForm
       '@xgen/feature-auth-intro-cta':
         specifier: workspace:*
         version: link:../../features/auth-intro-cta
@@ -159,6 +162,34 @@ importers:
 
   features/auth-Introduction:
     dependencies:
+      '@xgen/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@xgen/icons':
+        specifier: workspace:*
+        version: link:../../packages/icons
+      '@xgen/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      next:
+        specifier: ^15.1.0
+        version: 15.1.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(sass@1.98.0)
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
+    devDependencies:
+      '@types/react':
+        specifier: ^19
+        version: 19.2.14
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
+  features/auth-LoginForm:
+    dependencies:
+      '@xgen/auth-provider':
+        specifier: workspace:*
+        version: link:../../packages/auth-provider
       '@xgen/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n

@@ -619,16 +619,22 @@ export interface ApiError {
 // ─────────────────────────────────────────────────────────────
 export interface User {
   id: string;
+  user_id: number;
   username: string;
   email?: string;
   role?: string;
+  is_admin?: boolean;
+  user_type?: string;
   permissions?: string[];
+  available_user_section?: string[];
+  available_admin_section?: string[];
 }
 
 export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isInitialized: boolean;
 }
 
 // ─────────────────────────────────────────────────────────────

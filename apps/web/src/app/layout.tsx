@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import '@/app/globals.css';
 import { LanguageProvider } from '@xgen/i18n';
+import { AuthProvider } from '@xgen/auth-provider';
 
 export const metadata: Metadata = {
     title: 'XGEN',
@@ -26,9 +27,11 @@ export default function RootLayout({
                 <link rel="icon" href="/favicon.png" sizes="32x32" />
             </head>
             <body suppressHydrationWarning>
-                <LanguageProvider>
-                    {children}
-                </LanguageProvider>
+                <AuthProvider>
+                    <LanguageProvider>
+                        {children}
+                    </LanguageProvider>
+                </AuthProvider>
             </body>
         </html>
     );
