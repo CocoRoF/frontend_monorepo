@@ -7,6 +7,7 @@
 
 import type { MainFeatureModule, SidebarItem } from '@xgen/types';
 import { FeatureRegistry as CoreRegistry } from '@xgen/types';
+import { registerCanvasPlugins } from './canvas-features';
 
 // ─────────────────────────────────────────────────────────────
 // Types
@@ -213,6 +214,13 @@ export async function initializeFeatures(): Promise<void> {
   CoreRegistry.registerWorkflowTabPlugin(wfStoreMod.workflowStorePlugin);
   CoreRegistry.registerWorkflowTabPlugin(wfSchedulerMod.workflowSchedulerPlugin);
   CoreRegistry.registerWorkflowTabPlugin(wfTesterMod.workflowTesterPlugin);
+
+  // Register Canvas Page Plugins
+  registerCanvasPlugins();
+
+  // Register Canvas Editor Feature (app-level orchestrator)
+  const { canvasEditorFeature } = await import('../components/CanvasPage');
+  featureRegistry.register(canvasEditorFeature);
 }
 
 export default featureRegistry;

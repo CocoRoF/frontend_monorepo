@@ -10,6 +10,28 @@ import type { Locale } from './types';
 type NestedTranslation = string | string[] | { [key: string]: NestedTranslation };
 type TranslationData = Record<string, NestedTranslation>;
 
+/**
+ * 깊은 병합 유틸리티
+ * 같은 네임스페이스에 여러 feature가 번역을 등록할 수 있도록 지원
+ */
+function deepMerge(target: TranslationData, source: TranslationData): TranslationData {
+  for (const key in source) {
+    if (
+      key in target &&
+      typeof target[key] === 'object' && !Array.isArray(target[key]) &&
+      typeof source[key] === 'object' && !Array.isArray(source[key])
+    ) {
+      target[key] = deepMerge(
+        target[key] as TranslationData,
+        source[key] as TranslationData
+      );
+    } else {
+      target[key] = source[key];
+    }
+  }
+  return target;
+}
+
 // 전역 번역 저장소
 const translationStore: Record<Locale, TranslationData> = {
   ko: {},
@@ -34,8 +56,15 @@ export function registerTranslations(
   locale: Locale,
   translations: TranslationData
 ): void {
-  // 해당 네임스페이스로 번역 등록
-  translationStore[locale][namespace] = translations;
+  // 해당 네임스페이스로 번역 등록 (기존 데이터와 깊은 병합)
+  if (translationStore[locale][namespace]) {
+    translationStore[locale][namespace] = deepMerge(
+      translationStore[locale][namespace] as TranslationData,
+      translations
+    );
+  } else {
+    translationStore[locale][namespace] = translations;
+  }
   registeredNamespaces.add(namespace);
 
   // 리스너에게 알림

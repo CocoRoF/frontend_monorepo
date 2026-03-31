@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Sidebar } from '@xgen/ui';
-import type { SidebarConfig, SidebarSection as SidebarSectionType, SidebarMenuItem } from '@xgen/ui';
+import type { SidebarConfig, SidebarMenuItem } from '@xgen/ui';
+import type { SidebarSection as SidebarSectionType } from '@xgen/types';
 import { useTranslation } from '@xgen/i18n';
 import { AuthGuard, useAuth } from '@xgen/auth-provider';
 import { featureRegistry, initializeFeatures } from '@/features';

@@ -20,12 +20,51 @@ importers:
       '@xgen/auth-provider':
         specifier: workspace:*
         version: link:../../packages/auth-provider
+      '@xgen/canvas-engine':
+        specifier: workspace:*
+        version: link:../../packages/canvas-engine
+      '@xgen/canvas-layout':
+        specifier: workspace:*
+        version: link:../../packages/canvas-layout
+      '@xgen/canvas-types':
+        specifier: workspace:*
+        version: link:../../packages/canvas-types
       '@xgen/config':
         specifier: workspace:*
         version: link:../../packages/config
       '@xgen/feature-auth-LoginForm':
         specifier: workspace:*
         version: link:../../features/auth-LoginForm
+      '@xgen/feature-canvas-ai-generator':
+        specifier: workspace:*
+        version: link:../../features/canvas-ai-generator
+      '@xgen/feature-canvas-core':
+        specifier: workspace:*
+        version: link:../../features/canvas-core
+      '@xgen/feature-canvas-document-drop':
+        specifier: workspace:*
+        version: link:../../features/canvas-document-drop
+      '@xgen/feature-canvas-execution':
+        specifier: workspace:*
+        version: link:../../features/canvas-execution
+      '@xgen/feature-canvas-header':
+        specifier: workspace:*
+        version: link:../../features/canvas-header
+      '@xgen/feature-canvas-history':
+        specifier: workspace:*
+        version: link:../../features/canvas-history
+      '@xgen/feature-canvas-node-detail':
+        specifier: workspace:*
+        version: link:../../features/canvas-node-detail
+      '@xgen/feature-canvas-sidebar-nodes':
+        specifier: workspace:*
+        version: link:../../features/canvas-sidebar-nodes
+      '@xgen/feature-canvas-sidebar-templates':
+        specifier: workspace:*
+        version: link:../../features/canvas-sidebar-templates
+      '@xgen/feature-canvas-sidebar-workflows':
+        specifier: workspace:*
+        version: link:../../features/canvas-sidebar-workflows
       '@xgen/feature-main-ChatHistory':
         specifier: workspace:*
         version: link:../../features/main-ChatHistory
@@ -166,6 +205,204 @@ importers:
       typescript:
         specifier: ^5
         version: 5.9.3
+
+  features/canvas-ai-generator:
+    dependencies:
+      '@xgen/api-client':
+        specifier: workspace:*
+        version: link:../../packages/api-client
+      '@xgen/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@xgen/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
+
+  features/canvas-core:
+    dependencies:
+      '@xgen/canvas-engine':
+        specifier: workspace:*
+        version: link:../../packages/canvas-engine
+      '@xgen/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@xgen/icons':
+        specifier: workspace:*
+        version: link:../../packages/icons
+      '@xgen/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
+      react-icons:
+        specifier: ^5.5.0
+        version: 5.6.0(react@19.2.4)
+
+  features/canvas-document-drop:
+    dependencies:
+      '@xgen/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@xgen/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
+      react-icons:
+        specifier: ^5.5.0
+        version: 5.6.0(react@19.2.4)
+
+  features/canvas-execution:
+    dependencies:
+      '@xgen/api-client':
+        specifier: workspace:*
+        version: link:../../packages/api-client
+      '@xgen/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@xgen/icons':
+        specifier: workspace:*
+        version: link:../../packages/icons
+      '@xgen/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      framer-motion:
+        specifier: ^11.0.0
+        version: 11.18.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
+      react-icons:
+        specifier: ^5.4.0
+        version: 5.6.0(react@19.2.4)
+
+  features/canvas-header:
+    dependencies:
+      '@xgen/api-client':
+        specifier: workspace:*
+        version: link:../../packages/api-client
+      '@xgen/auth-provider':
+        specifier: workspace:*
+        version: link:../../packages/auth-provider
+      '@xgen/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@xgen/icons':
+        specifier: workspace:*
+        version: link:../../packages/icons
+      '@xgen/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
+      react-icons:
+        specifier: ^5.4.0
+        version: 5.6.0(react@19.2.4)
+
+  features/canvas-history:
+    dependencies:
+      '@xgen/canvas-engine':
+        specifier: workspace:*
+        version: link:../../packages/canvas-engine
+      '@xgen/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@xgen/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
+      react-icons:
+        specifier: ^5.4.0
+        version: 5.6.0(react@19.2.4)
+
+  features/canvas-node-detail:
+    dependencies:
+      '@xgen/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@xgen/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
+      react-icons:
+        specifier: ^5.5.0
+        version: 5.6.0(react@19.2.4)
+
+  features/canvas-sidebar-nodes:
+    dependencies:
+      '@xgen/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@xgen/icons':
+        specifier: workspace:*
+        version: link:../../packages/icons
+      '@xgen/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
+      react-icons:
+        specifier: ^5.4.0
+        version: 5.6.0(react@19.2.4)
+
+  features/canvas-sidebar-templates:
+    dependencies:
+      '@xgen/api-client':
+        specifier: workspace:*
+        version: link:../../packages/api-client
+      '@xgen/canvas-engine':
+        specifier: workspace:*
+        version: link:../../packages/canvas-engine
+      '@xgen/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@xgen/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
+      react-icons:
+        specifier: ^5.4.0
+        version: 5.6.0(react@19.2.4)
+
+  features/canvas-sidebar-workflows:
+    dependencies:
+      '@xgen/api-client':
+        specifier: workspace:*
+        version: link:../../packages/api-client
+      '@xgen/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@xgen/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
+      react-icons:
+        specifier: ^5.4.0
+        version: 5.6.0(react@19.2.4)
 
   features/main-AuthProfile:
     dependencies:
@@ -766,6 +1003,38 @@ importers:
       react:
         specifier: ^19.0.0
         version: 19.2.4
+
+  packages/canvas-engine:
+    dependencies:
+      '@xgen/canvas-layout':
+        specifier: workspace:*
+        version: link:../canvas-layout
+      '@xgen/canvas-types':
+        specifier: workspace:*
+        version: link:../canvas-types
+      '@xgen/i18n':
+        specifier: workspace:*
+        version: link:../i18n
+      '@xgen/icons':
+        specifier: workspace:*
+        version: link:../icons
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
+      react-icons:
+        specifier: ^5.4.0
+        version: 5.6.0(react@19.2.4)
+
+  packages/canvas-layout:
+    dependencies:
+      '@xgen/canvas-types':
+        specifier: workspace:*
+        version: link:../canvas-types
+
+  packages/canvas-types: {}
 
   packages/config: {}
 

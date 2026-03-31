@@ -49,14 +49,11 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
   const [isValidated, setIsValidated] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const lastCheckedTokenRef = useRef<string | null>(null);
-
-  // ADMIN_MODE가 true면 인증 우회
-  if (isAdminMode()) {
-    return <>{children}</>;
-  }
+  const adminMode = isAdminMode();
 
   // 초기화 대기
   useEffect(() => {
+    if (adminMode) return;
     if (!isInitialized || isLoggingOut) return;
 
     const token = getCookie('access_token');
@@ -96,10 +93,11 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
       .finally(() => {
         setIsValidating(false);
       });
-  }, [isInitialized, isLoggingOut, user, redirectTo, redirectToLogin]);
+  }, [adminMode, isInitialized, isLoggingOut, user, redirectTo, redirectToLogin]);
 
   // 섹션 권한 확인
   useEffect(() => {
+    if (adminMode) return;
     if (!isValidated || !requiredSection) return;
 
     if (!hasAccessToSection(requiredSection)) {
@@ -107,7 +105,12 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
         window.location.href = sectionRedirectTo;
       }
     }
-  }, [isValidated, requiredSection, hasAccessToSection, sectionRedirectTo]);
+  }, [adminMode, isValidated, requiredSection, hasAccessToSection, sectionRedirectTo]);
+
+  // ADMIN_MODE가 true면 인증 우회
+  if (adminMode) {
+    return <>{children}</>;
+  }
 
   // 아직 초기화 안됨 또는 검증 중
   if (!isInitialized || isValidating || !isValidated) {
@@ -150,13 +153,13 @@ export const ReverseAuthGuard: React.FC<ReverseAuthGuardProps> = ({
 }) => {
   const { user, isInitialized, isLoggingOut } = useAuth();
   const [shouldRender, setShouldRender] = useState(false);
-
-  // ADMIN_MODE가 true면 항상 렌더
-  if (isAdminMode()) {
-    return <>{children}</>;
-  }
+  const adminMode = isAdminMode();
 
   useEffect(() => {
+    if (adminMode) {
+      setShouldRender(true);
+      return;
+    }
     if (!isInitialized) return;
 
     // 로그아웃 중이면 로그인 페이지 보여줌
@@ -200,7 +203,7 @@ export const ReverseAuthGuard: React.FC<ReverseAuthGuardProps> = ({
       .catch(() => {
         setShouldRender(true);
       });
-  }, [isInitialized, isLoggingOut, user, redirectTo]);
+  }, [adminMode, isInitialized, isLoggingOut, user, redirectTo]);
 
   if (!isInitialized || !shouldRender) {
     return loadingFallback ? <>{loadingFallback}</> : null;

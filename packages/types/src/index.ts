@@ -989,6 +989,98 @@ export interface WorkflowTabPluginProps {
 }
 
 // ─────────────────────────────────────────────────────────────
+// Canvas Page Plugin
+// 캔버스 페이지에 끼워지는 플러그인 인터페이스
+// ─────────────────────────────────────────────────────────────
+
+/** 캔버스 코어가 플러그인에 주입하는 공유 context */
+export interface CanvasPluginContext {
+  canvasRef: React.RefObject<any>;
+  canvasMode: 'edit' | 'run';
+  workflowId: string;
+  workflowName: string;
+  isExecuting: boolean;
+  isSaving: boolean;
+}
+
+/** 사이드 패널 설정 */
+export interface CanvasSidePanel {
+  id: string;
+  label: string;
+  icon?: ComponentType;
+  component: ComponentType<CanvasSidePanelProps>;
+  order?: number;
+}
+
+export interface CanvasSidePanelProps extends CanvasPluginContext {
+  onClose: () => void;
+  onLoadWorkflow?: (data: any) => void;
+}
+
+/** 하단 패널 설정 */
+export interface CanvasBottomPanel {
+  id: string;
+  label: string;
+  component: ComponentType<CanvasBottomPanelProps>;
+  order?: number;
+}
+
+export interface CanvasBottomPanelProps extends CanvasPluginContext {
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+}
+
+/** 오버레이 설정 (사이드바, 패널 등) */
+export interface CanvasOverlay {
+  id: string;
+  component: ComponentType<CanvasOverlayProps>;
+}
+
+export interface CanvasOverlayProps extends CanvasPluginContext {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+/** 모달 설정 */
+export interface CanvasModal {
+  id: string;
+  component: ComponentType<CanvasModalProps>;
+}
+
+export interface CanvasModalProps extends CanvasPluginContext {
+  isOpen: boolean;
+  data?: unknown;
+  onClose: () => void;
+}
+
+/** 헤더 컴포넌트 Props */
+export interface CanvasHeaderProps extends CanvasPluginContext {
+  onSave: () => void;
+  onNewWorkflow: () => void;
+  onSidePanelToggle: (panelId: string) => void;
+  onToggleAI: () => void;
+  sidePanels: CanvasSidePanel[];
+}
+
+/** 캔버스 페이지 플러그인 */
+export interface CanvasPagePlugin {
+  id: string;
+  name: string;
+  /** 헤더 컴포넌트 (하나만 등록 가능) */
+  headerComponent?: ComponentType<CanvasHeaderProps>;
+  /** 사이드 패널 목록 */
+  sidePanels?: CanvasSidePanel[];
+  /** 하단 패널 목록 */
+  bottomPanels?: CanvasBottomPanel[];
+  /** 오버레이 (사이드바/패널 형태) */
+  overlays?: CanvasOverlay[];
+  /** 모달 */
+  modals?: CanvasModal[];
+  /** 드롭 핸들러 (파일 드롭 가로채기) */
+  dropHandler?: (event: DragEvent, context: CanvasPluginContext) => boolean;
+}
+
+// ─────────────────────────────────────────────────────────────
 // Feature Registry
 // ─────────────────────────────────────────────────────────────
 class FeatureRegistryClass {
@@ -998,6 +1090,7 @@ class FeatureRegistryClass {
   private dashboardPlugins: Map<string, DashboardPlugin> = new Map();
   private storageListPlugins: Map<string, StorageListPlugin> = new Map();
   private workflowTabPlugins: Map<string, WorkflowTabPlugin> = new Map();
+  private canvasPagePlugins: Map<string, CanvasPagePlugin> = new Map();
 
   // ── FeatureModule (기존 호환) ──
   register(feature: FeatureModule): void {
@@ -1072,6 +1165,19 @@ class FeatureRegistryClass {
   getWorkflowTabPlugins(): WorkflowTabPlugin[] {
     return Array.from(this.workflowTabPlugins.values())
       .sort((a, b) => a.order - b.order);
+  }
+
+  // ── CanvasPagePlugin ──
+  registerCanvasPagePlugin(plugin: CanvasPagePlugin): void {
+    this.canvasPagePlugins.set(plugin.id, plugin);
+  }
+
+  getCanvasPagePlugins(): CanvasPagePlugin[] {
+    return Array.from(this.canvasPagePlugins.values());
+  }
+
+  getCanvasPagePlugin(id: string): CanvasPagePlugin | undefined {
+    return this.canvasPagePlugins.get(id);
   }
 }
 

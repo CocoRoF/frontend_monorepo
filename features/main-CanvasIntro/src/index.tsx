@@ -214,7 +214,12 @@ const CanvasIntroPage: React.FC<CanvasIntroPageProps> = ({ onNavigate, onCreateC
   ];
 
   const handleSelectTemplate = (templateId: string) => {
-    onCreateCanvas?.(templateId);
+    // Navigate to canvas editor; pass template via onCreateCanvas or fallback to onNavigate
+    if (onCreateCanvas) {
+      onCreateCanvas(templateId);
+    } else {
+      onNavigate?.('canvas-editor');
+    }
   };
 
   return (
@@ -231,7 +236,7 @@ const CanvasIntroPage: React.FC<CanvasIntroPageProps> = ({ onNavigate, onCreateC
             <Button onClick={() => handleSelectTemplate('blank')}>
               {t('canvasIntro.hero.createBlank')}
             </Button>
-            <Button variant="outline" onClick={() => onNavigate?.('workflows')}>
+            <Button variant="outline" onClick={() => onNavigate?.('workflow-intro')}>
               {t('canvasIntro.hero.browseWorkflows')}
             </Button>
           </div>
