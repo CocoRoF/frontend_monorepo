@@ -9,7 +9,7 @@ export { useCanvasEventHandlers } from './useCanvasEventHandlers';
 export { usePortHandlers } from './usePortHandlers';
 export { useKeyboardHandlers } from './useKeyboardHandlers';
 export { useAutoConnect } from './useAutoConnect';
-export { useHistoryManagement } from './useHistoryManagement';
+export { useHistoryManagement, createHistoryHelpers } from './useHistoryManagement';
 
 export type { UseCanvasViewReturn } from './useCanvasView';
 export type { UseCanvasSelectionReturn } from './useCanvasSelection';

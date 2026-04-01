@@ -6,6 +6,7 @@ import { filterPortsByDependency } from '../utils/portUtils';
 import { getPortTypeDisplay, getPortClasses, generatePortKey } from '../utils/nodeUtils';
 import { useTranslation } from '@xgen/i18n';
 import type { Port, Parameter, NodeData } from '@xgen/canvas-types';
+import type { PortMouseData } from '../types';
 
 export interface RouterNodePortsProps {
     nodeId: string;
@@ -16,15 +17,14 @@ export interface RouterNodePortsProps {
     isPreview?: boolean;
     isPredicted?: boolean;
     isCollapsed?: boolean;
-    onPortMouseDown?: (e: React.MouseEvent, nodeId: string, port: Port, portType: 'input' | 'output', portElement: HTMLElement) => void;
-    onPortMouseUp?: (e: React.MouseEvent, nodeId: string, port: Port, portType: 'input' | 'output') => void;
-    onPortMouseEnter?: (e: React.MouseEvent, nodeId: string, port: Port, portType: 'input' | 'output') => void;
-    onPortMouseLeave?: (e: React.MouseEvent, nodeId: string, port: Port, portType: 'input' | 'output') => void;
+    onPortMouseDown?: (data: PortMouseData, e: React.MouseEvent) => void;
+    onPortMouseUp?: (data: PortMouseData, e: React.MouseEvent) => void;
+    registerPortRef?: (nodeId: string, portId: string, portType: 'input' | 'output', el: HTMLDivElement | null) => void;
     onOutputAdd?: (nodeId: string) => void;
     onOutputDelete?: (nodeId: string, portId: string) => void;
     onOutputRename?: (nodeId: string, portId: string, newName: string) => void;
-    selectedPortId?: string | null;
-    snapPortId?: string | null;
+    snappedPortKey?: string | null;
+    isSnapTargetInvalid?: boolean;
 }
 
 export const RouterNodePorts: React.FC<RouterNodePortsProps> = ({
@@ -38,13 +38,12 @@ export const RouterNodePorts: React.FC<RouterNodePortsProps> = ({
     isCollapsed = false,
     onPortMouseDown,
     onPortMouseUp,
-    onPortMouseEnter,
-    onPortMouseLeave,
+    registerPortRef,
     onOutputAdd,
     onOutputDelete,
     onOutputRename,
-    selectedPortId,
-    snapPortId
+    snappedPortKey,
+    isSnapTargetInvalid
 }) => {
     const { t } = useTranslation();
     const [editingPortId, setEditingPortId] = useState<string | null>(null);
@@ -91,38 +90,41 @@ export const RouterNodePorts: React.FC<RouterNodePortsProps> = ({
 
     const renderPort = (port: Port, portType: 'input' | 'output', isOutput: boolean) => {
         const portKey = generatePortKey(nodeId, port.id, portType);
-        const isSelected = selectedPortId === portKey;
-        const isSnap = snapPortId === portKey;
+        const isSnapping = snappedPortKey === portKey;
         const typeDisplay = getPortTypeDisplay(port);
         const isEditing = editingPortId === port.id;
 
         return (
             <div
                 key={port.id}
-                className={`${styles.port} ${isOutput ? styles.outputPort : styles.inputPort} ${isSelected ? styles.selectedPort : ''} ${isSnap ? styles.snapPort : ''}`}
+                className={`${styles.port} ${isOutput ? styles.outputPort : styles.inputPort} ${isSnapping ? styles.snapping : ''} ${isSnapping && isSnapTargetInvalid ? styles['invalid-snap'] : ''}`}
             >
                 <div
-                    className={getPortClasses(port, portType, isSelected, isSnap)}
+                    className={getPortClasses(port, portType, false, isSnapping)}
+                    ref={(el) => registerPortRef && registerPortRef(nodeId, port.id, portType, el)}
                     data-port-id={portKey}
                     data-port-type={portType}
                     onMouseDown={(e) => {
                         if (!isPreview && !isPredicted && onPortMouseDown) {
-                            onPortMouseDown(e, nodeId, port, portType, e.currentTarget);
+                            e.stopPropagation();
+                            onPortMouseDown({
+                                nodeId,
+                                portId: port.id,
+                                portType,
+                                isMulti: port.multi,
+                                type: port.type
+                            }, e);
                         }
                     }}
                     onMouseUp={(e) => {
                         if (!isPreview && !isPredicted && onPortMouseUp) {
-                            onPortMouseUp(e, nodeId, port, portType);
-                        }
-                    }}
-                    onMouseEnter={(e) => {
-                        if (!isPreview && !isPredicted && onPortMouseEnter) {
-                            onPortMouseEnter(e, nodeId, port, portType);
-                        }
-                    }}
-                    onMouseLeave={(e) => {
-                        if (!isPreview && !isPredicted && onPortMouseLeave) {
-                            onPortMouseLeave(e, nodeId, port, portType);
+                            e.stopPropagation();
+                            onPortMouseUp({
+                                nodeId,
+                                portId: port.id,
+                                portType,
+                                type: port.type
+                            }, e);
                         }
                     }}
                 />

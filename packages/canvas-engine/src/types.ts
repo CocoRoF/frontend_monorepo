@@ -85,12 +85,32 @@ export interface CanvasRef {
     getCanvasState: () => { view: View; nodes: CanvasNode[]; edges: CanvasEdge[]; memos: CanvasMemo[] };
     /** Load a workflow into the canvas (replaces entire state) */
     loadWorkflow: (state: { nodes?: CanvasNode[]; edges?: CanvasEdge[]; memos?: CanvasMemo[]; view?: View }) => void;
+    /** Load canvas state with validation (for history restore) */
+    loadCanvasState: (state: Partial<{ view: View; nodes: CanvasNode[]; edges: CanvasEdge[]; memos: CanvasMemo[] }>) => void;
+    /** Load canvas state without view (for history undo/redo) */
+    loadCanvasStateWithoutView: (state: Partial<{ view: View; nodes: CanvasNode[]; edges: CanvasEdge[]; memos: CanvasMemo[] }>) => void;
+    /** Apply node layout positions */
+    applyNodeLayout: (positions: Record<string, Position>, skipHistory?: boolean) => void;
+    /** Validate and prepare for execution */
+    validateAndPrepareExecution: () => { success?: boolean; error?: string; nodeId?: string };
+    /** Set available node specs */
+    setAvailableNodeSpecs: (specs: NodeData[]) => void;
     /** Zoom in */
     zoomIn: () => void;
     /** Zoom out */
     zoomOut: () => void;
+    /** Zoom by a factor */
+    zoomBy: (factor: number) => void;
+    /** Get centered view for current content */
+    getCenteredView: () => View;
+    /** Add a memo at position */
+    addMemo: (position: Position) => void;
     /** Update a node parameter value */
     updateNodeParameter: (nodeId: string, paramId: string, value: string | number | boolean) => void;
+    /** Update sidebar drag preview */
+    updateSidebarDragPreview: (nodeData: NodeData, clientX: number, clientY: number) => void;
+    /** Clear sidebar drag preview */
+    clearSidebarDragPreview: () => void;
 }
 
 // ========== Edge Component Props ==========

@@ -254,3 +254,144 @@ export const useHistoryManagement = (): UseHistoryManagementReturn => {
         restoreHistory
     };
 };
+
+// History 전용 canvas state 생성 (view 제외)
+const createHistoryCanvasState = (fullCanvasState: any) => {
+    if (!fullCanvasState) return null;
+    const { view, ...stateWithoutView } = fullCanvasState;
+    return stateWithoutView;
+};
+
+/**
+ * Factory function that creates typed history recorder helpers.
+ * Each recorder automatically captures the current canvas state (stripping `view`)
+ * and creates a properly-typed HistoryEntry.
+ */
+export const createHistoryHelpers = (
+    addHistoryEntry: UseHistoryManagementReturn['addHistoryEntry'],
+    historyManagement: UseHistoryManagementReturn,
+    getCanvasState?: () => any
+) => ({
+    // Node 이동 기록
+    recordNodeMove: (nodeId: string, fromPosition: { x: number; y: number }, toPosition: { x: number; y: number }) => {
+        const currentCanvasState = getCanvasState?.();
+        let beforeMoveState = null;
+
+        if (currentCanvasState && currentCanvasState.nodes) {
+            const nodesWithOriginalPosition = currentCanvasState.nodes.map((node: any) => {
+                if (node.id === nodeId) {
+                    return {
+                        ...node,
+                        position: { ...fromPosition }
+                    };
+                }
+                return node;
+            });
+
+            beforeMoveState = {
+                ...currentCanvasState,
+                nodes: nodesWithOriginalPosition
+            };
+
+            beforeMoveState = createHistoryCanvasState(beforeMoveState);
+        }
+
+        addHistoryEntry(
+            'NODE_MOVE',
+            `[Node Move] (${fromPosition.x.toFixed(1)}, ${fromPosition.y.toFixed(1)}) to (${toPosition.x.toFixed(1)}, ${toPosition.y.toFixed(1)})`,
+            { nodeId, fromPosition, toPosition },
+            beforeMoveState
+        );
+    },
+
+    // Node 생성 기록
+    recordNodeCreate: (nodeId: string, nodeType: string, position: { x: number; y: number }) => {
+        const fullCanvasState = getCanvasState?.();
+        const historyCanvasState = createHistoryCanvasState(fullCanvasState);
+        addHistoryEntry(
+            'NODE_CREATE',
+            `[Create] ${nodeType} node`,
+            { nodeId, nodeType, position },
+            historyCanvasState
+        );
+    },
+
+    // Node 삭제 기록
+    recordNodeDelete: (nodeId: string, nodeType: string) => {
+        const fullCanvasState = getCanvasState?.();
+        const historyCanvasState = createHistoryCanvasState(fullCanvasState);
+        addHistoryEntry(
+            'NODE_DELETE',
+            `[Delete] ${nodeType} node`,
+            { nodeId, nodeType },
+            historyCanvasState
+        );
+    },
+
+    // Edge 생성 기록
+    recordEdgeCreate: (edgeId: string, sourceId: string, targetId: string) => {
+        const fullCanvasState = getCanvasState?.();
+        const historyCanvasState = createHistoryCanvasState(fullCanvasState);
+        addHistoryEntry(
+            'EDGE_CREATE',
+            `[Create] Edge`,
+            { edgeId, sourceId, targetId },
+            historyCanvasState
+        );
+    },
+
+    // Edge 삭제 기록
+    recordEdgeDelete: (edgeId: string, sourceId: string, targetId: string) => {
+        const fullCanvasState = getCanvasState?.();
+        const historyCanvasState = createHistoryCanvasState(fullCanvasState);
+        addHistoryEntry(
+            'EDGE_DELETE',
+            `[Delete] Edge`,
+            { edgeId, sourceId, targetId },
+            historyCanvasState
+        );
+    },
+
+    // Edge 업데이트 기록
+    recordEdgeUpdate: (edgeId: string, field: string, oldValue: any, newValue: any) => {
+        const fullCanvasState = getCanvasState?.();
+        const historyCanvasState = createHistoryCanvasState(fullCanvasState);
+        addHistoryEntry(
+            'EDGE_UPDATE',
+            `[Update] Edge`,
+            { edgeId, field, oldValue, newValue },
+            historyCanvasState
+        );
+    },
+
+    // 다중 액션 기록
+    recordMultiAction: (description: string, actions: Array<{
+        actionType: HistoryActionType;
+        nodeId?: string;
+        edgeId?: string;
+        nodeType?: string;
+        sourceId?: string;
+        targetId?: string;
+        position?: { x: number; y: number };
+    }>) => {
+        const fullCanvasState = getCanvasState?.();
+        const historyCanvasState = createHistoryCanvasState(fullCanvasState);
+        addHistoryEntry(
+            'MULTI_ACTION',
+            description,
+            { actions },
+            historyCanvasState
+        );
+    },
+
+    // Undo/Redo 기능
+    undo: historyManagement.undo,
+    redo: historyManagement.redo,
+    canUndo: historyManagement.canUndo,
+    canRedo: historyManagement.canRedo,
+    jumpToHistoryIndex: historyManagement.jumpToHistoryIndex,
+
+    // 상태 캡처 및 복원 함수
+    setCurrentStateCapture: historyManagement.setCurrentStateCapture,
+    setCanvasStateRestorer: historyManagement.setCanvasStateRestorer
+});

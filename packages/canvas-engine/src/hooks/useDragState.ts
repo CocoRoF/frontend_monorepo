@@ -1,11 +1,12 @@
 import { useState, useCallback } from 'react';
-import type { DragState, View } from '@xgen/canvas-types';
+import type { DragState, View, Position, CanvasNode } from '@xgen/canvas-types';
 
 interface UseDragStateProps {
     historyHelpers?: {
         recordNodeMove: (nodeId: string, fromPosition: { x: number; y: number }, toPosition: { x: number; y: number }) => void;
         recordMultiAction?: (description: string, actions: any[]) => void;
     };
+    nodes: CanvasNode[];
 }
 
 export interface UseDragStateReturn {
@@ -18,8 +19,8 @@ export interface UseDragStateReturn {
     stopDrag: () => void;
 }
 
-export const useDragState = ({ historyHelpers }: UseDragStateProps = {}): UseDragStateReturn => {
-    const [dragState, setDragState] = useState<DragState>({ type: 'none' });
+export const useDragState = ({ historyHelpers, nodes }: UseDragStateProps): UseDragStateReturn => {
+    const [dragState, setDragState] = useState<DragState>({ type: 'none', startX: 0, startY: 0 });
 
     const startCanvasDrag = useCallback((e: React.MouseEvent, view: View) => {
         setDragState({
@@ -40,9 +41,14 @@ export const useDragState = ({ historyHelpers }: UseDragStateProps = {}): UseDra
         nodesInDrag.add(nodeId);
 
         // Build initial positions map for all dragged nodes
-        // Note: caller should provide nodes array if multi-node positions are needed
-        // For now, we store the primary node position and rely on handleMouseMove
         const initialPositions: Record<string, { x: number; y: number }> = {};
+        const nodesToDrag = selectedNodeIds.has(nodeId) ? Array.from(selectedNodeIds) : [nodeId];
+        nodesToDrag.forEach(id => {
+            const node = nodes.find(n => n.id === id);
+            if (node) {
+                initialPositions[id] = { ...node.position };
+            }
+        });
 
         setDragState({
             type: 'node',
@@ -52,7 +58,7 @@ export const useDragState = ({ historyHelpers }: UseDragStateProps = {}): UseDra
             initialNodePosition: { ...nodePosition },
             initialPositions,
         });
-    }, []);
+    }, [nodes]);
 
     const startEdgeDrag = useCallback(() => {
         setDragState({ type: 'edge' });
@@ -64,6 +70,8 @@ export const useDragState = ({ historyHelpers }: UseDragStateProps = {}): UseDra
 
         setDragState({
             type: 'selection-box',
+            startX: e.clientX,
+            startY: e.clientY,
             selectionBox: {
                 startX,
                 startY,
@@ -76,13 +84,42 @@ export const useDragState = ({ historyHelpers }: UseDragStateProps = {}): UseDra
     const stopDrag = useCallback(() => {
         const currentDragState = dragState;
 
+        // 노드 드래그가 끝났을 때 히스토리 기록
         if (currentDragState.type === 'node' && currentDragState.initialPositions && historyHelpers) {
-            // Record node move history on stop
-            // This is handled by the parent component that knows the final positions
+            const moves: any[] = [];
+
+            Object.entries(currentDragState.initialPositions).forEach(([id, initialPos]) => {
+                const node = nodes.find(n => n.id === id);
+                if (node) {
+                    const currentPos = node.position;
+                    const distance = Math.sqrt(
+                        Math.pow(currentPos.x - initialPos.x, 2) +
+                        Math.pow(currentPos.y - initialPos.y, 2)
+                    );
+
+                    if (distance > 5) {
+                        moves.push({
+                            actionType: 'NODE_MOVE' as const,
+                            nodeId: id,
+                            fromPosition: initialPos,
+                            toPosition: currentPos
+                        });
+                    }
+                }
+            });
+
+            if (moves.length > 0) {
+                if (moves.length === 1 && historyHelpers.recordNodeMove) {
+                    const move = moves[0];
+                    historyHelpers.recordNodeMove(move.nodeId, move.fromPosition, move.toPosition);
+                } else if (historyHelpers.recordMultiAction) {
+                    historyHelpers.recordMultiAction(`Moved ${moves.length} nodes`, moves);
+                }
+            }
         }
 
         setDragState({ type: 'none' });
-    }, [dragState, historyHelpers]);
+    }, [dragState, historyHelpers, nodes]);
 
     return {
         dragState,

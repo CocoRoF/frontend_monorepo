@@ -55,6 +55,9 @@ export const config: EnvironmentConfig = {
 /**
  * 백엔드 서비스별 URL 반환
  *
+ * 클라이언트 사이드: 빈 문자열 반환 (Next.js rewrites 프록시 사용)
+ * 서버 사이드: 실제 백엔드 URL 반환
+ *
  * @example
  * ```ts
  * const coreUrl = getBackendUrl('core');
@@ -62,6 +65,12 @@ export const config: EnvironmentConfig = {
  * ```
  */
 export function getBackendUrl(service: BackendService): string {
+  // 클라이언트 사이드: Next.js rewrites를 통한 프록시 사용 (Mixed Content / CORS 방지)
+  if (typeof window !== 'undefined') {
+    return '';
+  }
+
+  // 서버 사이드: 실제 백엔드 URL 사용
   const urlMap: Record<BackendService, string> = {
     core: config.CORE_BASE_URL,
     ml: config.ML_BASE_URL,

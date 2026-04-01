@@ -282,10 +282,14 @@ export const usePortHandlers = ({
             }
 
             setEdgePreview(null);
+            setSnappedPortKey(null);
+            setIsSnapTargetValid(true);
             return;
         }
 
-        // Handle normal node connection
+        // Handle regular node connection
+        clearPredictedNodes();
+
         if (isDuplicateEdge(
             currentEdgePreview.source.nodeId,
             currentEdgePreview.source.portId,
@@ -296,23 +300,35 @@ export const usePortHandlers = ({
             return;
         }
 
+        // Handle input port replacement (for non-multi inputs)
+        if (portType === 'input') {
+            const targetPort = findPortData(nodes, nodeId, portId, 'input');
+            if (targetPort && !targetPort.multi) {
+                const existingEdge = edges.find(edge =>
+                    edge.target.nodeId === nodeId && edge.target.portId === portId
+                );
+                if (existingEdge) {
+                    removeEdge(existingEdge.id);
+                }
+            }
+        }
+
         let newEdge: CanvasEdge;
-        if (currentEdgePreview.source.portType === 'output') {
+        if (currentEdgePreview.source.portType === 'input') {
+            newEdge = {
+                id: `edge-${nodeId}:${portId}-${currentEdgePreview.source.nodeId}:${currentEdgePreview.source.portId}-${Date.now()}`,
+                source: { nodeId, portId, portType },
+                target: currentEdgePreview.source,
+            };
+        } else {
             newEdge = {
                 id: `edge-${currentEdgePreview.source.nodeId}:${currentEdgePreview.source.portId}-${nodeId}:${portId}-${Date.now()}`,
                 source: currentEdgePreview.source,
                 target: { nodeId, portId, portType }
             };
-        } else {
-            newEdge = {
-                id: `edge-${nodeId}:${portId}-${currentEdgePreview.source.nodeId}:${currentEdgePreview.source.portId}-${Date.now()}`,
-                source: { nodeId, portId, portType },
-                target: currentEdgePreview.source
-            };
         }
 
         addEdge(newEdge);
-        clearPredictedNodes();
         setEdgePreview(null);
         setSnappedPortKey(null);
         setIsSnapTargetValid(true);

@@ -17,21 +17,18 @@ import { useCanvasEventHandlers } from '../hooks/useCanvasEventHandlers';
 import { usePortHandlers } from '../hooks/usePortHandlers';
 import { useKeyboardHandlers } from '../hooks/useKeyboardHandlers';
 import { useAutoConnect } from '../hooks/useAutoConnect';
-import { useHistoryManagement } from '../hooks/useHistoryManagement';
+import { useHistoryManagement, createHistoryHelpers } from '../hooks/useHistoryManagement';
 
 // Components
 import { CanvasNodes } from './CanvasNodes';
 import { CanvasEdges } from './CanvasEdges';
 import { CanvasMemos } from './CanvasMemos';
 import { CanvasPredictedNodes } from './CanvasPredictedNodes';
+import CanvasContextMenu from './CanvasContextMenu';
+import { CanvasAddNodesPopup } from './CanvasAddNodesPopup';
 
 import styles from '../styles/Canvas.module.scss';
-
-// ── Constants ──────────────────────────────────────────────────
-
-const ZOOM_STEP = 0.1;
-const MIN_SCALE = 0.1;
-const MAX_SCALE = 2.0;
+import { MIN_SCALE, MAX_SCALE } from '../hooks/useCanvasView';
 
 // ── Component ──────────────────────────────────────────────────
 
@@ -56,52 +53,67 @@ export const Canvas = forwardRef<CanvasRef, CanvasProps>(function Canvas(props, 
 
     // ── Refs ──
     const containerRef = useRef<HTMLDivElement>(null);
+    const contentRef = useRef<HTMLDivElement>(null);
     const edgePreviewRef = useRef<EdgePreview | null>(null);
     const snappedPortKeyRef = useRef<string | null>(null);
+    const isDraggingRef = useRef(false);
+    const nodesRef = useRef<CanvasNode[]>([]);
+    const edgesRef = useRef<CanvasEdge[]>([]);
+    const memosRef = useRef<CanvasMemo[]>([]);
+    const portRefsMap = useRef<Map<string, HTMLDivElement>>(new Map());
 
     // ── Additional state ──
     const [edgePreview, setEdgePreview] = useState<EdgePreview | null>(null);
     const [snappedPortKey, setSnappedPortKey] = useState<string | null>(null);
     const [isSnapTargetValid, setIsSnapTargetValid] = useState(false);
     const [portClickStart, setPortClickStart] = useState<any>(null);
-    const [portPositions] = useState<Record<string, Position>>({});
+    const [portPositions, setPortPositions] = useState<Record<string, Position>>({});
     const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
     const [selectedMemoIds, setSelectedMemoIds] = useState<string[]>([]);
+    const [nodeSpecs, setNodeSpecs] = useState(availableNodeSpecs);
+    const [contextMenuState, setContextMenuState] = useState<{ position: Position; type: string } | null>(null);
+    const [addNodePopup, setAddNodePopup] = useState<{ position: Position } | null>(null);
+
+    // ── Port ref registration (tracks DOM elements for position calculation) ──
+    const registerPortRef = useCallback((nodeId: string, portId: string, portType: 'input' | 'output', el: HTMLDivElement | null) => {
+        const key = `${nodeId}__PORTKEYDELIM__${portId}__PORTKEYDELIM__${portType}`;
+        if (el) {
+            portRefsMap.current.set(key, el);
+        } else {
+            portRefsMap.current.delete(key);
+        }
+    }, []);
 
     // ── Hooks composition ──
 
     // 1. History management
     const history = useHistoryManagement();
 
-    const historyHelpers = useMemo(() => ({
-        recordNodeMove: (nodeId: string, fromPosition: { x: number; y: number }, toPosition: { x: number; y: number }) => {
-            history.addHistoryEntry('NODE_MOVE', `Move node ${nodeId}`, { nodeId, fromPosition, toPosition });
-        },
-        recordNodeCreate: (nodeId: string, nodeType: string, position: { x: number; y: number }) => {
-            history.addHistoryEntry('NODE_CREATE', `Create node ${nodeType}`, { nodeId, nodeType, position });
-        },
-        recordNodeDelete: (nodeId: string, nodeType: string) => {
-            history.addHistoryEntry('NODE_DELETE', `Delete node ${nodeType}`, { nodeId, nodeType });
-        },
-        recordEdgeCreate: (edgeId: string, sourceId: string, targetId: string) => {
-            history.addHistoryEntry('EDGE_CREATE', `Create edge`, { edgeId, sourceId, targetId });
-        },
-        recordEdgeDelete: (edgeId: string, sourceId: string, targetId: string) => {
-            history.addHistoryEntry('EDGE_DELETE', `Delete edge`, { edgeId, sourceId, targetId });
-        },
-        recordMultiAction: (description: string, actions: any[]) => {
-            history.addHistoryEntry('MULTI_ACTION', description, { actions });
-        },
-    }), [history]);
-
     // 2. Canvas view (pan & zoom)
-    const { view, setView, getCenteredView, handleWheel } = useCanvasView({ containerRef });
+    const { view, setView, getCenteredView, handleWheel, zoomBy } = useCanvasView({
+        containerRef,
+        contentRef,
+        isDraggingRef,
+    });
 
     // 3. Selection
     const {
         selectedNodeIds, selectedEdgeIds, clearSelection,
         selectNode, selectEdge, toggleNodeSelection, toggleEdgeSelection, setSelection,
     } = useCanvasSelection();
+
+    // History helpers (uses refs for lazy canvas state access — avoids circular deps)
+    const getCanvasState = useCallback(() => ({
+        nodes: nodesRef.current,
+        edges: edgesRef.current,
+        memos: memosRef.current,
+        view: { x: 0, y: 0, scale: 1 },
+    }), []);
+
+    const historyHelpers = useMemo(
+        () => createHistoryHelpers(history.addHistoryEntry, history, getCanvasState),
+        [history, getCanvasState],
+    );
 
     // 4. Edge management
     const {
@@ -120,11 +132,18 @@ export const Canvas = forwardRef<CanvasRef, CanvasProps>(function Canvas(props, 
         toggleBypass,
     } = useNodeManagement({ historyHelpers, edges, onPasteEdges: (newEdges) => newEdges.forEach(e => addEdge(e, true)) });
 
+    // Sync refs for lazy state access
+    nodesRef.current = nodes;
+    edgesRef.current = edges;
+    memosRef.current = memos;
+    edgePreviewRef.current = edgePreview;
+    snappedPortKeyRef.current = snappedPortKey;
+
     // 7. Drag state
     const {
         dragState, setDragState,
         startCanvasDrag, startNodeDrag, startEdgeDrag, startSelectionBoxDrag, stopDrag,
-    } = useDragState({ historyHelpers });
+    } = useDragState({ historyHelpers, nodes });
 
     // 8. Predicted nodes
     const {
@@ -136,7 +155,7 @@ export const Canvas = forwardRef<CanvasRef, CanvasProps>(function Canvas(props, 
         generatePredictedNodes, generatePredictedOutputNodes,
         clearPredictedNodes, isPredictedNodeId,
     } = usePredictedNodes({
-        availableNodeSpecs,
+        availableNodeSpecs: nodeSpecs,
         areTypesCompatible,
     });
 
@@ -212,6 +231,11 @@ export const Canvas = forwardRef<CanvasRef, CanvasProps>(function Canvas(props, 
         nodes, edges,
     });
 
+    // ── Sync isDraggingRef with drag state ──
+    useEffect(() => {
+        isDraggingRef.current = dragState.type === 'canvas';
+    }, [dragState.type]);
+
     // ── Initialize with initial data ──
     useEffect(() => {
         if (initialNodes.length > 0) setNodes(initialNodes);
@@ -234,6 +258,42 @@ export const Canvas = forwardRef<CanvasRef, CanvasProps>(function Canvas(props, 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [handleKeyDown, readOnly]);
+
+    // ── Recalculate port positions from DOM refs ──
+    useEffect(() => {
+        const content = contentRef.current;
+        if (!content) return;
+        const newPositions: Record<string, Position> = {};
+        portRefsMap.current.forEach((el, key) => {
+            if (!el.isConnected) {
+                portRefsMap.current.delete(key);
+                return;
+            }
+            const elRect = el.getBoundingClientRect();
+            const contentRect = content.getBoundingClientRect();
+            // Convert screen position to world coordinates
+            const worldX = (elRect.left + elRect.width / 2 - contentRect.left) / view.scale;
+            const worldY = (elRect.top + elRect.height / 2 - contentRect.top) / view.scale;
+            newPositions[key] = { x: worldX, y: worldY };
+        });
+        // Only update state if positions actually changed (avoid infinite render loop)
+        const newKeys = Object.keys(newPositions);
+        const prevKeys = Object.keys(portPositions);
+        let changed = newKeys.length !== prevKeys.length;
+        if (!changed) {
+            for (const k of newKeys) {
+                const prev = portPositions[k];
+                const next = newPositions[k];
+                if (!prev || prev.x !== next.x || prev.y !== next.y) {
+                    changed = true;
+                    break;
+                }
+            }
+        }
+        if (changed) {
+            setPortPositions(newPositions);
+        }
+    });
 
     // ── Propagate state changes to parent ──
     useEffect(() => {
@@ -314,27 +374,129 @@ export const Canvas = forwardRef<CanvasRef, CanvasProps>(function Canvas(props, 
             clearSelection();
             history.clearHistory();
         },
-        zoomIn: () => {
-            setView((prev) => {
-                const newScale = Math.min(MAX_SCALE, prev.scale + ZOOM_STEP);
-                return { ...prev, scale: newScale };
+        loadCanvasState: (state) => {
+            try {
+                if (state.nodes) {
+                    const validNodes = state.nodes
+                        .filter(node => node && node.id && node.data)
+                        .map(node => ({
+                            ...node,
+                            isExpanded: node.isExpanded !== undefined ? node.isExpanded : true,
+                        }));
+                    setNodes(validNodes);
+                }
+                if (state.edges) {
+                    const validEdges = state.edges.filter(edge => edge && edge.id && edge.source && edge.target);
+                    setEdges(validEdges);
+                }
+                if (state.memos) {
+                    setMemos(state.memos.filter(memo => memo && memo.id));
+                } else {
+                    setMemos([]);
+                }
+                if (state.view) {
+                    setView(state.view);
+                }
+            } catch (error) {
+                console.error('Error during canvas state restoration:', error);
+            }
+        },
+        loadCanvasStateWithoutView: (state) => {
+            try {
+                if (state.nodes) {
+                    const validNodes = state.nodes
+                        .filter(node => node && node.id && node.data)
+                        .map(node => ({
+                            ...node,
+                            isExpanded: node.isExpanded !== undefined ? node.isExpanded : true,
+                        }));
+                    setNodes(validNodes);
+                }
+                if (state.edges) {
+                    const validEdges = state.edges.filter(edge => edge && edge.id && edge.source && edge.target);
+                    setEdges(validEdges);
+                }
+                if (state.memos) {
+                    setMemos(state.memos.filter(memo => memo && memo.id));
+                } else {
+                    setMemos([]);
+                }
+            } catch (error) {
+                console.error('Error during canvas state restoration (no view):', error);
+            }
+        },
+        applyNodeLayout: (positions, skipHistory) => {
+            if (!positions || Object.keys(positions).length === 0) return;
+            const currentNodes = nodesRef.current;
+            const moves: Array<{ actionType: string; nodeId: string; fromPosition: Position; toPosition: Position }> = [];
+            const updatedNodes = currentNodes.map(node => {
+                const nextPosition = positions[node.id];
+                if (!nextPosition) return node;
+                const fromPosition = node.position;
+                if (fromPosition.x === nextPosition.x && fromPosition.y === nextPosition.y) return node;
+                moves.push({ actionType: 'NODE_MOVE', nodeId: node.id, fromPosition, toPosition: nextPosition });
+                return { ...node, position: { ...nextPosition } };
             });
+            if (moves.length === 0) return;
+            if (!skipHistory && historyHelpers) {
+                if (moves.length === 1) {
+                    historyHelpers.recordNodeMove(moves[0].nodeId, moves[0].fromPosition, moves[0].toPosition);
+                } else {
+                    historyHelpers.recordMultiAction(`Auto layout ${moves.length} nodes`, moves);
+                }
+            }
+            setNodes(updatedNodes);
+        },
+        validateAndPrepareExecution: () => {
+            for (const node of nodes) {
+                const inputs = node.data?.inputs ?? [];
+                for (const input of inputs) {
+                    if (input.required) {
+                        const hasConnection = edges.some(
+                            (e) => e.target.nodeId === node.id && e.target.portId === input.id,
+                        );
+                        if (!hasConnection) {
+                            selectNode(node.id);
+                            return {
+                                error: `Required input "${input.name}" is missing in node "${node.data.nodeName}"`,
+                                nodeId: node.id,
+                            };
+                        }
+                    }
+                }
+            }
+            clearSelection();
+            return { success: true };
+        },
+        setAvailableNodeSpecs: (specs) => {
+            setNodeSpecs(specs);
+        },
+        zoomIn: () => {
+            zoomBy(1.2);
         },
         zoomOut: () => {
-            setView((prev) => {
-                const newScale = Math.max(MIN_SCALE, prev.scale - ZOOM_STEP);
-                return { ...prev, scale: newScale };
-            });
+            zoomBy(1 / 1.2);
+        },
+        zoomBy,
+        getCenteredView,
+        addMemo: (position) => {
+            addMemo(position);
         },
         updateNodeParameter: (nodeId, paramId, value) => {
             updateNodeParameter(nodeId, paramId, value);
+        },
+        updateSidebarDragPreview: (_nodeData, _clientX, _clientY) => {
+            // Sidebar drag preview is handled by the page orchestrator
+        },
+        clearSidebarDragPreview: () => {
+            // Sidebar drag preview is handled by the page orchestrator
         },
     }), [
         nodes, edges, memos, view, selectedNodeIds,
         setNodes, setEdges, setMemos, setView,
         addNode, deleteNode, addEdge, removeEdge, removeNodeEdges,
-        clearSelection, updateNodeParameter, findAutoConnection,
-        history,
+        clearSelection, selectNode, updateNodeParameter, findAutoConnection,
+        history, historyHelpers, zoomBy, getCenteredView, addMemo, nodeSpecs,
     ]);
 
     // ── Derived values ──
@@ -372,6 +534,91 @@ export const Canvas = forwardRef<CanvasRef, CanvasProps>(function Canvas(props, 
         [toggleBypass],
     );
 
+    // ── Context menu handlers ──
+    const handleCanvasContextMenu = useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const container = containerRef.current;
+        if (!container) return;
+        const rect = container.getBoundingClientRect();
+        const worldX = (e.clientX - rect.left - view.x) / view.scale;
+        const worldY = (e.clientY - rect.top - view.y) / view.scale;
+        setContextMenuState({
+            position: { x: e.clientX, y: e.clientY },
+            type: 'canvas',
+        });
+        setContextMenuWorldPosition({ x: worldX, y: worldY });
+    }, [view]);
+
+    const [contextMenuWorldPosition, setContextMenuWorldPosition] = useState<Position>({ x: 0, y: 0 });
+
+    const handleCloseCanvasContextMenu = useCallback(() => {
+        setContextMenuState(null);
+    }, []);
+
+    const handlePasteAtPosition = useCallback(() => {
+        pasteNodes(contextMenuWorldPosition);
+        setContextMenuState(null);
+    }, [pasteNodes, contextMenuWorldPosition]);
+
+    const handleExpandAll = useCallback(() => {
+        setNodes(prevNodes => prevNodes.map(node => ({ ...node, isExpanded: true })));
+        setContextMenuState(null);
+    }, [setNodes]);
+
+    const handleCollapseAll = useCallback(() => {
+        setNodes(prevNodes => prevNodes.map(node => ({ ...node, isExpanded: false })));
+        setContextMenuState(null);
+    }, [setNodes]);
+
+    const handleAddMemoAtPosition = useCallback((position: Position) => {
+        addMemo(position);
+        setContextMenuState(null);
+    }, [addMemo]);
+
+    const allNodesExpanded = useMemo(() =>
+        nodes.length > 0 && nodes.every(n => n.isExpanded !== false),
+        [nodes],
+    );
+
+    // ── Add-node popup handlers ──
+    const handleCanvasDoubleClick = useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+        if (addNodePopup) return;
+        const target = e.target as HTMLElement;
+        const container = containerRef.current;
+        const content = contentRef.current;
+        if (!container || !content) return;
+        if (target.closest('[data-node-id]')) return;
+        if (target.closest('[data-port-id]')) return;
+        if (target.closest('[data-edge-id]')) return;
+        if (target.closest('[data-memo-id]')) return;
+        if (target.closest('button, input, textarea, select, a, [role="button"]')) return;
+        const isDirectCanvasClick = target === container || target === content;
+        if (!isDirectCanvasClick) return;
+        const rect = container.getBoundingClientRect();
+        const worldX = (e.clientX - rect.left - view.x) / view.scale;
+        const worldY = (e.clientY - rect.top - view.y) / view.scale;
+        setAddNodePopup({ position: { x: worldX, y: worldY } });
+    }, [view, addNodePopup]);
+
+    const handleAddNodeFromPopup = useCallback((nodeData: any) => {
+        if (!addNodePopup) return;
+        const newNode: CanvasNode = {
+            id: `${nodeData.id}-${Date.now()}`,
+            data: nodeData,
+            position: addNodePopup.position,
+            isExpanded: true,
+        };
+        addNode(newNode);
+        findAutoConnection(newNode.id);
+        setAddNodePopup(null);
+    }, [addNodePopup, addNode, findAutoConnection]);
+
+    const handleCloseAddNodesPopup = useCallback(() => {
+        setAddNodePopup(null);
+    }, []);
+
     // ── Canvas container class ──
     const containerClassName = [styles.canvasContainer, className].filter(Boolean).join(' ');
 
@@ -383,17 +630,12 @@ export const Canvas = forwardRef<CanvasRef, CanvasProps>(function Canvas(props, 
             onMouseMove={readOnly ? undefined : handleMouseMove}
             onMouseUp={readOnly ? undefined : handleMouseUp}
             onMouseLeave={readOnly ? undefined : () => handleMouseUp()}
-            onDoubleClick={readOnly ? undefined : (e) => {
-                if (e.target === containerRef.current || (e.target as HTMLElement).classList.contains(styles.canvasGrid)) {
-                    const rect = containerRef.current!.getBoundingClientRect();
-                    const worldX = (e.clientX - rect.left - view.x) / view.scale;
-                    const worldY = (e.clientY - rect.top - view.y) / view.scale;
-                    onCanvasContextMenu?.({ x: worldX, y: worldY }, 'add-node');
-                }
-            }}
+            onDoubleClick={readOnly ? undefined : handleCanvasDoubleClick}
+            onContextMenu={readOnly ? undefined : handleCanvasContextMenu}
         >
             {/* Transformed content layer */}
             <div
+                ref={contentRef}
                 className={styles.canvasGrid}
                 style={{
                     transform: `translate(${view.x}px, ${view.y}px) scale(${view.scale})`,
@@ -405,18 +647,26 @@ export const Canvas = forwardRef<CanvasRef, CanvasProps>(function Canvas(props, 
                     nodes={nodes}
                     selectedNodeIds={selectedNodeIdArray}
                     onNodeMouseDown={handleNodeMouseDown}
+                    onPortMouseDown={handlePortMouseDown}
+                    onPortMouseUp={handlePortMouseUp}
+                    registerPortRef={registerPortRef}
                     onNodeNameChange={handleNodeNameChangeCallback}
                     onNodeToggleExpand={handleNodeToggleExpand}
                     onNodeToggleBypass={handleNodeToggleBypass}
                     onParameterChange={handleParameterChangeCallback}
                     onOpenNodeModal={onOpenNodeModal}
                     onClearSelection={clearSelection}
+                    snappedPortKey={snappedPortKey}
+                    isSnapTargetInvalid={!isSnapTargetValid}
+                    currentNodes={nodes}
+                    currentEdges={edges}
                 />
 
                 {/* Edges (SVG layer) */}
                 <CanvasEdges
                     edges={edges}
                     nodes={nodes}
+                    portPositions={portPositions}
                     selectedEdgeIds={selectedEdgeIdArray}
                     edgePreview={edgePreview}
                     scale={view.scale}
@@ -459,6 +709,29 @@ export const Canvas = forwardRef<CanvasRef, CanvasProps>(function Canvas(props, 
                     />
                 )}
             </div>
+
+            {/* Canvas context menu */}
+            <CanvasContextMenu
+                isOpen={contextMenuState !== null}
+                position={contextMenuState?.position ?? { x: 0, y: 0 }}
+                canPaste={copiedNodes.length > 0}
+                allExpanded={allNodesExpanded}
+                nodeCount={nodes.length}
+                onClose={handleCloseCanvasContextMenu}
+                onPaste={handlePasteAtPosition}
+                onExpandAll={handleExpandAll}
+                onCollapseAll={handleCollapseAll}
+                onAddMemo={() => handleAddMemoAtPosition(contextMenuWorldPosition)}
+            />
+
+            {/* Add nodes popup (on double-click) */}
+            <CanvasAddNodesPopup
+                isOpen={addNodePopup !== null}
+                position={addNodePopup?.position ?? { x: 0, y: 0 }}
+                availableNodes={nodeSpecs}
+                onSelectNode={handleAddNodeFromPopup}
+                onClose={handleCloseAddNodesPopup}
+            />
         </div>
     );
 });

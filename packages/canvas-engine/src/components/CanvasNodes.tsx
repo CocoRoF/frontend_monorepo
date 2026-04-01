@@ -2,7 +2,8 @@ import React, { memo, useMemo } from 'react';
 import { Node } from './Node/index';
 import { findSpecialNode } from './special-node/specialNode';
 import type { NodeComponentProps } from './Node/index';
-import type { CanvasNode, Port, Parameter } from '@xgen/canvas-types';
+import type { CanvasNode, CanvasEdge, Port, Parameter } from '@xgen/canvas-types';
+import type { PortMouseData } from './Node/types';
 
 export interface CanvasNodesProps {
     nodes: CanvasNode[];
@@ -10,10 +11,9 @@ export interface CanvasNodesProps {
     onNodeMouseDown?: (e: React.MouseEvent, nodeId: string) => void;
     onNodeDoubleClick?: (e: React.MouseEvent, nodeId: string) => void;
     onNodeContextMenu?: (e: React.MouseEvent, nodeId: string) => void;
-    onPortMouseDown?: (e: React.MouseEvent, nodeId: string, port: Port, portType: 'input' | 'output', portElement: HTMLElement) => void;
-    onPortMouseUp?: (e: React.MouseEvent, nodeId: string, port: Port, portType: 'input' | 'output') => void;
-    onPortMouseEnter?: (e: React.MouseEvent, nodeId: string, port: Port, portType: 'input' | 'output') => void;
-    onPortMouseLeave?: (e: React.MouseEvent, nodeId: string, port: Port, portType: 'input' | 'output') => void;
+    onPortMouseDown?: (data: PortMouseData, e: React.MouseEvent) => void;
+    onPortMouseUp?: (data: PortMouseData, e: React.MouseEvent) => void;
+    registerPortRef?: (nodeId: string, portId: string, portType: 'input' | 'output', el: HTMLDivElement | null) => void;
     onNodeNameChange?: (nodeId: string, newName: string) => void;
     onNodeToggleExpand?: (nodeId: string) => void;
     onNodeToggleBypass?: (nodeId: string) => void;
@@ -24,8 +24,10 @@ export interface CanvasNodesProps {
     onClearSelection?: () => void;
     onOpenNodeModal?: (nodeId: string, paramId: string, paramName: string, paramValue: string) => void;
     onSchemaSyncRequest?: (nodeId: string) => void;
-    selectedPortId?: string | null;
-    snapPortId?: string | null;
+    snappedPortKey?: string | null;
+    isSnapTargetInvalid?: boolean;
+    currentNodes?: CanvasNode[];
+    currentEdges?: CanvasEdge[];
     fetchParameterOptions?: (nodeDataId: string, apiName: string) => Promise<any[]>;
     renderContextMenu?: NodeComponentProps['renderContextMenu'];
 }
@@ -38,8 +40,7 @@ const CanvasNodesComponent: React.FC<CanvasNodesProps> = ({
     onNodeContextMenu,
     onPortMouseDown,
     onPortMouseUp,
-    onPortMouseEnter,
-    onPortMouseLeave,
+    registerPortRef,
     onNodeNameChange,
     onNodeToggleExpand,
     onNodeToggleBypass,
@@ -50,8 +51,10 @@ const CanvasNodesComponent: React.FC<CanvasNodesProps> = ({
     onClearSelection,
     onOpenNodeModal,
     onSchemaSyncRequest,
-    selectedPortId,
-    snapPortId,
+    snappedPortKey,
+    isSnapTargetInvalid,
+    currentNodes,
+    currentEdges,
     fetchParameterOptions,
     renderContextMenu
 }) => {
@@ -71,8 +74,7 @@ const CanvasNodesComponent: React.FC<CanvasNodesProps> = ({
                     onNodeContextMenu,
                     onPortMouseDown,
                     onPortMouseUp,
-                    onPortMouseEnter,
-                    onPortMouseLeave,
+                    registerPortRef,
                     onNodeNameChange,
                     onNodeToggleExpand,
                     onNodeToggleBypass,
@@ -83,8 +85,10 @@ const CanvasNodesComponent: React.FC<CanvasNodesProps> = ({
                     onClearSelection,
                     onOpenNodeModal,
                     onSchemaSyncRequest,
-                    selectedPortId,
-                    snapPortId,
+                    snappedPortKey,
+                    isSnapTargetInvalid,
+                    currentNodes,
+                    currentEdges,
                     fetchParameterOptions,
                     renderContextMenu
                 };

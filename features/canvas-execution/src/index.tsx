@@ -12,6 +12,7 @@ export type {
     DetailPanelProps,
     BottomExecutionLogPanelProps,
     CanvasExecutionLogPanelProps,
+    CanvasBottomPanelContentProps,
 } from './types';
 
 export { hasError, hasOutputs, isStreamingOutput } from './types';
@@ -21,6 +22,7 @@ export { default as ExecutionPanel, OutputRenderer } from './components/Executio
 export { default as DetailPanel } from './components/DetailPanel';
 export { default as BottomExecutionLogPanel, ExecutionOutputRenderer } from './components/BottomExecutionLogPanel';
 export { default as CanvasExecutionLogPanel } from './components/CanvasExecutionLogPanel';
+export { default as CanvasBottomPanelContent } from './components/CanvasBottomPanelContent';
 
 // ── Plugin ─────────────────────────────────────────────────────
 import ExecutionPanel from './components/ExecutionPanel';

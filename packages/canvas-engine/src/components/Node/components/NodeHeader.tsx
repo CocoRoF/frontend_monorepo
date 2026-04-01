@@ -4,6 +4,7 @@ import type { NodeHeaderProps } from '../types';
 import { useTranslation } from '@xgen/i18n';
 import { getLocalizedNodeName } from '../utils/nodeUtils';
 import { getLocalizedPortDescription } from '../utils/parameterUtils';
+import { FiInfo, FiChevronUp, FiChevronDown } from '@xgen/icons';
 
 export const NodeHeader: React.FC<NodeHeaderProps> = ({
     nodeName,
@@ -90,7 +91,7 @@ export const NodeHeader: React.FC<NodeHeaderProps> = ({
                         onMouseEnter={() => setShowDescTooltip(true)}
                         onMouseLeave={() => setShowDescTooltip(false)}
                     >
-                        <span style={{ width: 24, height: 24, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>ℹ</span>
+                        <FiInfo size={24} />
                         {showDescTooltip && (
                             <div className={styles.nodeDescTooltip}>
                                 {localizedDesc}
@@ -104,7 +105,7 @@ export const NodeHeader: React.FC<NodeHeaderProps> = ({
                         onClick={handleToggleClick}
                         title={isExpanded ? "축소" : "확대"}
                     >
-                        {isExpanded ? '▲' : '▼'}
+                        {isExpanded ? <FiChevronUp size={20} aria-hidden /> : <FiChevronDown size={20} aria-hidden />}
                     </button>
                 )}
             </div>

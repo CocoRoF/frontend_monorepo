@@ -21,7 +21,7 @@ function getAccessTokenFromCookie(): string | null {
 // 기본 인증 해제 핸들러
 function defaultOnUnauthorized(): void {
   if (typeof window !== 'undefined') {
-    window.location.href = '/auth/login';
+    window.location.href = '/login';
   }
 }
 
@@ -121,3 +121,58 @@ export type {
   TokenValidationResult,
   UserInfo,
 } from './auth';
+
+// Workflow API exports
+export {
+  saveWorkflow,
+  listWorkflows,
+  listWorkflowsDetail,
+  listWorkflowsDetailAdmin,
+  loadWorkflow,
+  deleteWorkflow,
+  checkWorkflowExistence,
+  renameWorkflow,
+  duplicateWorkflow,
+  executeWorkflowStream,
+  listWorkflowVersions,
+  getWorkflowVersionData,
+  updateWorkflow,
+  updateWorkflowVersion,
+  updateWorkflowVersionLabel,
+  deleteWorkflowVersion,
+  getWorkflowPerformance,
+  deleteWorkflowPerformance,
+  getWorkflowIOLogs,
+  rateWorkflowIOLog,
+  deleteWorkflowIOLogs,
+} from './workflow';
+export type {
+  WorkflowContent,
+  WorkflowSaveRequest,
+  WorkflowListItem,
+  WorkflowLoadResult,
+  WorkflowExistence,
+  ExecuteWorkflowOptions,
+} from './workflow';
+
+// Node API exports
+export {
+  getNodes,
+  getNodeDetail,
+  exportNodes,
+  useNodes,
+} from './nodes';
+export type {
+  NodeCategory,
+  NodeFunction,
+  NodeSpec,
+  NodeDetail,
+  UseNodesReturn,
+} from './nodes';
+
+// Tracker API exports
+export {
+  getWorkflowExecutionOrder,
+  getWorkflowExecutionOrderByData,
+  getWorkflowExecutionLayoutByData,
+} from './tracker';

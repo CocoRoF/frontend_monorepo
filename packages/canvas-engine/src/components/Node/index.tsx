@@ -6,9 +6,10 @@ import { NodePortsCollapsed } from './components/NodePortsCollapsed';
 import { NodeParameters } from './components/NodeParameters';
 import { useNodeEditing } from '../../hooks/node/useNodeEditing';
 import { useNodeContextMenu } from '../../hooks/node/useNodeContextMenu';
-import { getDisplayNodeName, getNodeContainerClasses, getNodeContainerStyles, createCommonEventHandlers, hasInputsAndOutputs } from './utils/nodeUtils';
+import { getDisplayNodeName, getLocalizedNodeName, getNodeContainerClasses, getNodeContainerStyles, createCommonEventHandlers, hasInputsAndOutputs, hasParameters } from './utils/nodeUtils';
 import { useTranslation } from '@xgen/i18n';
-import type { CanvasNode, Port, Parameter } from '@xgen/canvas-types';
+import type { CanvasNode, CanvasEdge, Port, Parameter } from '@xgen/canvas-types';
+import type { PortMouseData } from './types';
 
 export interface NodeComponentProps {
     node: CanvasNode;
@@ -18,10 +19,9 @@ export interface NodeComponentProps {
     onNodeMouseDown?: (e: React.MouseEvent, nodeId: string) => void;
     onNodeDoubleClick?: (e: React.MouseEvent, nodeId: string) => void;
     onNodeContextMenu?: (e: React.MouseEvent, nodeId: string) => void;
-    onPortMouseDown?: (e: React.MouseEvent, nodeId: string, port: Port, portType: 'input' | 'output', portElement: HTMLElement) => void;
-    onPortMouseUp?: (e: React.MouseEvent, nodeId: string, port: Port, portType: 'input' | 'output') => void;
-    onPortMouseEnter?: (e: React.MouseEvent, nodeId: string, port: Port, portType: 'input' | 'output') => void;
-    onPortMouseLeave?: (e: React.MouseEvent, nodeId: string, port: Port, portType: 'input' | 'output') => void;
+    onPortMouseDown?: (data: PortMouseData, e: React.MouseEvent) => void;
+    onPortMouseUp?: (data: PortMouseData, e: React.MouseEvent) => void;
+    registerPortRef?: (nodeId: string, portId: string, portType: 'input' | 'output', el: HTMLDivElement | null) => void;
     onNodeNameChange?: (nodeId: string, newName: string) => void;
     onNodeToggleExpand?: (nodeId: string) => void;
     onNodeToggleBypass?: (nodeId: string) => void;
@@ -34,8 +34,10 @@ export interface NodeComponentProps {
     onPredictedNodeAccept?: (nodeId: string) => void;
     onPredictedNodeReject?: (nodeId: string) => void;
     onSchemaSyncRequest?: (nodeId: string) => void;
-    selectedPortId?: string | null;
-    snapPortId?: string | null;
+    snappedPortKey?: string | null;
+    isSnapTargetInvalid?: boolean;
+    currentNodes?: CanvasNode[];
+    currentEdges?: CanvasEdge[];
     fetchParameterOptions?: (nodeDataId: string, apiName: string) => Promise<any[]>;
     renderContextMenu?: (props: {
         nodeId: string;
@@ -55,8 +57,7 @@ const NodeComponent: React.FC<NodeComponentProps> = ({
     onNodeContextMenu,
     onPortMouseDown,
     onPortMouseUp,
-    onPortMouseEnter,
-    onPortMouseLeave,
+    registerPortRef,
     onNodeNameChange,
     onNodeToggleExpand,
     onNodeToggleBypass,
@@ -69,8 +70,10 @@ const NodeComponent: React.FC<NodeComponentProps> = ({
     onPredictedNodeAccept,
     onPredictedNodeReject,
     onSchemaSyncRequest,
-    selectedPortId,
-    snapPortId,
+    snappedPortKey,
+    isSnapTargetInvalid,
+    currentNodes,
+    currentEdges,
     fetchParameterOptions,
     renderContextMenu,
     children
@@ -78,13 +81,26 @@ const NodeComponent: React.FC<NodeComponentProps> = ({
     const { locale } = useTranslation();
     const [showAdvanced, setShowAdvanced] = useState(false);
 
-    const nodeEditing = useNodeEditing(onNodeNameChange);
+    const nodeName = node.data?.nodeName ?? '';
+    const nodeNameKo = node.data?.nodeNameKo;
+    const localizedName = getLocalizedNodeName(nodeName, nodeNameKo, locale);
+
+    const nodeEditing = useNodeEditing(localizedName);
     const nodeContextMenu = useNodeContextMenu({
-        onToggleExpand: onNodeToggleExpand ? () => onNodeToggleExpand(node.id) : undefined,
-        onToggleBypass: onNodeToggleBypass ? () => onNodeToggleBypass(node.id) : undefined,
-        onDelete: undefined,
-        onDuplicate: undefined,
-        onCopyNode: undefined
+        nodeId: node.id,
+        nodeName: localizedName,
+        nodeDataId: node.data?.nodeDataId ?? '',
+        isPreview,
+        isPredicted,
+        isExpanded: !(node.isCollapsed ?? false),
+        isBypassed: node.isBypassed ?? false,
+        isSelected: node.isSelected ?? false,
+        onToggleExpanded: onNodeToggleExpand ? (id: string) => onNodeToggleExpand(id) : undefined,
+        onToggleBypass: onNodeToggleBypass ? (id: string) => onNodeToggleBypass(id) : undefined,
+        onDeleteNode: undefined,
+        onCopyNode: undefined,
+        onOpenNodeModal,
+        handleNameDoubleClick: nodeEditing.handleNameDoubleClick,
     });
 
     const isCollapsed = node.isCollapsed ?? false;
@@ -92,8 +108,9 @@ const NodeComponent: React.FC<NodeComponentProps> = ({
     const inputs = node.data?.inputs ?? [];
     const outputs = node.data?.outputs ?? [];
     const parameters = node.data?.parameters ?? [];
-    const displayName = getDisplayNodeName(node, locale);
-    const hasIO = hasInputsAndOutputs(inputs, outputs);
+    const displayName = getDisplayNodeName(localizedName, 25);
+    const { hasIO } = hasInputsAndOutputs(inputs, outputs);
+    const hasParams = hasParameters(parameters);
 
     const containerClasses = useMemo(() => {
         const classes = [styles.node];
@@ -106,8 +123,8 @@ const NodeComponent: React.FC<NodeComponentProps> = ({
     }, [isSelected, isCollapsed, isBypassed, isPredicted, isPreview]);
 
     const containerStyles = useMemo(
-        () => getNodeContainerStyles(node),
-        [node]
+        () => getNodeContainerStyles(node.position, isPredicted),
+        [node.position, isPredicted]
     );
 
     const handleMouseDown = useCallback(
@@ -174,20 +191,21 @@ const NodeComponent: React.FC<NodeComponentProps> = ({
         >
             {/* Node Header */}
             <NodeHeader
-                nodeId={node.id}
-                displayName={displayName}
+                nodeName={nodeName}
+                nodeNameKo={nodeNameKo}
+                nodeDataId={node.data?.id ?? ''}
                 description={node.data?.description}
-                isCollapsed={isCollapsed}
-                isBypassed={isBypassed}
+                description_ko={node.data?.description_ko}
                 isPreview={isPreview}
-                isPredicted={isPredicted}
-                isEditing={nodeEditing.isEditing}
-                editingValue={nodeEditing.editingValue}
-                onEditStart={() => nodeEditing.startEditing(displayName)}
-                onEditChange={(value) => nodeEditing.setEditingValue(value)}
-                onEditSubmit={() => nodeEditing.submitEditing(node.id)}
-                onEditCancel={() => nodeEditing.cancelEditing()}
-                onToggleExpand={handleToggleExpand}
+                isExpanded={!isCollapsed}
+                isEditingName={nodeEditing.isEditingName}
+                editingName={nodeEditing.editingName}
+                onNameDoubleClick={(e) => nodeEditing.handleNameDoubleClick(e, localizedName, isPreview)}
+                onNameChange={nodeEditing.handleNameChange}
+                onNameKeyDown={(e) => nodeEditing.handleNameKeyDown(e, node.id, localizedName, onNodeNameChange)}
+                onNameBlur={() => nodeEditing.handleNameBlur(node.id, localizedName, onNodeNameChange)}
+                onClearSelection={onClearSelection}
+                onToggleExpanded={handleToggleExpand}
             />
 
             {/* Predicted Node Actions */}
@@ -216,70 +234,81 @@ const NodeComponent: React.FC<NodeComponentProps> = ({
                 </div>
             )}
 
-            {/* Ports */}
-            {hasIO && !isCollapsed && (
-                <NodePorts
-                    nodeId={node.id}
-                    nodeDataId={node.data?.id}
-                    inputs={inputs}
-                    outputs={outputs}
-                    parameters={parameters}
-                    isPreview={isPreview}
-                    isPredicted={isPredicted}
-                    onPortMouseDown={onPortMouseDown}
-                    onPortMouseUp={onPortMouseUp}
-                    onPortMouseEnter={onPortMouseEnter}
-                    onPortMouseLeave={onPortMouseLeave}
-                    onSchemaSyncRequest={onSchemaSyncRequest}
-                    selectedPortId={selectedPortId}
-                    snapPortId={snapPortId}
-                />
-            )}
+            {/* Body Section */}
+            {!isCollapsed ? (
+                <div className={styles.body}>
+                    {/* Input/Output Ports */}
+                    {hasIO && (
+                        <NodePorts
+                            nodeId={node.id}
+                            inputs={inputs}
+                            outputs={outputs}
+                            parameters={parameters}
+                            isPreview={isPreview}
+                            isPredicted={isPredicted}
+                            onPortMouseDown={onPortMouseDown}
+                            onPortMouseUp={onPortMouseUp}
+                            registerPortRef={registerPortRef}
+                            snappedPortKey={snappedPortKey}
+                            isSnapTargetInvalid={isSnapTargetInvalid}
+                            currentNodes={currentNodes}
+                            currentEdges={currentEdges}
+                            onSynchronizeSchema={onSchemaSyncRequest}
+                        />
+                    )}
 
-            {hasIO && isCollapsed && (
-                <NodePortsCollapsed
-                    nodeId={node.id}
-                    inputs={inputs}
-                    outputs={outputs}
-                    parameters={parameters}
-                    onPortMouseDown={onPortMouseDown}
-                    onPortMouseUp={onPortMouseUp}
-                    onPortMouseEnter={onPortMouseEnter}
-                    onPortMouseLeave={onPortMouseLeave}
-                    selectedPortId={selectedPortId}
-                    snapPortId={snapPortId}
-                />
-            )}
-
-            {/* Parameters */}
-            {!isCollapsed && (
-                <NodeParameters
-                    nodeId={node.id}
-                    nodeDataId={node.data?.id ?? ''}
-                    parameters={parameters}
-                    isPreview={isPreview}
-                    isPredicted={isPredicted}
-                    onParameterChange={onParameterChange}
-                    onParameterNameChange={onParameterNameChange}
-                    onParameterAdd={onParameterAdd}
-                    onParameterDelete={onParameterDelete}
-                    onClearSelection={onClearSelection}
-                    onOpenNodeModal={onOpenNodeModal}
-                    showAdvanced={showAdvanced}
-                    onToggleAdvanced={handleToggleAdvanced}
-                    fetchParameterOptions={fetchParameterOptions}
-                />
+                    {/* Parameters */}
+                    {hasParams && !isPredicted && (
+                        <>
+                            {hasIO && <div className={styles.divider}></div>}
+                            <NodeParameters
+                                nodeId={node.id}
+                                nodeDataId={node.data?.id ?? ''}
+                                parameters={parameters}
+                                isPreview={isPreview}
+                                isPredicted={isPredicted}
+                                onParameterChange={onParameterChange}
+                                onParameterNameChange={onParameterNameChange}
+                                onParameterAdd={onParameterAdd}
+                                onParameterDelete={onParameterDelete}
+                                onClearSelection={onClearSelection}
+                                onOpenNodeModal={onOpenNodeModal}
+                                showAdvanced={showAdvanced}
+                                onToggleAdvanced={handleToggleAdvanced}
+                                fetchParameterOptions={fetchParameterOptions}
+                            />
+                        </>
+                    )}
+                </div>
+            ) : (
+                <div className={styles.collapsedBody}>
+                    {hasIO && (
+                        <NodePortsCollapsed
+                            nodeId={node.id}
+                            inputs={inputs}
+                            outputs={outputs}
+                            parameters={parameters}
+                            isPreview={isPreview}
+                            isPredicted={isPredicted}
+                            onPortMouseDown={onPortMouseDown}
+                            onPortMouseUp={onPortMouseUp}
+                            registerPortRef={registerPortRef}
+                            snappedPortKey={snappedPortKey}
+                            isSnapTargetInvalid={isSnapTargetInvalid}
+                        />
+                    )}
+                </div>
             )}
 
             {/* Custom children (for special node extensions) */}
             {children}
 
             {/* Context Menu */}
-            {nodeContextMenu.isOpen && renderContextMenu && (
+            {nodeContextMenu.contextMenuOpen && renderContextMenu && (
                 renderContextMenu({
                     nodeId: node.id,
-                    position: nodeContextMenu.position,
-                    onClose: nodeContextMenu.closeContextMenu
+                    position: nodeContextMenu.contextMenuPosition,
+                    onClose: nodeContextMenu.handleContextMenuClose
                 })
             )}
         </div>

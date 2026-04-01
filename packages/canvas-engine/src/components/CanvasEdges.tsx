@@ -1,11 +1,12 @@
 import React, { memo, useMemo } from 'react';
 import { Edge } from './Edge';
 import styles from '../styles/Edge.module.scss';
-import type { CanvasEdge, CanvasNode, EdgePreview } from '@xgen/canvas-types';
+import type { CanvasEdge, CanvasNode, EdgePreview, Position } from '@xgen/canvas-types';
 
 export interface CanvasEdgesProps {
     edges: CanvasEdge[];
     nodes: CanvasNode[];
+    portPositions: Record<string, Position>;
     selectedEdgeIds: string[];
     edgePreview?: EdgePreview | null;
     scale?: number;
@@ -14,39 +15,39 @@ export interface CanvasEdgesProps {
 }
 
 /**
- * Get the bounding rect of a port element from the DOM.
+ * Get port position from the tracked portPositions map.
+ * Falls back to a calculated position if not found.
  */
 function getPortPosition(
     nodeId: string,
     portId: string,
     portType: 'input' | 'output',
+    portPositions: Record<string, Position>,
     nodes: CanvasNode[]
-): { x: number; y: number } | null {
+): Position | null {
+    const key = `${nodeId}__PORTKEYDELIM__${portId}__PORTKEYDELIM__${portType}`;
+    if (portPositions[key]) {
+        return portPositions[key];
+    }
+    // Fallback: approximate from node position (better than nothing)
     const node = nodes.find((n) => n.id === nodeId);
     if (!node) return null;
-
     const ports = portType === 'input'
         ? (node.data?.inputs ?? [])
         : (node.data?.outputs ?? []);
-
-    const port = ports.find((p) => p.id === portId);
-    if (!port) return null;
-
-    // Port positions should be computed from node position + port offset
-    // This is a simplified calculation; actual positions depend on DOM measurement
+    const portIndex = ports.findIndex((p) => p.id === portId);
+    if (portIndex < 0) return null;
     const portX = portType === 'output'
-        ? (node.position?.x ?? 0) + (node.width ?? 200)
+        ? (node.position?.x ?? 0) + 400
         : (node.position?.x ?? 0);
-
-    const portIndex = ports.indexOf(port);
-    const portY = (node.position?.y ?? 0) + 40 + portIndex * 24 + 12;
-
+    const portY = (node.position?.y ?? 0) + 60 + portIndex * 30 + 12;
     return { x: portX, y: portY };
 }
 
 const CanvasEdgesComponent: React.FC<CanvasEdgesProps> = ({
     edges,
     nodes,
+    portPositions,
     selectedEdgeIds,
     edgePreview,
     scale = 1,
@@ -70,12 +71,14 @@ const CanvasEdgesComponent: React.FC<CanvasEdgesProps> = ({
                     edge.source.nodeId,
                     edge.source.portId,
                     'output',
+                    portPositions,
                     nodes
                 );
                 const targetPos = getPortPosition(
                     edge.target.nodeId,
                     edge.target.portId,
                     'input',
+                    portPositions,
                     nodes
                 );
 

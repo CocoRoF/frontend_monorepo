@@ -11,7 +11,10 @@ export { useCanvasEventHandlers } from './hooks/useCanvasEventHandlers';
 export { usePortHandlers } from './hooks/usePortHandlers';
 export { useKeyboardHandlers } from './hooks/useKeyboardHandlers';
 export { useAutoConnect } from './hooks/useAutoConnect';
-export { useHistoryManagement } from './hooks/useHistoryManagement';
+export { useHistoryManagement, createHistoryHelpers } from './hooks/useHistoryManagement';
+
+// Zoom constants
+export { MIN_SCALE, MAX_SCALE } from './hooks/useCanvasView';
 
 // Utils
 export {
@@ -124,6 +127,8 @@ export { SchemaProviderNodeParameters } from './components/Node/components/speci
 // Special nodes
 export {
     findSpecialNode,
+    isSpecialNode,
+    getAllAdditionalProps,
     registerSpecialNode,
     getSpecialNodes,
     SpecialNodeMatchers,

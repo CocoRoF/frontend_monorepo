@@ -129,10 +129,11 @@ export async function getWorkflowIOLogs(
   interactionId?: string
 ): Promise<{ in_out_logs: unknown[] }> {
   const api = createApiClient();
-  const response = await api.post<{ in_out_logs: unknown[] }>('/api/workflow/iologs', {
+  const params = new URLSearchParams({
     workflow_name: workflowName,
     workflow_id: workflowId,
     interaction_id: interactionId || 'default',
   });
+  const response = await api.get<{ in_out_logs: unknown[] }>(`/api/workflow/io_logs?${params}`);
   return response.data;
 }

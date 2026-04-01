@@ -19,13 +19,12 @@ const RouterNodeComponent: React.FC<RouterNodeProps> = ({
     onOutputRename,
     onPortMouseDown,
     onPortMouseUp,
-    onPortMouseEnter,
-    onPortMouseLeave,
+    registerPortRef,
     onParameterChange,
     onParameterDelete,
     onClearSelection,
-    selectedPortId,
-    snapPortId,
+    snappedPortKey,
+    isSnapTargetInvalid,
     isPreview,
     isPredicted,
     ...restProps
@@ -42,13 +41,12 @@ const RouterNodeComponent: React.FC<RouterNodeProps> = ({
             isPredicted={isPredicted}
             onPortMouseDown={onPortMouseDown}
             onPortMouseUp={onPortMouseUp}
-            onPortMouseEnter={onPortMouseEnter}
-            onPortMouseLeave={onPortMouseLeave}
+            registerPortRef={registerPortRef}
             onParameterChange={onParameterChange}
             onParameterDelete={onParameterDelete}
             onClearSelection={onClearSelection}
-            selectedPortId={selectedPortId}
-            snapPortId={snapPortId}
+            snappedPortKey={snappedPortKey}
+            isSnapTargetInvalid={isSnapTargetInvalid}
             {...restProps}
         >
             {/* Override ports with RouterNodePorts */}
@@ -64,13 +62,12 @@ const RouterNodeComponent: React.FC<RouterNodeProps> = ({
                     isCollapsed={isCollapsed}
                     onPortMouseDown={onPortMouseDown}
                     onPortMouseUp={onPortMouseUp}
-                    onPortMouseEnter={onPortMouseEnter}
-                    onPortMouseLeave={onPortMouseLeave}
+                    registerPortRef={registerPortRef}
                     onOutputAdd={onOutputAdd}
                     onOutputDelete={onOutputDelete}
                     onOutputRename={onOutputRename}
-                    selectedPortId={selectedPortId}
-                    snapPortId={snapPortId}
+                    snappedPortKey={snappedPortKey}
+                    isSnapTargetInvalid={isSnapTargetInvalid}
                 />
             )}
 

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import type { RouteComponentProps, MainFeatureModule, CanvasPagePlugin, CanvasPluginContext } from '@xgen/types';
 import { FeatureRegistry } from '@xgen/types';
 import { useTranslation } from '@xgen/i18n';
@@ -8,6 +9,15 @@ import { useTranslation } from '@xgen/i18n';
 // Canvas packages
 import { Canvas } from '@xgen/canvas-engine';
 import type { CanvasRef } from '@xgen/canvas-engine';
+
+// API
+import {
+    useNodes,
+    saveWorkflow as apiSaveWorkflow,
+    loadWorkflow as apiLoadWorkflow,
+    checkWorkflowExistence,
+    listWorkflows as apiListWorkflows,
+} from '@xgen/api-client';
 
 // Canvas core UI
 import {
@@ -42,15 +52,58 @@ interface NodeDetailModalState {
     nodeName: string;
 }
 
+// ── Storage helpers ────────────────────────────────────────────
+
+const STORAGE_KEYS = {
+    WORKFLOW_STATE: 'canvas_workflow_state',
+    WORKFLOW_NAME: 'canvas_workflow_name',
+    WORKFLOW_ID: 'canvas_workflowId',
+} as const;
+
+function getStoredState(key: string): any {
+    if (typeof window === 'undefined') return null;
+    try {
+        const raw = sessionStorage.getItem(key);
+        return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+}
+
+function setStoredState(key: string, value: any): void {
+    if (typeof window === 'undefined') return;
+    try {
+        sessionStorage.setItem(key, JSON.stringify(value));
+    } catch { /* quota exceeded — silent */ }
+}
+
+function generateWorkflowId(): string {
+    return `wf_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+}
+
+function validateWorkflowName(name: string): string {
+    if (!name || typeof name !== 'string') return 'Workflow';
+    return name.trim().replace(/[<>:"/\\|?*]/g, '_') || 'Workflow';
+}
+
 // ── Component ──────────────────────────────────────────────────
 
 const CanvasPage: React.FC<CanvasPageProps> = ({ onNavigate }) => {
     const { t } = useTranslation();
+    const searchParams = useSearchParams();
 
     // ── Refs ──
     const canvasRef = useRef<CanvasRef>(null);
     const menuRef = useRef<HTMLElement>(null);
     const directPanelRef = useRef<HTMLElement>(null);
+    const latestCanvasStateRef = useRef<any>(null);
+    const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const uiUpdateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const isRestorationComplete = useRef(false);
+    const pendingWorkflowLoadRef = useRef<{ workflowData: any; workflowName: string; workflowId: string } | null>(null);
+    const draggingNodeDataRef = useRef<any>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // ── Node specs ──
+    const { nodes: nodeCategories, flatNodeSpecs, isLoading: nodesLoading, error: nodesError, isInitialized: nodesInitialized, refreshNodes } = useNodes();
 
     // ── Core state ──
     const [canvasMode, setCanvasMode] = useState<CanvasMode>('edit');
@@ -125,17 +178,136 @@ const CanvasPage: React.FC<CanvasPageProps> = ({ onNavigate }) => {
 
     // ── Initialization ──
     useEffect(() => {
-        // Simulate canvas initialization
         const timer = setTimeout(() => setLoadingCanvas(false), 100);
         return () => clearTimeout(timer);
     }, []);
 
+    // ── Set node specs on canvas when ready ──
+    useEffect(() => {
+        if (nodesInitialized && flatNodeSpecs.length > 0 && canvasRef.current) {
+            canvasRef.current.setAvailableNodeSpecs(flatNodeSpecs as any);
+        }
+    }, [nodesInitialized, flatNodeSpecs]);
+
+    // ── Restore workflowId from session on mount ──
+    useEffect(() => {
+        const loadParam = searchParams?.get('load');
+        if (!loadParam) {
+            const savedId = getStoredState(STORAGE_KEYS.WORKFLOW_ID);
+            if (savedId && savedId !== 'None') setWorkflowId(savedId);
+            const savedName = getStoredState(STORAGE_KEYS.WORKFLOW_NAME);
+            if (savedName) setWorkflowName(savedName);
+        }
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // ── Persist workflowId to session ──
+    useEffect(() => {
+        setStoredState(STORAGE_KEYS.WORKFLOW_ID, workflowId);
+    }, [workflowId]);
+
+    // ── URL-based workflow load ──
+    useEffect(() => {
+        const loadParam = searchParams?.get('load');
+        if (!loadParam) {
+            setIsCanvasReady(true);
+            return;
+        }
+        const workflowIdToLoad = decodeURIComponent(loadParam);
+        const userId = searchParams?.get('user_id') ?? undefined;
+
+        const loadFromServer = async () => {
+            try {
+                const result = await apiLoadWorkflow(workflowIdToLoad, userId);
+                const loadedName = result.workflow_name || 'Untitled';
+                setWorkflowName(loadedName);
+                setStoredState(STORAGE_KEYS.WORKFLOW_NAME, loadedName);
+                setWorkflowId(workflowIdToLoad);
+
+                if (canvasRef.current) {
+                    canvasRef.current.loadCanvasState(result.content || result as any);
+                } else {
+                    pendingWorkflowLoadRef.current = {
+                        workflowData: result.content || result,
+                        workflowName: loadedName,
+                        workflowId: workflowIdToLoad,
+                    };
+                }
+            } catch (error) {
+                console.error('Failed to load workflow from URL:', error);
+            } finally {
+                setLoadingCanvas(false);
+                setIsCanvasReady(true);
+            }
+        };
+        loadFromServer();
+    }, [searchParams]);
+
+    // ── Deferred workflow load (if canvas wasn't ready) ──
+    useEffect(() => {
+        if (loadingCanvas || !canvasRef.current || !pendingWorkflowLoadRef.current) return;
+        const pending = pendingWorkflowLoadRef.current;
+        pendingWorkflowLoadRef.current = null;
+        canvasRef.current.loadCanvasState(pending.workflowData);
+    }, [loadingCanvas]);
+
+    // ── Restore canvas state from session storage ──
+    useEffect(() => {
+        if (!isCanvasReady || !canvasRef.current || !nodesInitialized) return;
+        const loadParam = searchParams?.get('load');
+        if (loadParam) {
+            isRestorationComplete.current = true;
+            return;
+        }
+        const savedState = getStoredState(STORAGE_KEYS.WORKFLOW_STATE);
+        if (savedState && canvasRef.current) {
+            try {
+                canvasRef.current.loadCanvasState(savedState);
+            } catch (error) {
+                console.warn('Failed to restore workflow state:', error);
+            }
+        }
+        isRestorationComplete.current = true;
+    }, [isCanvasReady, nodesInitialized]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // ── beforeunload — flush state to storage ──
+    useEffect(() => {
+        const handleBeforeUnload = () => {
+            if (latestCanvasStateRef.current) {
+                setStoredState(STORAGE_KEYS.WORKFLOW_STATE, latestCanvasStateRef.current);
+            }
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+            if (uiUpdateTimerRef.current) clearTimeout(uiUpdateTimerRef.current);
+            if (latestCanvasStateRef.current) {
+                setStoredState(STORAGE_KEYS.WORKFLOW_STATE, latestCanvasStateRef.current);
+            }
+        };
+    }, []);
+
     // ── Canvas event handlers ──
     const handleCanvasStateChange = useCallback((state: any) => {
-        setCurrentCanvasState(state);
-        if (state?.view?.scale) {
-            setZoomPercent(Math.round(state.view.scale * 100));
-        }
+        latestCanvasStateRef.current = state;
+        if (!isRestorationComplete.current) return;
+
+        // Debounced UI update
+        if (uiUpdateTimerRef.current) clearTimeout(uiUpdateTimerRef.current);
+        uiUpdateTimerRef.current = setTimeout(() => {
+            setCurrentCanvasState(state);
+            if (state?.view?.scale != null) {
+                setZoomPercent(Math.round(state.view.scale * 100));
+            }
+            uiUpdateTimerRef.current = null;
+        }, 300);
+
+        // Debounced storage save
+        if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = setTimeout(() => {
+            setStoredState(STORAGE_KEYS.WORKFLOW_STATE, state);
+            saveTimerRef.current = null;
+        }, 1000);
     }, []);
 
     const handleModeChange = useCallback((mode: CanvasMode) => {
@@ -160,18 +332,125 @@ const CanvasPage: React.FC<CanvasPageProps> = ({ onNavigate }) => {
 
     // ── Save handler ──
     const handleSave = useCallback(async () => {
+        if (isSaving || !canvasRef.current) return;
         setIsSaving(true);
         try {
-            // Save logic will be wired by app integration
-            await new Promise((resolve) => setTimeout(resolve, 500));
+            const canvasState = canvasRef.current.getCanvasState();
+            let name = validateWorkflowName(workflowName);
+            let currentId = workflowId;
+            if (!currentId || currentId === 'None') {
+                currentId = generateWorkflowId();
+                setWorkflowId(currentId);
+            }
+
+            if (!canvasState.nodes || canvasState.nodes.length === 0) {
+                console.warn('Cannot save empty workflow');
+                return;
+            }
+
+            const content = { ...canvasState, workflow_id: currentId, workflow_name: name };
+            await apiSaveWorkflow(name, content, currentId);
+            setStoredState(STORAGE_KEYS.WORKFLOW_NAME, name);
+        } catch (error) {
+            console.error('Failed to save workflow:', error);
         } finally {
             setIsSaving(false);
         }
-    }, []);
+    }, [isSaving, workflowId, workflowName]);
 
     // ── Side panel toggle ──
     const handleSidePanelToggle = useCallback((panelId: string) => {
         setActiveSidePanel((prev) => (prev === panelId ? null : panelId));
+    }, []);
+
+    const handleNewWorkflow = useCallback(async () => {
+        const hasCurrentWork = canvasRef.current &&
+            (canvasRef.current.getCanvasState().nodes.length > 0 || canvasRef.current.getCanvasState().edges.length > 0);
+
+        if (hasCurrentWork && !window.confirm(t('canvas.confirmNewWorkflow', 'Start a new workflow? Unsaved changes may be lost.'))) {
+            return;
+        }
+
+        let newName = 'Workflow';
+        try {
+            const existing = await apiListWorkflows();
+            let index = 1;
+            while (existing.includes(newName)) {
+                index += 1;
+                newName = `Workflow ${index}`;
+            }
+        } catch {
+            // Keep default name on API failure
+        }
+
+        const newId = generateWorkflowId();
+        setWorkflowId(newId);
+        setWorkflowName(newName);
+        setStoredState(STORAGE_KEYS.WORKFLOW_ID, newId);
+        setStoredState(STORAGE_KEYS.WORKFLOW_NAME, newName);
+        setStoredState(STORAGE_KEYS.WORKFLOW_STATE, null);
+        isRestorationComplete.current = true;
+
+        if (canvasRef.current) {
+            const centeredView = canvasRef.current.getCenteredView();
+            canvasRef.current.loadWorkflow({ nodes: [], edges: [], memos: [], view: centeredView });
+        }
+    }, [t]);
+
+    const handleExport = useCallback(() => {
+        if (!canvasRef.current) return;
+        const canvasState = canvasRef.current.getCanvasState();
+        const name = validateWorkflowName(workflowName);
+        const exportData = {
+            workflow_name: name,
+            workflow_id: workflowId !== 'None' ? workflowId : generateWorkflowId(),
+            view: canvasState.view || { x: 0, y: 0, scale: 1 },
+            nodes: canvasState.nodes || [],
+            edges: canvasState.edges || [],
+            memos: canvasState.memos || [],
+        };
+        const json = JSON.stringify(exportData, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${name}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }, [workflowId, workflowName]);
+
+    const handleImportClick = useCallback(() => {
+        fileInputRef.current?.click();
+    }, []);
+
+    const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+            const text = await file.text();
+            const parsed = JSON.parse(text);
+            const importedName = validateWorkflowName(parsed.workflow_name || file.name.replace(/\.json$/i, ''));
+            const newId = generateWorkflowId();
+            const nextState = {
+                ...parsed,
+                workflow_id: newId,
+                workflow_name: importedName,
+            };
+            if (canvasRef.current) {
+                canvasRef.current.loadCanvasState(nextState);
+            }
+            setWorkflowId(newId);
+            setWorkflowName(importedName);
+            setStoredState(STORAGE_KEYS.WORKFLOW_ID, newId);
+            setStoredState(STORAGE_KEYS.WORKFLOW_NAME, importedName);
+            setStoredState(STORAGE_KEYS.WORKFLOW_STATE, nextState);
+        } catch (error) {
+            console.error('Failed to import workflow:', error);
+        } finally {
+            e.target.value = '';
+        }
     }, []);
 
     // ── Empty state actions ──
@@ -218,16 +497,121 @@ const CanvasPage: React.FC<CanvasPageProps> = ({ onNavigate }) => {
 
     // ── Workflow load handler ──
     const handleLoadWorkflow = useCallback((workflowData: any, name?: string, id?: string) => {
-        if (canvasRef.current && typeof (canvasRef.current as any).loadWorkflow === 'function') {
-            (canvasRef.current as any).loadWorkflow(workflowData);
+        if (canvasRef.current) {
+            canvasRef.current.loadWorkflow(workflowData);
         }
-        if (name) setWorkflowName(name);
-        if (id) setWorkflowId(id);
+        if (name) {
+            setWorkflowName(name);
+            setStoredState(STORAGE_KEYS.WORKFLOW_NAME, name);
+        }
+        if (id) {
+            setWorkflowId(id);
+            setStoredState(STORAGE_KEYS.WORKFLOW_ID, id);
+        }
     }, []);
 
     // ── Execution handlers ──
     const handleClearOutput = useCallback(() => setExecutionOutput(null), []);
     const handleClearLogs = useCallback(() => setExecutionLogs([]), []);
+
+    // ── Sidebar node panel handlers ──
+    const handleAddNodeToCenter = useCallback((nodeData: any) => {
+        if (!canvasRef.current) return;
+        const view = canvasRef.current.getView();
+        // Add node to center of visible area
+        const centerX = (window.innerWidth / 2 - view.x) / view.scale;
+        const centerY = (window.innerHeight / 2 - view.y) / view.scale;
+        canvasRef.current.addNode({
+            id: `${nodeData.id}-${Date.now()}`,
+            data: nodeData,
+            position: { x: centerX, y: centerY },
+            isExpanded: true,
+        } as any);
+    }, []);
+
+    const handleSidebarDragStart = useCallback((nodeData: any) => {
+        draggingNodeDataRef.current = nodeData;
+    }, []);
+
+    const handleSidebarDragEnd = useCallback(() => {
+        draggingNodeDataRef.current = null;
+    }, []);
+
+    // ── Drag and drop handlers ──
+    const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        const hasFiles = e.dataTransfer.types.includes('Files');
+        const hasJson = e.dataTransfer.types.includes('application/json');
+        if (hasFiles || hasJson) {
+            e.dataTransfer.dropEffect = 'copy';
+        }
+    }, []);
+
+    const handleDrop = useCallback(async (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+            const file = files[0];
+            if (file.name.toLowerCase().endsWith('.json')) {
+                try {
+                    const text = await file.text();
+                    const parsed = JSON.parse(text);
+                    const importedName = validateWorkflowName(parsed.workflow_name || file.name.replace(/\.json$/i, ''));
+                    const newId = generateWorkflowId();
+                    const nextState = {
+                        ...parsed,
+                        workflow_id: newId,
+                        workflow_name: importedName,
+                    };
+                    if (canvasRef.current) {
+                        canvasRef.current.loadCanvasState(nextState);
+                    }
+                    setWorkflowId(newId);
+                    setWorkflowName(importedName);
+                    setStoredState(STORAGE_KEYS.WORKFLOW_ID, newId);
+                    setStoredState(STORAGE_KEYS.WORKFLOW_NAME, importedName);
+                    setStoredState(STORAGE_KEYS.WORKFLOW_STATE, nextState);
+                    return;
+                } catch (error) {
+                    console.error('Failed to import dropped workflow:', error);
+                    return;
+                }
+            }
+
+            setDocumentDropModal({
+                isOpen: true,
+                file,
+                dropX: e.clientX,
+                dropY: e.clientY,
+            });
+            return;
+        }
+
+        try {
+            const jsonData = e.dataTransfer.getData('application/json');
+            const textData = e.dataTransfer.getData('text/plain');
+            const raw = jsonData || textData;
+            if (!raw || !canvasRef.current) return;
+            const nodeData = JSON.parse(raw);
+            if (nodeData && nodeData.id) {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const view = canvasRef.current.getView();
+                const position = {
+                    x: (e.clientX - rect.left - view.x) / view.scale,
+                    y: (e.clientY - rect.top - view.y) / view.scale,
+                };
+                canvasRef.current.addNode({
+                    id: `${nodeData.id}-${Date.now()}`,
+                    data: nodeData,
+                    position,
+                    isExpanded: true,
+                } as any);
+            }
+        } catch (error) {
+            console.error('Failed to drop node:', error);
+        }
+    }, []);
 
     // ── Active side panel component ──
     const ActiveSidePanelComponent = useMemo(() => {
@@ -278,10 +662,14 @@ const CanvasPage: React.FC<CanvasPageProps> = ({ onNavigate }) => {
                 <HeaderComponent
                     {...pluginContext}
                     onSave={handleSave}
-                    onNewWorkflow={() => {/* wired by app */}}
+                    onNewWorkflow={handleNewWorkflow}
+                    onDeploy={() => {}}
                     onSidePanelToggle={handleSidePanelToggle}
                     onToggleAI={() => setIsAutoWorkflowOpen(true)}
                     sidePanels={sidePanels}
+                    onImportWorkflow={handleImportClick}
+                    checkWorkflowExistence={checkWorkflowExistence}
+                    listWorkflows={apiListWorkflows}
                 />
             )}
 
@@ -295,7 +683,11 @@ const CanvasPage: React.FC<CanvasPageProps> = ({ onNavigate }) => {
                 />
 
                 {/* Canvas area */}
-                <div className={styles.canvasWrapper}>
+                <div
+                    className={styles.canvasWrapper}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                >
                     <Canvas
                         ref={canvasRef}
                         onStateChange={handleCanvasStateChange}
@@ -331,6 +723,13 @@ const CanvasPage: React.FC<CanvasPageProps> = ({ onNavigate }) => {
                     <aside className={styles.sidePanel}>
                         <ActiveSidePanelComponent
                             {...pluginContext}
+                            nodeSpecs={nodeCategories}
+                            nodesLoading={nodesLoading}
+                            nodesError={nodesError}
+                            onRefreshNodes={refreshNodes}
+                            onAddNodeToCenter={handleAddNodeToCenter}
+                            onSidebarDragStart={handleSidebarDragStart}
+                            onSidebarDragEnd={handleSidebarDragEnd}
                             onClose={() => setActiveSidePanel(null)}
                             onLoadWorkflow={handleLoadWorkflow}
                         />
@@ -413,6 +812,14 @@ const CanvasPage: React.FC<CanvasPageProps> = ({ onNavigate }) => {
                     />
                 );
             })}
+
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json,application/json"
+                style={{ display: 'none' }}
+                onChange={handleFileChange}
+            />
         </div>
     );
 };

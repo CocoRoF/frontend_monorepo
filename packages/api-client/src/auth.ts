@@ -136,7 +136,7 @@ export function clearAllAuthCookies(): void {
 export async function login(data: LoginData): Promise<LoginResult> {
   const hashedPassword = await hashPassword(data.password);
 
-  const api = createApiClient({ service: 'auth' });
+  const api = createApiClient({ service: 'auth', onUnauthorized: () => {} });
   const response = await api.post<LoginResult>('/api/auth/login', {
     email: data.email,
     password: hashedPassword,
@@ -175,7 +175,7 @@ export async function signup(data: SignupData): Promise<SignupResult> {
       : undefined,
   };
 
-  const api = createApiClient({ service: 'auth' });
+  const api = createApiClient({ service: 'auth', onUnauthorized: () => {} });
   const response = await api.post<SignupResult>('/api/auth/signup', normalizedData);
 
   return response.data;
@@ -195,7 +195,7 @@ export async function signupGuest(data: SignupData): Promise<SignupResult> {
       : undefined,
   };
 
-  const api = createApiClient({ service: 'auth' });
+  const api = createApiClient({ service: 'auth', onUnauthorized: () => {} });
   const response = await api.post<SignupResult>('/api/auth/signup/guest', normalizedData);
 
   return response.data;
@@ -209,7 +209,7 @@ export async function logout(): Promise<void> {
 
   if (token) {
     try {
-      const api = createApiClient({ service: 'auth' });
+      const api = createApiClient({ service: 'auth', onUnauthorized: () => {} });
       await api.post('/api/auth/logout');
     } catch {
       // 에러 무시
@@ -221,33 +221,48 @@ export async function logout(): Promise<void> {
 
 /**
  * 토큰 유효성 검증
+ *
+ * NOTE: onUnauthorized를 no-op으로 설정하여 401 응답 시
+ * 자동 /login 리다이렉트를 방지합니다.
+ * validate-token에서 401은 "토큰 무효"라는 정상 응답이므로
+ * 리다이렉트가 아닌 { valid: false }를 반환해야 합니다.
  */
 export async function validateToken(token?: string): Promise<TokenValidationResult> {
   const accessToken = token || getCookie('access_token');
 
+  const invalidResult: TokenValidationResult = {
+    valid: false,
+    user_id: null,
+    username: null,
+    is_admin: null,
+    user_type: null,
+    available_user_section: null,
+    available_admin_section: null,
+  };
+
   if (!accessToken) {
-    return {
-      valid: false,
-      user_id: null,
-      username: null,
-      is_admin: null,
-      user_type: null,
-      available_user_section: null,
-      available_admin_section: null,
-    };
+    return invalidResult;
   }
 
-  const api = createApiClient({ service: 'auth' });
-  const response = await api.post<TokenValidationResult>('/api/auth/validate-token', {
-    token: accessToken,
-  });
+  try {
+    const api = createApiClient({
+      service: 'auth',
+      onUnauthorized: () => {}, // 401에서 리다이렉트 방지
+    });
+    const response = await api.post<TokenValidationResult>('/api/auth/validate-token', {
+      token: accessToken,
+    });
 
-  // 새 토큰이 발급된 경우 쿠키 갱신
-  if (response.data.new_access_token) {
-    setCookie('access_token', response.data.new_access_token);
+    // 새 토큰이 발급된 경우 쿠키 갱신
+    if (response.data.new_access_token) {
+      setCookie('access_token', response.data.new_access_token);
+    }
+
+    return response.data;
+  } catch {
+    // 401 또는 네트워크 에러 시 토큰 무효로 처리
+    return invalidResult;
   }
-
-  return response.data;
 }
 
 /**

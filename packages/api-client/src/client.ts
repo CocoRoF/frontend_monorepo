@@ -42,17 +42,20 @@ export class ApiClient {
   }
 
   private buildUrl(endpoint: string, params?: Record<string, string | number | boolean | undefined>): string {
-    const url = new URL(`${this.baseUrl}${endpoint}`);
+    const fullPath = `${this.baseUrl}${endpoint}`;
 
-    if (params) {
+    if (params && Object.keys(params).length > 0) {
+      const searchParams = new URLSearchParams();
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined) {
-          url.searchParams.append(key, String(value));
+          searchParams.append(key, String(value));
         }
       });
+      const separator = fullPath.includes('?') ? '&' : '?';
+      return `${fullPath}${separator}${searchParams.toString()}`;
     }
 
-    return url.toString();
+    return fullPath;
   }
 
   private buildHeaders(customHeaders?: Record<string, string>): HeadersInit {

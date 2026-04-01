@@ -1,9 +1,8 @@
-import React, { useState, useMemo, useCallback, memo } from 'react';
-import { FiX } from 'react-icons/fi';
-import styles from '../styles/Node.module.scss';
-import { getLocalizedNodeName } from './Node/utils/nodeUtils';
-import { useTranslation } from '@xgen/i18n';
+import React, { useMemo, useState, useEffect } from 'react';
+import styles from '../styles/CanvasAddNodesPopup.module.scss';
 import type { NodeData } from '@xgen/canvas-types';
+import { useTranslation } from '@xgen/i18n';
+import { getLocalizedNodeName } from './Node/utils/nodeUtils';
 
 export interface CanvasAddNodesPopupProps {
     isOpen: boolean;
@@ -13,92 +12,94 @@ export interface CanvasAddNodesPopupProps {
     onClose: () => void;
 }
 
-const CanvasAddNodesPopupComponent: React.FC<CanvasAddNodesPopupProps> = ({
+export const CanvasAddNodesPopup: React.FC<CanvasAddNodesPopupProps> = ({
     isOpen,
     position,
     availableNodes,
     onSelectNode,
     onClose
 }) => {
-    const { t, locale } = useTranslation();
-    const [searchQuery, setSearchQuery] = useState('');
+    const [query, setQuery] = useState('');
+    const { locale, t } = useTranslation();
+
+    // Reset query when popup opens
+    useEffect(() => {
+        if (isOpen) {
+            setQuery('');
+        }
+    }, [isOpen]);
 
     const filteredNodes = useMemo(() => {
-        if (!searchQuery.trim()) return availableNodes;
-        const query = searchQuery.toLowerCase();
-        return availableNodes.filter((nodeData) => {
-            const name = getLocalizedNodeName(nodeData, locale).toLowerCase();
-            const id = nodeData.id.toLowerCase();
-            return name.includes(query) || id.includes(query);
+        const trimmed = query.trim().toLowerCase();
+        if (!trimmed) return availableNodes;
+
+        return availableNodes.filter(node => {
+            const name = (node.nodeName || '').toLowerCase();
+            const nameKo = (node.nodeNameKo || '').toLowerCase();
+            const id = node.id.toLowerCase();
+            return name.includes(trimmed) || nameKo.includes(trimmed) || id.includes(trimmed);
         });
-    }, [availableNodes, searchQuery, locale]);
+    }, [availableNodes, query]);
 
-    const handleSelectNode = useCallback(
-        (nodeData: NodeData) => {
-            onSelectNode(nodeData);
-            onClose();
-        },
-        [onSelectNode, onClose]
-    );
-
-    if (!isOpen) return null;
+    if (!isOpen || availableNodes.length === 0) return null;
 
     return (
         <div
-            className={styles.addNodesPopup}
-            style={{ left: position.x, top: position.y }}
+            className={styles.overlay}
+            onClick={onClose}
             onMouseDown={(e) => e.stopPropagation()}
         >
-            <div className={styles.popupHeader}>
-                <span className={styles.popupTitle}>
-                    {t('canvas.addNode', 'Add Node')}
-                </span>
-                <button
-                    className={styles.popupCloseButton}
-                    onClick={onClose}
-                    type="button"
-                >
-                    <FiX />
-                </button>
-            </div>
-            <div className={styles.popupSearch}>
-                <input
-                    type="text"
-                    placeholder={t('canvas.searchNodes', 'Search nodes...')}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => e.stopPropagation()}
-                    className={styles.searchInput}
-                    autoFocus
-                />
-            </div>
-            <div className={styles.popupNodeList}>
-                {filteredNodes.length > 0 ? (
-                    filteredNodes.map((nodeData) => (
-                        <div
-                            key={nodeData.id}
-                            className={styles.popupNodeItem}
-                            onClick={() => handleSelectNode(nodeData)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') handleSelectNode(nodeData);
-                            }}
-                            role="button"
-                            tabIndex={0}
-                        >
-                            <span className={styles.popupNodeName}>
-                                {getLocalizedNodeName(nodeData, locale)}
-                            </span>
-                            <span className={styles.popupNodeId}>{nodeData.id}</span>
+            <div
+                className={styles.popup}
+                data-add-nodes-popup="true"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <div className={styles.header}>
+                    <div>
+                        <div className={styles.title}>{t('canvas.addNode')}</div>
+                        <div className={styles.subtitle}>
+                            {filteredNodes.length} of {availableNodes.length} nodes
                         </div>
-                    ))
-                ) : (
-                    <div className={styles.popupEmpty}>
-                        {t('canvas.noNodesFound', 'No nodes found')}
                     </div>
-                )}
+                    <button
+                        type="button"
+                        className={styles.closeButton}
+                        onClick={onClose}
+                    >
+                        ×
+                    </button>
+                </div>
+                <div className={styles.search}>
+                    <input
+                        type="text"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        onKeyDown={(e) => e.stopPropagation()}
+                        placeholder={t('canvas.searchNodes')}
+                        className={styles.searchInput}
+                        autoFocus
+                    />
+                </div>
+                <div className={styles.list}>
+                    {filteredNodes.length === 0 ? (
+                        <div className={styles.empty}>{t('canvas.noNodesFound')}</div>
+                    ) : (
+                        filteredNodes.map(node => (
+                            <button
+                                key={node.id}
+                                type="button"
+                                className={styles.item}
+                                onClick={() => onSelectNode(node)}
+                            >
+                                <span className={styles.itemName}>
+                                    {getLocalizedNodeName(node.nodeName, node.nodeNameKo, locale)}
+                                </span>
+                                <span className={styles.itemId}>{node.id}</span>
+                            </button>
+                        ))
+                    )}
+                </div>
             </div>
         </div>
     );
 };
-
-export const CanvasAddNodesPopup = memo(CanvasAddNodesPopupComponent);

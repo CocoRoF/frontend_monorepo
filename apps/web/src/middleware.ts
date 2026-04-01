@@ -128,20 +128,9 @@ export function middleware(request: NextRequest) {
   }
 
   // ──────────────────────────────────────────────────────────
-  // 인증 쿠키 확인 (lightweight server-side check)
-  // 쿠키 이름: xgen_access_token (api-client에서 설정)
-  //
-  // ※ 이것은 쿠키 유무만 확인하는 경량 검사임
-  //   실제 토큰 유효성 검증은 client-side AuthGuard에서 수행
+  // 인증 검사는 client-side AuthGuard/ReverseAuthGuard에서 수행
+  // 기존 xgen-frontend과 동일하게 middleware에서는 인증 리다이렉트를 하지 않음
   // ──────────────────────────────────────────────────────────
-  const accessToken = request.cookies.get('xgen_access_token')?.value;
-
-  if (!accessToken) {
-    // 토큰 없음 → 로그인 페이지로 리다이렉트
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', encodeURIComponent(pathname + request.nextUrl.search));
-    return NextResponse.redirect(loginUrl);
-  }
 
   return response;
 }

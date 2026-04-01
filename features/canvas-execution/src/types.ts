@@ -84,3 +84,26 @@ export interface CanvasExecutionLogPanelProps {
     onFullscreen?: () => void;
     children: React.ReactNode;
 }
+
+export interface CanvasBottomPanelContentProps {
+    output: ExecutionOutput;
+    onClearOutput?: () => void;
+    logs?: any[];
+    onClearLogs?: () => void;
+    workflowName: string;
+    workflowId: string;
+    userId?: string | null;
+    canvasState?: any;
+    activeNodes?: Set<string>;
+    onApplyLayout?: () => void;
+    onExecuteWithInput?: (inputText?: string) => Promise<void>;
+    isExecuting?: boolean;
+    executionSource?: 'button' | 'chat' | null;
+    mockExecutionOrder?: {
+        parallel_execution_order?: string[][];
+        execution_order?: string[];
+        nodes?: Record<string, { data?: { nodeName?: string } }>;
+    } | null;
+    fetchExecutionOrderByData?: (workflowData: any) => Promise<any>;
+    LogViewerComponent?: React.ComponentType<{ logs: any[]; onClearLogs?: () => void; className?: string }>;
+}
