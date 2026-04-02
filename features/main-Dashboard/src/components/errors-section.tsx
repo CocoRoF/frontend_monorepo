@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import styles from '../styles/dashboard.module.scss';
 import type { DashboardErrorItem } from '../types';
 import { useTranslation } from '@xgen/i18n';
 import { Button } from '@xgen/ui';
@@ -19,9 +18,9 @@ export const ErrorsSection: React.FC<ErrorsSectionProps> = ({
   const { t } = useTranslation();
 
   return (
-    <section className={styles.errorsSection}>
-      <div className={styles.updatesSectionHeader}>
-        <h3 className={styles.sectionTitle}>
+    <section className="flex flex-col bg-white rounded-xl shadow-md overflow-hidden">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+        <h3 className="text-lg font-semibold text-foreground m-0">
           {t('dashboard.recentErrors')}
         </h3>
         {onViewAll && (
@@ -36,33 +35,33 @@ export const ErrorsSection: React.FC<ErrorsSectionProps> = ({
         )}
       </div>
 
-      <table className={styles.errorsTable}>
-        <thead className={styles.errorsHeader}>
+      <table className="w-full border-collapse">
+        <thead className="bg-muted">
           <tr>
-            <th style={{ width: 40 }}></th>
-            <th>{t('dashboard.errors.workflow')}</th>
-            <th>{t('dashboard.errors.time')}</th>
-            <th>{t('dashboard.errors.message')}</th>
+            <th style={{ width: 40 }} className="px-4 py-2 text-xs font-semibold text-muted-foreground text-left uppercase tracking-wider"></th>
+            <th className="px-4 py-2 text-xs font-semibold text-muted-foreground text-left uppercase tracking-wider">{t('dashboard.errors.workflow')}</th>
+            <th className="px-4 py-2 text-xs font-semibold text-muted-foreground text-left uppercase tracking-wider">{t('dashboard.errors.time')}</th>
+            <th className="px-4 py-2 text-xs font-semibold text-muted-foreground text-left uppercase tracking-wider">{t('dashboard.errors.message')}</th>
           </tr>
         </thead>
-        <tbody className={styles.errorsBody}>
+        <tbody>
           {errors.length === 0 ? (
             <tr>
-              <td colSpan={4} style={{ textAlign: 'center' }}>
+              <td colSpan={4} className="px-4 py-2 text-sm text-foreground text-center">
                 {t('dashboard.noErrors')}
               </td>
             </tr>
           ) : (
             errors.map((error) => (
-              <tr key={error.id}>
-                <td>
-                  <FiAlertCircle className={styles.errorIcon} />
+              <tr key={error.id} className="border-b border-border last:border-b-0 hover:bg-primary/[0.02]">
+                <td className="px-4 py-2 text-sm text-foreground align-middle">
+                  <FiAlertCircle className="w-5 h-5 text-red-500" />
                 </td>
-                <td className={styles.errorWorkflow}>
+                <td className="px-4 py-2 text-sm text-foreground align-middle">
                   {error.workflowName}
                 </td>
-                <td className={styles.errorTime}>{error.time}</td>
-                <td className={styles.errorMessage}>{error.message}</td>
+                <td className="px-4 py-2 text-sm text-muted-foreground/60 whitespace-nowrap align-middle">{error.time}</td>
+                <td className="px-4 py-2 text-sm text-muted-foreground max-w-[300px] truncate align-middle">{error.message}</td>
               </tr>
             ))
           )}

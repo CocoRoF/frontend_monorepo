@@ -7,7 +7,6 @@ import { FiFolder, FiDownload, FiSearch, FiRefreshCw, FiUpload, FiStar, FiUser, 
 import { useTranslation } from '@xgen/i18n';
 import { useAuth } from '@xgen/auth-provider';
 import { listWorkflowStore, downloadWorkflowTemplate } from './api';
-import styles from './styles/workflow-store.module.scss';
 
 // ─────────────────────────────────────────────────────────────
 // Types
@@ -175,28 +174,28 @@ export const WorkflowStore: React.FC<WorkflowStoreProps> = ({ onStorageRefresh }
   ];
 
   return (
-    <div className={styles.container}>
+    <div className="flex flex-col h-full gap-6">
       {/* Header */}
-      <div className={styles.header}>
-        <div className={styles.headerLeft}>
-          <div className={styles.searchContainer}>
-            <FiSearch className={styles.searchIcon} />
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-4 flex-1 min-w-[200px] max-w-[400px]">
+          <div className="relative w-full">
+            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-[18px] h-[18px] pointer-events-none" />
             <input
               type="text"
               placeholder={t('workflows.store.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className={styles.searchInput}
+              className="w-full py-2.5 pl-10 pr-4 border border-border rounded-lg text-sm outline-none transition-colors duration-150 focus:border-primary placeholder:text-muted-foreground"
             />
           </div>
         </div>
 
-        <div className={styles.headerRight}>
-          <div className={styles.filterTabs}>
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex gap-1 p-1 bg-muted rounded-lg">
             {filterTabs.map((tab) => (
               <button
                 key={tab.key}
-                className={`${styles.filterTab} ${filterMode === tab.key ? styles.active : ''}`}
+                className={`px-3 py-1.5 border-none bg-transparent text-muted-foreground text-[13px] font-medium cursor-pointer rounded transition-all duration-150 hover:text-foreground ${filterMode === tab.key ? 'bg-white text-primary shadow-sm' : ''}`}
                 onClick={() => setFilterMode(tab.key as StoreFilterMode)}
               >
                 {tab.label}
@@ -220,15 +219,15 @@ export const WorkflowStore: React.FC<WorkflowStoreProps> = ({ onStorageRefresh }
             disabled={loading}
             title={t('workflows.store.refresh')}
           >
-            <FiRefreshCw className={loading ? styles.spinning : ''} />
+            <FiRefreshCw className={loading ? 'animate-spin' : ''} />
           </Button>
         </div>
       </div>
 
       {/* Content */}
-      <div className={styles.content}>
+      <div className="flex-1 min-h-0 overflow-y-auto">
         {!isInitialized ? (
-          <div className={styles.loadingState}>
+          <div className="flex items-center justify-center h-[200px] text-muted-foreground text-sm">
             <p>{t('workflows.store.loading')}</p>
           </div>
         ) : error ? (
@@ -263,8 +262,8 @@ export const WorkflowStore: React.FC<WorkflowStoreProps> = ({ onStorageRefresh }
 
       {/* TODO: Upload Modal */}
       {isUploadModalOpen && (
-        <div className={styles.modalOverlay} onClick={() => setIsUploadModalOpen(false)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]" onClick={() => setIsUploadModalOpen(false)}>
+          <div className="bg-white rounded-xl p-8 max-w-[500px] w-[90%] text-center [&_h3]:m-0 [&_h3]:mb-4 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-foreground [&_p]:m-0 [&_p]:mb-6 [&_p]:text-sm [&_p]:text-muted-foreground" onClick={(e) => e.stopPropagation()}>
             <h3>{t('workflows.store.uploadModal.title')}</h3>
             <p>{t('workflows.store.uploadModal.description')}</p>
             <Button variant="primary" onClick={() => setIsUploadModalOpen(false)}>

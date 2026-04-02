@@ -51,7 +51,6 @@ import {
 
 // 번역 등록 (모듈 로드 시 자동 등록)
 import './locales';
-import styles from './styles/auth-profile.module.scss';
 
 // ─────────────────────────────────────────────────────────────
 // Constants & Helpers
@@ -476,10 +475,10 @@ const AuthProfilePage: React.FC<AuthProfilePageProps> = ({
 
   if (activeTab === 'store') {
     return (
-      <div className={styles.container}>
+      <div className="p-8 max-w-[1400px] mx-auto">
         {/* Header */}
-        <div className={styles.header}>
-          <div className={styles.headerLeft}>
+        <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
+          <div className="flex items-center gap-4 flex-1 min-w-[300px]">
             <FilterTabs
               tabs={tabTabs}
               activeKey={activeTab}
@@ -491,7 +490,7 @@ const AuthProfilePage: React.FC<AuthProfilePageProps> = ({
               placeholder={t('authProfile.search.placeholder')}
             />
           </div>
-          <div className={styles.headerRight}>
+          <div className="flex items-center gap-2">
             <FilterTabs
               tabs={storeFilterTabs}
               activeKey={storeFilterMode}
@@ -511,9 +510,9 @@ const AuthProfilePage: React.FC<AuthProfilePageProps> = ({
 
         {/* Tag Filter */}
         {allStoreTags.length > 0 && (
-          <div className={styles.tagFilter}>
+          <div className="flex flex-wrap gap-2 mb-6">
             <span
-              className={`${styles.tag} ${selectedTag === null ? styles.tagActive : ''}`}
+              className={`inline-flex items-center px-4 py-1 border rounded-full text-sm cursor-pointer transition-all ${selectedTag === null ? 'bg-primary border-primary text-white' : 'bg-gray-100 border-border text-muted-foreground hover:bg-gray-200'}`}
               onClick={() => setSelectedTag(null)}
             >
               {t('authProfile.store.allTags')}
@@ -521,7 +520,7 @@ const AuthProfilePage: React.FC<AuthProfilePageProps> = ({
             {allStoreTags.map((tag) => (
               <span
                 key={tag}
-                className={`${styles.tag} ${selectedTag === tag ? styles.tagActive : ''}`}
+                className={`inline-flex items-center px-4 py-1 border rounded-full text-sm cursor-pointer transition-all ${selectedTag === tag ? 'bg-primary border-primary text-white' : 'bg-gray-100 border-border text-muted-foreground hover:bg-gray-200'}`}
                 onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
               >
                 {tag}
@@ -531,9 +530,9 @@ const AuthProfilePage: React.FC<AuthProfilePageProps> = ({
         )}
 
         {/* Content */}
-        <div className={styles.content}>
+        <div className="min-h-[400px]">
           {storeLoading ? (
-            <div className={styles.loading}>{t('common.loading')}</div>
+            <div className="flex items-center justify-center h-[300px] text-muted-foreground">{t('common.loading')}</div>
           ) : filteredStoreProfiles.length === 0 ? (
             <EmptyState
               icon={<FiKey />}
@@ -557,10 +556,10 @@ const AuthProfilePage: React.FC<AuthProfilePageProps> = ({
 
         {/* Upload Modal */}
         {isUploadModalOpen && (
-          <div className={styles.modalOverlay} onClick={() => setIsUploadModalOpen(false)}>
-            <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]" onClick={() => setIsUploadModalOpen(false)}>
+            <div className="bg-white rounded-xl p-8 min-w-[400px] max-w-[500px] shadow-md [&_h3]:m-0 [&_h3]:mb-6 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-foreground" onClick={(e) => e.stopPropagation()}>
               <h3>{t('authProfile.uploadModal.title')}</h3>
-              <div className={styles.formGroup}>
+              <div className="mb-4 [&_label]:block [&_label]:mb-2 [&_label]:text-sm [&_label]:font-medium [&_label]:text-foreground [&_select]:w-full [&_select]:px-4 [&_select]:py-2 [&_select]:border [&_select]:border-border [&_select]:rounded-lg [&_select]:text-base [&_select]:transition-colors focus:[&_select]:outline-none focus:[&_select]:border-primary">
                 <label>{t('authProfile.uploadModal.selectProfile')}</label>
                 <select
                   value={uploadSelectedServiceId}
@@ -574,7 +573,7 @@ const AuthProfilePage: React.FC<AuthProfilePageProps> = ({
                   ))}
                 </select>
               </div>
-              <div className={styles.formGroup}>
+              <div className="mb-4 [&_label]:block [&_label]:mb-2 [&_label]:text-sm [&_label]:font-medium [&_label]:text-foreground [&_input]:w-full [&_input]:px-4 [&_input]:py-2 [&_input]:border [&_input]:border-border [&_input]:rounded-lg [&_input]:text-base [&_input]:transition-colors focus:[&_input]:outline-none focus:[&_input]:border-primary">
                 <label>{t('authProfile.uploadModal.tags')}</label>
                 <input
                   type="text"
@@ -583,7 +582,7 @@ const AuthProfilePage: React.FC<AuthProfilePageProps> = ({
                   placeholder={t('authProfile.uploadModal.tagsPlaceholder')}
                 />
               </div>
-              <div className={styles.modalActions}>
+              <div className="flex justify-end gap-2 mt-6">
                 <Button variant="outline" onClick={() => setIsUploadModalOpen(false)}>
                   {t('common.cancel')}
                 </Button>
@@ -603,17 +602,17 @@ const AuthProfilePage: React.FC<AuthProfilePageProps> = ({
   // ─────────────────────────────────────────────────────────
 
   return (
-    <div className={styles.container}>
+    <div className="p-8 max-w-[1400px] mx-auto">
       {/* Header */}
-      <div className={styles.header}>
-        <div className={styles.headerLeft}>
+      <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
+        <div className="flex items-center gap-4 flex-1 min-w-[300px]">
           <FilterTabs
             tabs={tabTabs}
             activeKey={activeTab}
             onChange={(key) => onTabChange?.(key as AuthProfileTab)}
           />
         </div>
-        <div className={styles.headerRight}>
+        <div className="flex items-center gap-2">
           <FilterTabs
             tabs={statusTabs}
             activeKey={statusFilter}
@@ -636,11 +635,11 @@ const AuthProfilePage: React.FC<AuthProfilePageProps> = ({
       </div>
 
       {/* Content */}
-      <div className={styles.content}>
+      <div className="min-h-[400px]">
         {loading ? (
-          <div className={styles.loading}>{t('common.loading')}</div>
+          <div className="flex items-center justify-center h-[300px] text-muted-foreground">{t('common.loading')}</div>
         ) : error ? (
-          <div className={styles.error}>{error}</div>
+          <div className="flex items-center justify-center h-[300px] text-red-500">{error}</div>
         ) : filteredProfiles.length === 0 ? (
           <EmptyState
             icon={<FiKey />}

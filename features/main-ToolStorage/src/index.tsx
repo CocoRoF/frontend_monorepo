@@ -113,25 +113,6 @@ const MOCK_TOOLS: ToolItem[] = [
 ];
 
 // ─────────────────────────────────────────────────────────────
-// Styles
-// ─────────────────────────────────────────────────────────────
-
-const styles = {
-  container: { padding: '24px', maxWidth: '1400px', margin: '0 auto' },
-  header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap' as const, gap: '16px' },
-  headerLeft: { display: 'flex', alignItems: 'center', gap: '16px', flex: 1 },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' },
-  card: { display: 'flex', flexDirection: 'column' as const, padding: '20px', background: '#fff', border: '1px solid #E5E7EB', borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s ease' },
-  cardHeader: { display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' },
-  cardIcon: { width: '40px', height: '40px', borderRadius: '8px', background: 'rgba(48, 94, 235, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#305EEB' },
-  cardInfo: { flex: 1, minWidth: 0 },
-  cardName: { fontSize: '14px', fontWeight: 600, color: '#1F2937', margin: '0 0 4px' },
-  cardType: { fontSize: '11px', color: '#6B7280', textTransform: 'uppercase' as const, letterSpacing: '0.5px' },
-  cardDescription: { fontSize: '13px', color: '#6B7280', margin: '0 0 12px', lineHeight: 1.5 },
-  cardMeta: { fontSize: '12px', color: '#9CA3AF', display: 'flex', gap: '16px', marginTop: 'auto' },
-  loading: { display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '300px' },
-  spinner: { width: '40px', height: '40px', border: '3px solid #E5E7EB', borderTopColor: '#305EEB', borderRadius: '50%', animation: 'spin 1s linear infinite' },
-};
 
 // ─────────────────────────────────────────────────────────────
 // Tool Storage Page
@@ -200,9 +181,9 @@ const ToolStoragePage: React.FC<ToolStoragePageProps> = () => {
         </Button>
       }
     >
-      <div style={styles.container}>
-        <div style={styles.header}>
-          <div style={styles.headerLeft}>
+      <div className="p-6 max-w-[1400px] mx-auto">
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+          <div className="flex items-center gap-4 flex-1">
             <FilterTabs
               tabs={filterTabs}
               activeKey={filter}
@@ -218,8 +199,8 @@ const ToolStoragePage: React.FC<ToolStoragePageProps> = () => {
         </div>
 
         {loading ? (
-          <div style={styles.loading}>
-            <div style={styles.spinner} />
+          <div className="flex items-center justify-center min-h-[300px]">
+            <div className="w-10 h-10 border-3 border-border border-t-primary rounded-full animate-spin" />
           </div>
         ) : filteredTools.length === 0 ? (
           <EmptyState
@@ -228,20 +209,20 @@ const ToolStoragePage: React.FC<ToolStoragePageProps> = () => {
             description={t('toolStorage.empty.description')}
           />
         ) : (
-          <div style={styles.grid}>
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4">
             {filteredTools.map(tool => (
-              <div key={tool.id} style={styles.card}>
-                <div style={styles.cardHeader}>
-                  <div style={styles.cardIcon}>
+              <div key={tool.id} className="flex flex-col p-5 bg-white border border-border rounded-xl cursor-pointer transition-all duration-200 hover:shadow-md">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 text-primary">
                     {getTypeIcon(tool.type)}
                   </div>
-                  <div style={styles.cardInfo}>
-                    <h3 style={styles.cardName}>{tool.name}</h3>
-                    <span style={styles.cardType}>{tool.type}</span>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-semibold text-foreground mb-1">{tool.name}</h3>
+                    <span className="text-[11px] text-muted-foreground uppercase tracking-wider">{tool.type}</span>
                   </div>
                 </div>
-                <p style={styles.cardDescription}>{tool.description}</p>
-                <div style={styles.cardMeta}>
+                <p className="text-[13px] text-muted-foreground mb-3 leading-relaxed">{tool.description}</p>
+                <div className="text-xs text-muted-foreground/60 flex gap-4 mt-auto">
                   <span>{tool.usageCount.toLocaleString()} uses</span>
                   {tool.parameters && (
                     <span>{tool.parameters.length} params</span>

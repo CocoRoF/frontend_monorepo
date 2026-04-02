@@ -7,7 +7,6 @@ import type { FeatureModule } from '@xgen/types';
 import { useAuth } from '@xgen/auth-provider';
 import { useTranslation } from '@xgen/i18n';
 import { FiEye, FiEyeOff } from '@xgen/icons';
-import styles from './styles/login-form.module.css';
 
 // ─────────────────────────────────────────────────────────────
 // Login Form Props
@@ -88,15 +87,15 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   }, [email, password, loginWithCredentials, redirectUrl, onSuccess, t]);
 
   return (
-    <div className={styles.loginPage}>
-      <div className={styles.loginBox}>
-        <div className={styles.logoArea}>
-          <h1 className={styles.logoText}>{t('loginForm.title')}</h1>
-          <p className={styles.subtitle}>{t('loginForm.subtitle')}</p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] p-5">
+      <div className="w-full max-w-[420px] bg-white rounded-2xl py-12 px-10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]">
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-bold text-[#1a1a2e] m-0 mb-2 tracking-tight">{t('loginForm.title')}</h1>
+          <p className="text-sm text-gray-500 m-0">{t('loginForm.subtitle')}</p>
         </div>
 
-        <form onSubmit={handleSubmit} className={styles.loginForm}>
-          <div className={styles.inputGroup}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="w-full">
             <input
               type="email"
               id="login-email"
@@ -106,12 +105,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               placeholder={t('loginForm.emailPlaceholder')}
               autoComplete="email"
               required
-              className={styles.input}
+              className="w-full py-3.5 px-4 text-[15px] border border-gray-200 rounded-lg outline-none transition-all duration-200 bg-gray-50 box-border focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)] focus:bg-white placeholder:text-gray-400"
             />
           </div>
 
-          <div className={styles.inputGroup}>
-            <div className={styles.passwordWrapper}>
+          <div className="w-full">
+            <div className="relative w-full">
               <input
                 type={showPassword ? 'text' : 'password'}
                 id="login-password"
@@ -121,11 +120,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 placeholder={t('loginForm.passwordPlaceholder')}
                 autoComplete="current-password"
                 required
-                className={styles.input}
+                className="w-full py-3.5 px-4 pr-12 text-[15px] border border-gray-200 rounded-lg outline-none transition-all duration-200 bg-gray-50 box-border focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)] focus:bg-white placeholder:text-gray-400"
               />
               <button
                 type="button"
-                className={styles.eyeToggle}
+                className="absolute right-3 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer text-lg p-1 flex items-center justify-center"
                 onClick={() => setShowPassword(!showPassword)}
                 tabIndex={-1}
                 aria-label={showPassword ? t('loginForm.hidePassword') : t('loginForm.showPassword')}
@@ -136,26 +135,26 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           </div>
 
           {error && (
-            <div className={styles.errorRow} role="alert">
-              <span className={styles.errorIcon}>⚠️</span>
-              <span className={styles.errorText}>{error}</span>
+            <div className="flex items-center gap-2 py-3 px-4 bg-red-50 rounded-lg border border-red-200" role="alert">
+              <span className="text-lg shrink-0">⚠️</span>
+              <span className="text-sm text-red-600">{error}</span>
             </div>
           )}
 
-          <div className={styles.buttons}>
-            <button type="submit" className={styles.loginButton} disabled={isLoading}>
+          <div className="mt-2">
+            <button type="submit" className="w-full py-3.5 px-6 text-base font-semibold text-white bg-gradient-to-br from-blue-500 to-blue-600 border-none rounded-lg cursor-pointer transition-all duration-200 hover:not-disabled:bg-gradient-to-br hover:not-disabled:from-blue-600 hover:not-disabled:to-blue-700 hover:not-disabled:-translate-y-px hover:not-disabled:shadow-[0_4px_12px_rgba(37,99,235,0.4)] disabled:opacity-60 disabled:cursor-not-allowed" disabled={isLoading}>
               {isLoading ? t('loginForm.loginLoading') : t('loginForm.loginButton')}
             </button>
           </div>
         </form>
 
-        <div className={styles.links}>
-          <a href={forgotPasswordHref} className={styles.link}>
+        <div className="mt-8 text-center">
+          <a href={forgotPasswordHref} className="text-blue-500 no-underline text-sm font-medium hover:underline">
             {t('loginForm.forgotPassword')}
           </a>
-          <p className={styles.signupText}>
+          <p className="mt-4 text-sm text-gray-500">
             <span>{t('loginForm.noAccount')} </span>
-            <a href={signupHref} className={styles.link}>
+            <a href={signupHref} className="text-blue-500 no-underline text-sm font-medium hover:underline">
               {t('loginForm.signup')}
             </a>
           </p>

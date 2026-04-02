@@ -64,111 +64,6 @@ const AgentIcon: React.FC = () => (
 );
 
 // ─────────────────────────────────────────────────────────────
-// Styles
-// ─────────────────────────────────────────────────────────────
-
-const styles = {
-  container: {
-    padding: '24px',
-    maxWidth: '1200px',
-    margin: '0 auto',
-  } as React.CSSProperties,
-  hero: {
-    textAlign: 'center' as const,
-    padding: '48px 0',
-    marginBottom: '48px',
-    background: 'linear-gradient(135deg, rgba(48, 94, 235, 0.05) 0%, rgba(99, 102, 241, 0.05) 100%)',
-    borderRadius: '16px',
-  },
-  heroIcon: {
-    width: '80px',
-    height: '80px',
-    margin: '0 auto 24px',
-    background: 'linear-gradient(135deg, #305EEB 0%, #6366F1 100%)',
-    borderRadius: '16px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: 'white',
-  },
-  heroTitle: {
-    fontSize: '32px',
-    fontWeight: 700,
-    color: '#1F2937',
-    margin: '0 0 16px',
-  },
-  heroDescription: {
-    fontSize: '18px',
-    color: '#6B7280',
-    margin: '0 0 32px',
-    maxWidth: '600px',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    lineHeight: 1.6,
-  },
-  heroActions: {
-    display: 'flex',
-    justifyContent: 'center',
-    gap: '16px',
-  },
-  section: {
-    marginBottom: '48px',
-  },
-  sectionTitle: {
-    fontSize: '20px',
-    fontWeight: 600,
-    color: '#1F2937',
-    margin: '0 0 24px',
-    textAlign: 'center' as const,
-  },
-  templatesGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-    gap: '24px',
-  },
-  templateCard: {
-    padding: '32px',
-    background: '#fff',
-    border: '1px solid #E5E7EB',
-    borderRadius: '12px',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    textAlign: 'center' as const,
-  },
-  templateIcon: {
-    width: '64px',
-    height: '64px',
-    margin: '0 auto 16px',
-    background: 'rgba(48, 94, 235, 0.1)',
-    borderRadius: '12px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: '#305EEB',
-  },
-  templateTitle: {
-    fontSize: '16px',
-    fontWeight: 600,
-    color: '#1F2937',
-    margin: '0 0 8px',
-  },
-  templateDescription: {
-    fontSize: '14px',
-    color: '#6B7280',
-    margin: 0,
-    lineHeight: 1.5,
-  },
-  templateBadge: {
-    display: 'inline-block',
-    padding: '4px 8px',
-    background: 'rgba(48, 94, 235, 0.1)',
-    borderRadius: '4px',
-    fontSize: '12px',
-    color: '#305EEB',
-    fontWeight: 500,
-    marginTop: '12px',
-  },
-};
 
 // ─────────────────────────────────────────────────────────────
 // Canvas Intro Page
@@ -224,15 +119,15 @@ const CanvasIntroPage: React.FC<CanvasIntroPageProps> = ({ onNavigate, onCreateC
 
   return (
     <ContentArea title={t('canvasIntro.title')}>
-      <div style={styles.container}>
+      <div className="p-6 max-w-[1200px] mx-auto">
         {/* Hero */}
-        <section style={styles.hero}>
-          <div style={styles.heroIcon}>
+        <section className="text-center py-12 mb-12 bg-gradient-to-br from-primary/5 to-indigo-500/5 rounded-2xl">
+          <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-primary to-indigo-500 rounded-2xl flex items-center justify-center text-white">
             <CanvasIcon />
           </div>
-          <h1 style={styles.heroTitle}>{t('canvasIntro.hero.title')}</h1>
-          <p style={styles.heroDescription}>{t('canvasIntro.hero.description')}</p>
-          <div style={styles.heroActions}>
+          <h1 className="text-[32px] font-bold text-foreground mb-4">{t('canvasIntro.hero.title')}</h1>
+          <p className="text-lg text-muted-foreground mb-8 max-w-[600px] mx-auto leading-relaxed">{t('canvasIntro.hero.description')}</p>
+          <div className="flex justify-center gap-4">
             <Button onClick={() => handleSelectTemplate('blank')}>
               {t('canvasIntro.hero.createBlank')}
             </Button>
@@ -243,23 +138,23 @@ const CanvasIntroPage: React.FC<CanvasIntroPageProps> = ({ onNavigate, onCreateC
         </section>
 
         {/* Templates */}
-        <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>{t('canvasIntro.templates.title')}</h2>
-          <div style={styles.templatesGrid}>
+        <section className="mb-12">
+          <h2 className="text-xl font-semibold text-foreground mb-6 text-center">{t('canvasIntro.templates.title')}</h2>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-6">
             {templates.map((template) => (
               <div
                 key={template.id}
-                style={styles.templateCard}
+                className="p-8 bg-white border border-border rounded-xl cursor-pointer transition-all duration-200 text-center hover:shadow-md"
                 onClick={() => handleSelectTemplate(template.id)}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => e.key === 'Enter' && handleSelectTemplate(template.id)}
               >
-                <div style={styles.templateIcon}>{template.icon}</div>
-                <h3 style={styles.templateTitle}>{template.title}</h3>
-                <p style={styles.templateDescription}>{template.description}</p>
+                <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-xl flex items-center justify-center text-primary">{template.icon}</div>
+                <h3 className="text-base font-semibold text-foreground mb-2">{template.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{template.description}</p>
                 {template.badge && (
-                  <span style={styles.templateBadge}>{template.badge}</span>
+                  <span className="inline-block px-2 py-1 bg-primary/10 rounded text-xs text-primary font-medium mt-3">{template.badge}</span>
                 )}
               </div>
             ))}

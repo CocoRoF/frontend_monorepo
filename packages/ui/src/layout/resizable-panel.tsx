@@ -1,43 +1,21 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import styles from './resizable-panel.module.scss';
+import { cn } from '../lib/utils';
 
 export type ResizableDirection = 'horizontal' | 'vertical';
 
 export interface ResizablePanelProps {
-  /** 왼쪽/상단 패널 */
   leftPanel: React.ReactNode;
-  /** 오른쪽/하단 패널 */
   rightPanel: React.ReactNode;
-  /** 분할 방향 */
   direction?: ResizableDirection;
-  /** 기본 분할 비율 (0-100) */
   defaultSplit?: number;
-  /** 최소 크기 (0-100) */
   minSize?: number;
-  /** 최대 크기 (0-100) */
   maxSize?: number;
-  /** 크기 변경 콜백 */
   onResize?: (size: number) => void;
-  /** 추가 클래스 */
   className?: string;
 }
 
-/**
- * ResizablePanel - 드래그로 크기 조절 가능한 분할 패널
- *
- * @example
- * ```tsx
- * <ResizablePanel
- *   direction="horizontal"
- *   defaultSplit={60}
- *   minSize={30}
- *   leftPanel={<ChatArea />}
- *   rightPanel={<PDFViewer />}
- * />
- * ```
- */
 export const ResizablePanel: React.FC<ResizablePanelProps> = ({
   leftPanel,
   rightPanel,
@@ -55,16 +33,13 @@ export const ResizablePanel: React.FC<ResizablePanelProps> = ({
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
       if (!isDragging.current || !containerRef.current) return;
-
       const rect = containerRef.current.getBoundingClientRect();
       let newSplit: number;
-
       if (direction === 'horizontal') {
         newSplit = ((e.clientX - rect.left) / rect.width) * 100;
       } else {
         newSplit = ((e.clientY - rect.top) / rect.height) * 100;
       }
-
       newSplit = Math.max(minSize, Math.min(maxSize, newSplit));
       setSplit(newSplit);
       onResize?.(newSplit);
@@ -79,15 +54,11 @@ export const ResizablePanel: React.FC<ResizablePanelProps> = ({
   }, []);
 
   useEffect(() => {
-    const handleMouseMoveGlobal = (e: MouseEvent) => handleMouseMove(e);
-    const handleMouseUpGlobal = () => handleMouseUp();
-
-    document.addEventListener('mousemove', handleMouseMoveGlobal);
-    document.addEventListener('mouseup', handleMouseUpGlobal);
-
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
     return () => {
-      document.removeEventListener('mousemove', handleMouseMoveGlobal);
-      document.removeEventListener('mouseup', handleMouseUpGlobal);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [handleMouseMove, handleMouseUp]);
 
@@ -98,33 +69,46 @@ export const ResizablePanel: React.FC<ResizablePanelProps> = ({
     document.body.style.userSelect = 'none';
   };
 
+  const isHorizontal = direction === 'horizontal';
+
   return (
     <div
       ref={containerRef}
-      className={`${styles.container} ${styles[direction]} ${className || ''}`}
+      className={cn(
+        'flex w-full h-full overflow-hidden',
+        isHorizontal ? 'flex-row' : 'flex-col',
+        className,
+      )}
     >
       <div
-        className={styles.leftPanel}
-        style={{
-          [direction === 'horizontal' ? 'width' : 'height']: `${split}%`,
-        }}
+        className="overflow-auto"
+        style={{ [isHorizontal ? 'width' : 'height']: `${split}%` }}
       >
         {leftPanel}
       </div>
       <div
-        className={styles.divider}
+        className={cn(
+          'shrink-0 flex items-center justify-center group',
+          isHorizontal
+            ? 'w-1 cursor-col-resize hover:bg-primary/20'
+            : 'h-1 cursor-row-resize hover:bg-primary/20',
+          'bg-border transition-colors',
+        )}
         onMouseDown={handleMouseDown}
         role="separator"
         aria-orientation={direction}
         tabIndex={0}
       >
-        <div className={styles.dividerHandle} />
+        <div
+          className={cn(
+            'rounded-full bg-gray-400 group-hover:bg-primary transition-colors',
+            isHorizontal ? 'w-0.5 h-6' : 'h-0.5 w-6',
+          )}
+        />
       </div>
       <div
-        className={styles.rightPanel}
-        style={{
-          [direction === 'horizontal' ? 'width' : 'height']: `${100 - split}%`,
-        }}
+        className="overflow-auto flex-1"
+        style={{ [isHorizontal ? 'width' : 'height']: `${100 - split}%` }}
       >
         {rightPanel}
       </div>

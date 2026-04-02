@@ -8,7 +8,6 @@ import { FiFolder, FiPlay, FiEdit2, FiCopy, FiTrash2, FiSettings, FiFileText, Fi
 import { useTranslation } from '@xgen/i18n';
 import { useAuth } from '@xgen/auth-provider';
 import { listWorkflowsDetail, deleteWorkflow, duplicateWorkflow } from './api';
-import styles from './styles/workflows.module.scss';
 
 // ─────────────────────────────────────────────────────────────
 // Constants & Helpers
@@ -329,14 +328,14 @@ export const WorkflowStorage: React.FC<WorkflowStorageProps> = ({ onNavigate }) 
   ]);
 
   return (
-    <div className={styles.container}>
+    <div className="flex flex-col h-full gap-6">
       {/* Header */}
-      <div className={styles.header}>
-        <div className={styles.headerLeft}>
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-4">
           {statusTabs.map((tab) => (
             <button
               key={tab.key}
-              className={`${styles.filterTab || ''} ${statusFilter === tab.key ? styles.active || '' : ''}`}
+              className={`px-3 py-1.5 border-none bg-transparent text-muted-foreground text-[13px] font-medium cursor-pointer rounded transition-all duration-150 hover:text-foreground ${statusFilter === tab.key ? 'bg-white text-primary shadow-sm' : ''}`}
               onClick={() => setStatusFilter(tab.key as WorkflowStatusFilter)}
             >
               {tab.label}
@@ -344,11 +343,11 @@ export const WorkflowStorage: React.FC<WorkflowStorageProps> = ({ onNavigate }) 
           ))}
         </div>
 
-        <div className={styles.headerRight}>
+        <div className="flex items-center gap-2">
           {ownerTabs.map((tab) => (
             <button
               key={tab.key}
-              className={`${styles.filterTab || ''} ${ownerFilter === tab.key ? styles.active || '' : ''}`}
+              className={`px-3 py-1.5 border-none bg-transparent text-muted-foreground text-[13px] font-medium cursor-pointer rounded transition-all duration-150 hover:text-foreground ${ownerFilter === tab.key ? 'bg-white text-primary shadow-sm' : ''}`}
               onClick={() => setOwnerFilter(tab.key as WorkflowOwnerFilter)}
             >
               {tab.label}
@@ -377,15 +376,15 @@ export const WorkflowStorage: React.FC<WorkflowStorageProps> = ({ onNavigate }) 
             onClick={fetchWorkflows}
             disabled={loading}
           >
-            <FiRefreshCw className={loading ? styles.spinning : ''} />
+            <FiRefreshCw className={loading ? 'animate-spin' : ''} />
           </Button>
         </div>
       </div>
 
       {/* Content */}
-      <div className={styles.content}>
+      <div className="flex-1 min-h-0 overflow-y-auto">
         {!isInitialized ? (
-          <div className={styles.loadingState}>
+          <div className="flex items-center justify-center h-[200px] text-muted-foreground text-sm">
             <p>{t('workflows.messages.loadingAuth')}</p>
           </div>
         ) : error ? (

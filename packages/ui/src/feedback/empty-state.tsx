@@ -1,7 +1,7 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
-import styles from './empty-state.module.scss';
+import { cn } from '../lib/utils';
 
 export interface EmptyStateAction {
   label: string;
@@ -10,74 +10,51 @@ export interface EmptyStateAction {
   variant?: 'primary' | 'secondary';
 }
 
+export interface SuggestionItem {
+  text: string;
+}
+
 export interface EmptyStateProps {
-  /** 아이콘 */
   icon?: React.ReactNode;
-  /** 제목 */
   title: string;
-  /** 설명 */
   description?: string;
-  /** 액션 버튼 */
   action?: EmptyStateAction;
-  /** 추천 항목 */
   suggestions?: string[];
-  /** 추천 항목 클릭 콜백 */
   onSuggestionClick?: (text: string) => void;
-  /** 추가 클래스 */
   className?: string;
 }
 
-/**
- * EmptyState - 빈 상태 표시 컴포넌트
- *
- * @example
- * ```tsx
- * <EmptyState
- *   icon={<FiMessageCircle size={48} />}
- *   title="대화를 시작해보세요"
- *   description="AI와 대화하여 업무를 자동화할 수 있습니다."
- *   action={{
- *     label: '새 대화 시작',
- *     onClick: handleNewChat,
- *     icon: <FiPlus />,
- *   }}
- *   suggestions={['오늘 일정 알려줘', '이메일 요약해줘']}
- *   onSuggestionClick={handleSuggestionClick}
- * />
- * ```
- */
 export const EmptyState: React.FC<EmptyStateProps> = ({
-  icon,
-  title,
-  description,
-  action,
-  suggestions,
-  onSuggestionClick,
-  className,
+  icon, title, description, action, suggestions, onSuggestionClick, className,
 }) => {
   return (
-    <div className={`${styles.container} ${className || ''}`}>
-      {icon && <div className={styles.icon}>{icon}</div>}
-      <h3 className={styles.title}>{title}</h3>
-      {description && <p className={styles.description}>{description}</p>}
+    <div className={cn('flex flex-col items-center justify-center py-16 px-6 text-center', className)}>
+      {icon && <div className="mb-4 text-muted-foreground [&_svg]:h-12 [&_svg]:w-12">{icon}</div>}
+      <h3 className="text-lg font-semibold text-foreground mb-1">{title}</h3>
+      {description && <p className="text-sm text-muted-foreground max-w-md mb-6">{description}</p>}
       {action && (
         <button
           type="button"
-          className={`${styles.actionButton} ${styles[action.variant || 'primary']}`}
           onClick={action.onClick}
+          className={cn(
+            'inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors',
+            action.variant === 'secondary'
+              ? 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+              : 'bg-primary text-white hover:bg-primary/85'
+          )}
         >
-          {action.icon && <span className={styles.actionIcon}>{action.icon}</span>}
+          {action.icon && <span className="shrink-0">{action.icon}</span>}
           {action.label}
         </button>
       )}
       {suggestions && suggestions.length > 0 && (
-        <div className={styles.suggestions}>
+        <div className="flex flex-wrap justify-center gap-2 mt-6">
           {suggestions.map((text, idx) => (
             <button
               key={idx}
               type="button"
-              className={styles.suggestionChip}
               onClick={() => onSuggestionClick?.(text)}
+              className="px-3 py-1.5 rounded-full text-xs text-muted-foreground bg-accent hover:bg-gray-200 transition-colors"
             >
               {text}
             </button>

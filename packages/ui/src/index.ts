@@ -2,7 +2,15 @@
 
 // ============================================================
 // @xgen/ui - 공통 UI 컴포넌트 라이브러리
+//
+// ⚠️ 규칙:
+// - Feature는 반드시 이 패키지를 통해 UI를 사용한다.
+// - Radix UI, lucide-react 등을 Feature에서 직접 import하지 않는다.
+// - 새 프리미티브가 필요하면 shadcn CLI로 이 패키지에 추가한다.
 // ============================================================
+
+// ─── Utilities ───
+export { cn } from './lib/utils';
 
 // Layout Components
 export { ContentArea } from './layout/content-area';
@@ -89,3 +97,77 @@ export type {
   SidebarSupport,
   SidebarVariant,
 } from './navigation/sidebar';
+
+// ─── shadcn Primitives (Radix UI 기반) ───
+// Feature에서 @radix-ui/* 직접 import 금지. 아래를 통해 사용한다.
+
+export {
+  Accordion, AccordionItem, AccordionTrigger, AccordionContent,
+} from './primitives/accordion';
+
+export { Badge, badgeVariants } from './primitives/badge';
+
+export {
+  Button as ButtonPrimitive, buttonVariants,
+} from './primitives/button';
+
+export {
+  Card as CardPrimitive, CardHeader, CardFooter, CardTitle,
+  CardDescription, CardContent,
+} from './primitives/card';
+
+export {
+  Dialog, DialogPortal, DialogOverlay, DialogClose, DialogTrigger,
+  DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription,
+} from './primitives/dialog';
+
+export {
+  DropdownMenu as DropdownMenuPrimitive,
+  DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem as DropdownMenuItemPrimitive,
+  DropdownMenuCheckboxItem, DropdownMenuRadioItem, DropdownMenuLabel,
+  DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuGroup,
+  DropdownMenuPortal, DropdownMenuSub, DropdownMenuSubContent,
+  DropdownMenuSubTrigger, DropdownMenuRadioGroup,
+} from './primitives/dropdown-menu';
+
+export { Input } from './primitives/input';
+
+export { Label } from './primitives/label';
+
+export {
+  Popover, PopoverTrigger, PopoverContent,
+} from './primitives/popover';
+
+export { RadioGroup, RadioGroupItem } from './primitives/radio-group';
+
+export {
+  Select, SelectGroup, SelectValue, SelectTrigger, SelectContent,
+  SelectLabel, SelectItem, SelectSeparator, SelectScrollUpButton,
+  SelectScrollDownButton,
+} from './primitives/select';
+
+export { Separator } from './primitives/separator';
+
+export {
+  Sheet, SheetPortal, SheetOverlay, SheetTrigger, SheetClose,
+  SheetContent, SheetHeader, SheetFooter, SheetTitle, SheetDescription,
+} from './primitives/sheet';
+
+export { Skeleton } from './primitives/skeleton';
+
+export { Toaster } from './primitives/sonner';
+
+export { Switch } from './primitives/switch';
+
+export {
+  Table as TablePrimitive, TableHeader, TableBody, TableFooter,
+  TableHead, TableRow, TableCell, TableCaption,
+} from './primitives/table';
+
+export { Tabs, TabsList, TabsTrigger, TabsContent } from './primitives/tabs';
+
+export { Textarea } from './primitives/textarea';
+
+export {
+  Tooltip, TooltipTrigger, TooltipContent, TooltipProvider,
+} from './primitives/tooltip';

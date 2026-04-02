@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
@@ -7,7 +7,7 @@ import { FiChevronLeft, FiChevronRight, FiChevronUp, FiHelpCircle, FiSettings, F
 import type { SidebarConfig, SidebarSection as SidebarSectionType, SidebarSectionId } from '@xgen/types';
 import { SidebarSection } from './sidebar-section';
 import { SidebarPopover, PopoverItem } from './sidebar-popover';
-import styles from './sidebar.module.scss';
+import { cn } from '../../lib/utils';
 
 // ─────────────────────────────────────────────────────────────
 // Section Icons (기본 아이콘)
@@ -62,7 +62,6 @@ const DefaultSectionIcons: Record<string, React.ReactNode> = {
 };
 
 const getDefaultIcon = (sectionId: string): React.ReactNode => {
-  // ID에서 키워드 추출하여 매칭
   if (sectionId.includes('workspace') || sectionId.includes('dashboard')) return DefaultSectionIcons.workspace;
   if (sectionId.includes('chat')) return DefaultSectionIcons.chat;
   if (sectionId.includes('workflow') || sectionId.includes('canvas')) return DefaultSectionIcons.workflow;
@@ -73,171 +72,76 @@ const getDefaultIcon = (sectionId: string): React.ReactNode => {
   return DefaultSectionIcons.workspace;
 };
 
-// ─────────────────────────────────────────────────────────────
-// Sidebar Props
-// ─────────────────────────────────────────────────────────────
-
 export interface SidebarProps {
-  /** 사이드바 설정 */
   config: SidebarConfig;
 }
 
-/**
- * Sidebar - 범용 사이드바 컴포넌트
- *
- * admin, main, mypage, support 등 모든 페이지에서 사용 가능한 공통 사이드바.
- * SidebarConfig를 통해 섹션, 메뉴, 사용자 정보 등을 설정합니다.
- *
- * @example
- * ```tsx
- * const config: SidebarConfig = {
- *   logo: { expanded: 'XGEN', collapsed: 'X' },
- *   header: { modeLabelKey: 'sidebar.userMode' },
- *   sections: [
- *     {
- *       id: 'workspace',
- *       titleKey: 'sidebar.workspace.title',
- *       items: [
- *         { id: 'dashboard', titleKey: 'sidebar.dashboard' },
- *       ],
- *     },
- *   ],
- *   support: {
- *     titleKey: 'sidebar.support.title',
- *     items: [
- *       { id: 'faq', titleKey: 'sidebar.faq' },
- *     ],
- *   },
- *   user: { name: 'John', role: 'Admin' },
- *   onNavigate: (id) => router.push(`/main?view=${id}`),
- *   onLogout: handleLogout,
- *   collapsed: false,
- *   onToggle: () => setCollapsed(!collapsed),
- *   activeItemId: 'dashboard',
- * };
- *
- * <Sidebar config={config} />
- * ```
- */
 export const Sidebar: React.FC<SidebarProps> = ({ config }) => {
   const { t } = useTranslation();
   const {
-    logo,
-    header,
-    sections,
-    support,
-    user,
-    onLogout,
-    onNavigate,
-    onLogoClick,
-    collapsed = false,
-    onToggle,
-    activeItemId = '',
-    variant = 'main',
-    className,
+    logo, header, sections, support, user, onLogout, onNavigate, onLogoClick,
+    collapsed = false, onToggle, activeItemId = '', variant = 'main', className,
   } = config;
 
-  // 현재 확장된 섹션
   const [expandedSection, setExpandedSection] = useState<SidebarSectionId | null>(null);
-  // 지원 섹션 확장 상태
   const [supportExpanded, setSupportExpanded] = useState(false);
-  // 팝오버 상태 (축소 시)
   const [openPopover, setOpenPopover] = useState<SidebarSectionId | 'support' | null>(null);
   const [popoverAnchor, setPopoverAnchor] = useState<DOMRect | null>(null);
 
-  // 활성 아이템에 따라 섹션 자동 확장
   useEffect(() => {
     if (collapsed) {
       setExpandedSection(null);
       setSupportExpanded(false);
       return;
     }
-
-    // 활성 아이템이 속한 섹션 찾기
-    const activeSection = sections.find((section) =>
-      section.items.some((item) => item.id === activeItemId)
-    );
-    if (activeSection) {
-      setExpandedSection(activeSection.id);
-    }
-
-    // 지원 섹션 활성 아이템 확인
-    if (support?.items.some((item) => item.id === activeItemId)) {
-      setSupportExpanded(true);
-    }
+    const activeSection = sections.find((s) => s.items.some((item) => item.id === activeItemId));
+    if (activeSection) setExpandedSection(activeSection.id);
+    if (support?.items.some((item) => item.id === activeItemId)) setSupportExpanded(true);
   }, [activeItemId, sections, support, collapsed]);
 
-  // 섹션 토글
   const toggleSection = useCallback((sectionId: SidebarSectionId) => {
     setExpandedSection((prev) => (prev === sectionId ? null : sectionId));
   }, []);
 
-  // 축소 상태에서 섹션 클릭 (팝오버 표시)
-  const handleCollapsedSectionClick = useCallback(
-    (sectionId: SidebarSectionId, e: React.MouseEvent) => {
-      setPopoverAnchor((e.currentTarget as HTMLElement).getBoundingClientRect());
-      setOpenPopover(sectionId);
-    },
-    []
-  );
+  const handleCollapsedSectionClick = useCallback((sectionId: SidebarSectionId, e: React.MouseEvent) => {
+    setPopoverAnchor((e.currentTarget as HTMLElement).getBoundingClientRect());
+    setOpenPopover(sectionId);
+  }, []);
 
-  // 축소 상태에서 지원 섹션 클릭
   const handleSupportClickWhenCollapsed = useCallback((e: React.MouseEvent) => {
     setPopoverAnchor((e.currentTarget as HTMLElement).getBoundingClientRect());
     setOpenPopover('support');
   }, []);
 
-  // 팝오버 아이템 생성
   const popoverItems = useMemo((): PopoverItem[] => {
     if (openPopover === 'support' && support) {
-      return support.items.map((item) => ({
-        id: item.id,
-        title: t(item.titleKey),
-        href: item.href,
-      }));
+      return support.items.map((item) => ({ id: item.id, title: t(item.titleKey), href: item.href }));
     }
-
     const section = sections.find((s) => s.id === openPopover);
     if (!section) return [];
-
-    return section.items.map((item) => ({
-      id: item.id,
-      title: t(item.titleKey),
-      href: item.href,
-    }));
+    return section.items.map((item) => ({ id: item.id, title: t(item.titleKey), href: item.href }));
   }, [openPopover, sections, support, t]);
 
-  // 팝오버 아이템 클릭
-  const handlePopoverItemClick = useCallback(
-    (id: string, href?: string) => {
-      onNavigate(id, href);
-    },
-    [onNavigate]
-  );
+  const handlePopoverItemClick = useCallback((id: string, href?: string) => { onNavigate(id, href); }, [onNavigate]);
 
-  // 로고 클릭
   const handleLogoClick = useCallback(() => {
-    if (onLogoClick) {
-      onLogoClick();
-    } else {
-      // 기본: 첫 번째 메뉴로 이동
+    if (onLogoClick) { onLogoClick(); }
+    else {
       const firstItem = sections[0]?.items[0];
-      if (firstItem) {
-        onNavigate(firstItem.id, firstItem.href);
-      }
+      if (firstItem) onNavigate(firstItem.id, firstItem.href);
     }
   }, [onLogoClick, onNavigate, sections]);
 
-  // 지원 아이템 활성 상태 확인
-  const isSupportActive =
-    support?.items.some((item) => item.id === activeItemId) || false;
-
-  // 바리언트 클래스
-  const variantClass = variant === 'admin' ? styles.variantAdmin : '';
+  const isSupportActive = support?.items.some((item) => item.id === activeItemId) || false;
 
   return (
     <motion.aside
-      className={`${styles.sidebar} ${collapsed ? styles.collapsed : ''} ${variantClass} ${className || ''}`}
+      className={cn(
+        'flex flex-col h-full border-r border-border bg-card relative transition-all duration-300',
+        collapsed ? 'w-16' : 'w-60',
+        variant === 'admin' && 'bg-gray-900 text-gray-100 border-gray-700',
+        className,
+      )}
       initial={{ x: '-100%' }}
       animate={{ x: 0 }}
       exit={{ x: '-100%' }}
@@ -253,45 +157,46 @@ export const Sidebar: React.FC<SidebarProps> = ({ config }) => {
         </defs>
       </svg>
 
-      {/* Collapse Toggle Button */}
+      {/* Collapse Toggle */}
       {onToggle && (
         <button
           onClick={onToggle}
-          className={styles.collapseToggleBtn}
+          className="absolute -right-3 top-6 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card shadow-sm hover:bg-gray-50 transition-colors"
           title={collapsed ? t('sidebar.openSidebar') : t('sidebar.closeSidebar')}
           aria-label={collapsed ? t('sidebar.openSidebar') : t('sidebar.closeSidebar')}
         >
-          {collapsed ? <FiChevronRight /> : <FiChevronLeft />}
+          {collapsed ? <FiChevronRight className="w-3.5 h-3.5" /> : <FiChevronLeft className="w-3.5 h-3.5" />}
         </button>
       )}
 
-      <div className={styles.sidebarContent}>
+      <div className="flex flex-col h-full overflow-hidden">
         {/* Header */}
-        <div className={styles.sidebarHeader}>
-          <div className={styles.headerTop}>
-            <button className={styles.logoButton} onClick={handleLogoClick}>
-              <span className={styles.logoText}>
-                {collapsed ? (logo?.collapsed || 'X') : (logo?.expanded || 'XGEN')}
-              </span>
+        <div className={cn('px-3 pt-4 pb-2', collapsed && 'px-2')}>
+          <div className="flex items-center gap-2">
+            <button
+              className="text-lg font-bold text-foreground hover:opacity-80 transition-opacity"
+              onClick={handleLogoClick}
+            >
+              {collapsed ? (logo?.collapsed || 'X') : (logo?.expanded || 'XGEN')}
             </button>
             {!collapsed && header?.modeLabelKey && (
-              <span className={styles.headerModeLabel}>{t(header.modeLabelKey)}</span>
+              <span className="text-xs text-muted-foreground">{t(header.modeLabelKey)}</span>
             )}
             {!collapsed && header?.showAdminButton && header?.onAdminClick && (
               <button
                 type="button"
                 onClick={header.onAdminClick}
-                className={styles.headerAdminButton}
+                className="ml-auto p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-gray-100 transition-colors"
                 title={t('common.adminPage')}
               >
-                <FiSettings />
+                <FiSettings className="w-4 h-4" />
               </button>
             )}
           </div>
         </div>
 
-        {/* Section List */}
-        <div className={styles.sidebarSectionList}>
+        {/* Sections */}
+        <div className="flex-1 overflow-y-auto px-2 py-1 flex flex-col gap-0.5">
           {sections.map((section) => (
             <SidebarSection
               key={section.id}
@@ -309,24 +214,30 @@ export const Sidebar: React.FC<SidebarProps> = ({ config }) => {
         </div>
 
         {/* Footer */}
-        <div className={styles.sidebarFooter}>
-          <hr className={styles.sidebarFooterDivider} />
+        <div className="mt-auto px-2 pb-3">
+          <hr className="border-border mb-2" />
 
-          {/* Support Section */}
+          {/* Support */}
           {support && (
             <>
               {!collapsed && (
                 <nav
-                  className={`${styles.supportNav} ${supportExpanded ? styles.supportNavExpanded : ''}`}
+                  className={cn(
+                    'overflow-hidden transition-all duration-200',
+                    supportExpanded ? 'max-h-48 opacity-100 mb-1' : 'max-h-0 opacity-0',
+                  )}
                 >
-                  <div className={styles.supportNavInner}>
+                  <div className="pl-3 flex flex-col gap-0.5">
                     {support.items.map((item) => (
                       <button
                         key={item.id}
-                        className={`${styles.supportNavItem} ${activeItemId === item.id ? styles.active : ''}`}
+                        className={cn(
+                          'w-full text-left px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:bg-gray-50 transition-colors',
+                          activeItemId === item.id && 'text-primary font-medium bg-primary/5',
+                        )}
                         onClick={() => onNavigate(item.id, item.href)}
                       >
-                        <span className={styles.supportNavTitle}>{t(item.titleKey)}</span>
+                        {t(item.titleKey)}
                       </button>
                     ))}
                   </div>
@@ -335,53 +246,51 @@ export const Sidebar: React.FC<SidebarProps> = ({ config }) => {
 
               <button
                 type="button"
-                className={`${styles.supportButton} ${isSupportActive || supportExpanded ? styles.supportButtonActive : ''}`}
-                onClick={
-                  collapsed
-                    ? handleSupportClickWhenCollapsed
-                    : () => setSupportExpanded((prev) => !prev)
-                }
+                className={cn(
+                  'w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors',
+                  'hover:bg-gray-50 text-muted-foreground',
+                  (isSupportActive || supportExpanded) && 'text-primary bg-primary/5',
+                )}
+                onClick={collapsed ? handleSupportClickWhenCollapsed : () => setSupportExpanded((prev) => !prev)}
                 data-sidebar-trigger
               >
-                <FiHelpCircle />
+                <FiHelpCircle className="w-5 h-5 shrink-0" />
                 {!collapsed && (
                   <>
-                    <span className={styles.supportButtonLabel}>{t(support.titleKey)}</span>
-                    <span
-                      className={`${styles.supportChevron} ${supportExpanded ? styles.supportChevronExpanded : ''}`}
-                    >
+                    <span className="flex-1 text-left">{t(support.titleKey)}</span>
+                    <span className={cn('w-4 h-4 transition-transform duration-200', supportExpanded && 'rotate-180')}>
                       <FiChevronUp />
                     </span>
                   </>
                 )}
               </button>
 
-              <hr className={styles.sidebarFooterDivider} />
+              <hr className="border-border my-2" />
             </>
           )}
 
-          {/* User Profile */}
+          {/* User */}
           {user && (
-            <div className={styles.footerUserRow}>
-              <button className={styles.userProfileRow} type="button">
-                <div className={styles.userAvatar}>
+            <div className="flex items-center gap-2">
+              <button className="flex items-center gap-2 flex-1 min-w-0 p-1.5 rounded-md hover:bg-gray-50 transition-colors" type="button">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm font-semibold shrink-0">
                   {user.avatar || user.name.charAt(0).toUpperCase()}
                 </div>
                 {!collapsed && (
-                  <div className={styles.userInfo}>
-                    <span className={styles.userName}>{user.name}</span>
-                    {user.role && <span className={styles.userRole}>{user.role}</span>}
+                  <div className="flex flex-col min-w-0 text-left">
+                    <span className="text-sm font-medium text-foreground truncate">{user.name}</span>
+                    {user.role && <span className="text-[11px] text-muted-foreground truncate">{user.role}</span>}
                   </div>
                 )}
               </button>
               {!collapsed && onLogout && (
                 <button
                   type="button"
-                  className={styles.footerLogoutButton}
+                  className="p-1.5 rounded-md text-muted-foreground hover:text-error hover:bg-error/5 transition-colors"
                   onClick={onLogout}
                   title={t('common.logout')}
                 >
-                  <FiLogOut />
+                  <FiLogOut className="w-4 h-4" />
                 </button>
               )}
             </div>

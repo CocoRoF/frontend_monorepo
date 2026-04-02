@@ -1,152 +1,76 @@
-'use client';
+﻿'use client';
 
-import React, { useEffect, useCallback } from 'react';
-import { createPortal } from 'react-dom';
-import styles from './modal.module.scss';
+import React from 'react';
+import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { X } from 'lucide-react';
+import { cn } from '../lib/utils';
 
 export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
 export interface ModalProps {
-  /** 모달 표시 여부 */
   isOpen: boolean;
-  /** 닫기 콜백 */
   onClose: () => void;
-  /** 모달 제목 */
   title?: string;
-  /** 모달 크기 */
   size?: ModalSize;
-  /** ESC 키로 닫기 (기본 true) */
   closeOnEsc?: boolean;
-  /** 오버레이 클릭으로 닫기 (기본 true) */
   closeOnOverlay?: boolean;
-  /** 닫기 버튼 표시 (기본 true) */
   showCloseButton?: boolean;
-  /** 모달 콘텐츠 */
   children: React.ReactNode;
-  /** 푸터 영역 */
   footer?: React.ReactNode;
-  /** 추가 클래스 */
   className?: string;
 }
 
-/**
- * Modal - 포털 기반 범용 모달 컴포넌트
- *
- * @example
- * ```tsx
- * <Modal
- *   isOpen={isOpen}
- *   onClose={handleClose}
- *   title="워크플로우 편집"
- *   size="lg"
- *   footer={
- *     <div>
- *       <Button variant="secondary" onClick={handleClose}>취소</Button>
- *       <Button variant="primary" onClick={handleSave}>저장</Button>
- *     </div>
- *   }
- * >
- *   <WorkflowEditForm />
- * </Modal>
- * ```
- */
+const sizeClasses: Record<ModalSize, string> = {
+  sm: 'max-w-[400px]',
+  md: 'max-w-[560px]',
+  lg: 'max-w-[720px]',
+  xl: 'max-w-[960px]',
+  full: 'max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)]',
+};
+
 export const Modal: React.FC<ModalProps> = ({
-  isOpen,
-  onClose,
-  title,
-  size = 'md',
-  closeOnEsc = true,
-  closeOnOverlay = true,
-  showCloseButton = true,
-  children,
-  footer,
-  className,
+  isOpen, onClose, title, size = 'md',
+  closeOnEsc = true, closeOnOverlay = true, showCloseButton = true,
+  children, footer, className,
 }) => {
-  // ESC 키 핸들링
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && closeOnEsc) {
-        onClose();
-      }
-    },
-    [closeOnEsc, onClose]
+  return (
+    <DialogPrimitive.Root open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay
+          className="fixed inset-0 z-[300] bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+          onClick={closeOnOverlay ? undefined : (e) => e.stopPropagation()}
+        />
+        <DialogPrimitive.Content
+          className={cn(
+            'fixed left-1/2 top-1/2 z-[300] w-full -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-background shadow-xl duration-200',
+            'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+            sizeClasses[size],
+            className
+          )}
+          onEscapeKeyDown={closeOnEsc ? undefined : (e) => e.preventDefault()}
+          onInteractOutside={closeOnOverlay ? undefined : (e) => e.preventDefault()}
+        >
+          {(title || showCloseButton) && (
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+              {title && (
+                <DialogPrimitive.Title className="text-lg font-semibold text-foreground">
+                  {title}
+                </DialogPrimitive.Title>
+              )}
+              {showCloseButton && (
+                <DialogPrimitive.Close className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring">
+                  <X className="h-5 w-5" />
+                  <span className="sr-only">닫기</span>
+                </DialogPrimitive.Close>
+              )}
+            </div>
+          )}
+          <div className="px-6 py-4 max-h-[60vh] overflow-y-auto">{children}</div>
+          {footer && <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-border">{footer}</div>}
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    document.addEventListener('keydown', handleKeyDown);
-    // body 스크롤 잠금
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = originalOverflow;
-    };
-  }, [isOpen, handleKeyDown]);
-
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget && closeOnOverlay) {
-      onClose();
-    }
-  };
-
-  if (!isOpen) return null;
-
-  // SSR에서는 포털을 렌더링하지 않음
-  if (typeof document === 'undefined') return null;
-
-  const modalContent = (
-    <div
-      className={styles.overlay}
-      onClick={handleOverlayClick}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby={title ? 'modal-title' : undefined}
-    >
-      <div
-        className={`${styles.modal} ${styles[size]} ${className || ''}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {(title || showCloseButton) && (
-          <header className={styles.header}>
-            {title && (
-              <h2 id="modal-title" className={styles.title}>
-                {title}
-              </h2>
-            )}
-            {showCloseButton && (
-              <button
-                type="button"
-                className={styles.closeButton}
-                onClick={onClose}
-                aria-label="닫기"
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
-            )}
-          </header>
-        )}
-        <div className={styles.body}>{children}</div>
-        {footer && <footer className={styles.footer}>{footer}</footer>}
-      </div>
-    </div>
-  );
-
-  return createPortal(modalContent, document.body);
 };
 
 export default Modal;

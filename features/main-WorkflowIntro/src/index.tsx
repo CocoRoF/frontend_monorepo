@@ -6,8 +6,6 @@ import { ContentArea, Button } from '@xgen/ui';
 import { useTranslation } from '@xgen/i18n';
 import './locales';
 
-import styles from './styles/workflow-intro.module.scss';
-
 // ─────────────────────────────────────────────────────────────
 // Icons
 // ─────────────────────────────────────────────────────────────
@@ -123,15 +121,15 @@ const WorkflowIntroPage: React.FC<WorkflowIntroPageProps> = ({ onNavigate }) => 
 
   return (
     <ContentArea title={t('workflowIntro.title')}>
-      <div className={styles.container}>
+      <div className="p-8 max-w-[1200px] mx-auto">
         {/* Hero */}
-        <section className={styles.hero}>
-          <div className={styles.heroIcon}>
+        <section className="text-center py-16 mb-16 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl">
+          <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center [&_svg]:w-10 [&_svg]:h-10 [&_svg]:text-white">
             <WorkflowIcon />
           </div>
-          <h1 className={styles.heroTitle}>{t('workflowIntro.hero.title')}</h1>
-          <p className={styles.heroDescription}>{t('workflowIntro.hero.description')}</p>
-          <div className={styles.heroActions}>
+          <h1 className="text-4xl font-bold text-foreground mb-4">{t('workflowIntro.hero.title')}</h1>
+          <p className="text-lg text-muted-foreground mb-8 max-w-[600px] mx-auto leading-relaxed">{t('workflowIntro.hero.description')}</p>
+          <div className="flex justify-center gap-4">
             <Button onClick={() => onNavigate?.('canvas-intro')}>
               {t('workflowIntro.hero.primaryAction')}
             </Button>
@@ -142,26 +140,26 @@ const WorkflowIntroPage: React.FC<WorkflowIntroPageProps> = ({ onNavigate }) => 
         </section>
 
         {/* Stats */}
-        <section className={styles.statsSection}>
-          <div className={styles.statsGrid}>
+        <section className="mb-16">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-6">
             {stats.map((stat, index) => (
-              <div key={index} className={styles.statCard}>
-                <p className={styles.statValue}>{stat.value}</p>
-                <p className={styles.statLabel}>{stat.label}</p>
+              <div key={index} className="p-6 bg-white border border-border rounded-xl text-center">
+                <p className="text-4xl font-bold text-primary mb-1">{stat.value}</p>
+                <p className="text-sm text-muted-foreground">{stat.label}</p>
               </div>
             ))}
           </div>
         </section>
 
         {/* Features */}
-        <section className={styles.featuresSection}>
-          <h2 className={styles.sectionTitle}>{t('workflowIntro.features.title')}</h2>
-          <div className={styles.featuresGrid}>
+        <section className="mb-16">
+          <h2 className="text-2xl font-semibold text-foreground mb-8 text-center">{t('workflowIntro.features.title')}</h2>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-6">
             {features.map((feature, index) => (
-              <div key={index} className={styles.featureCard}>
-                <div className={styles.featureIcon}>{feature.icon}</div>
-                <h3 className={styles.featureTitle}>{feature.title}</h3>
-                <p className={styles.featureDescription}>{feature.description}</p>
+              <div key={index} className="p-8 bg-white border border-border rounded-xl text-center transition-all duration-150 hover:border-primary hover:shadow-md hover:-translate-y-0.5">
+                <div className="w-14 h-14 mx-auto mb-4 bg-primary/10 rounded-xl flex items-center justify-center [&_svg]:w-7 [&_svg]:h-7 [&_svg]:text-primary">{feature.icon}</div>
+                <h3 className="text-base font-semibold text-foreground mb-2">{feature.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -169,12 +167,12 @@ const WorkflowIntroPage: React.FC<WorkflowIntroPageProps> = ({ onNavigate }) => 
 
         {/* Quick Actions */}
         <section>
-          <h2 className={styles.sectionTitle}>{t('workflowIntro.quickActions.title')}</h2>
-          <div className={styles.quickActions}>
+          <h2 className="text-2xl font-semibold text-foreground mb-8 text-center">{t('workflowIntro.quickActions.title')}</h2>
+          <div className="flex flex-wrap justify-center gap-4 mb-16">
             {quickActions.map((action, index) => (
               <button
                 key={index}
-                className={styles.quickAction}
+                className="flex items-center gap-2 px-6 py-4 bg-white border border-border rounded-lg cursor-pointer transition-all duration-150 text-muted-foreground hover:border-primary hover:text-primary hover:bg-primary/5 [&_svg]:w-5 [&_svg]:h-5"
                 onClick={() => onNavigate?.(action.action)}
               >
                 {action.icon}

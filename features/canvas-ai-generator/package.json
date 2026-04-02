@@ -9,6 +9,7 @@
   "dependencies": {
     "@xgen/types": "workspace:*",
     "@xgen/i18n": "workspace:*",
+    "@xgen/ui": "workspace:*",
     "@xgen/api-client": "workspace:*",
     "react": "^19.0.0"
   }

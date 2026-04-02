@@ -2,6 +2,7 @@ import './locales';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from '@xgen/i18n';
 import type { CanvasPagePlugin } from '@xgen/types';
+import { Tabs, TabsList, TabsTrigger, SearchInput } from '@xgen/ui';
 import NodeList from './components/NodeList';
 import DraggableNodeItem, { type NodeData } from './components/DraggableNodeItem';
 import styles from './styles/side-menu.module.scss';
@@ -135,28 +136,26 @@ const AddNodePanel: React.FC<AddNodePanelProps> = ({
 
             <div className={styles.addNodeBody}>
                 <div className={styles.searchBar}>
-                    <input
-                        type="text"
+                    <SearchInput
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onChange={setSearchQuery}
                         placeholder={t('canvas.addNodePanel.searchPlaceholder', 'Search nodes...')}
                         className={styles.searchInput}
                     />
                 </div>
 
-                <div className={styles.tabsAndList}>
-                    <div className={styles.tabs}>
+                <Tabs value={activeTab ?? ''} onValueChange={setActiveTab} className={styles.tabsAndList}>
+                    <TabsList className={styles.tabs}>
                         {nodeSpecs.map((tab) => (
-                            <button
+                            <TabsTrigger
                                 key={tab.categoryId}
-                                className={`${styles.tab} ${activeTab === tab.categoryId ? styles.active : ''}`}
-                                onClick={() => setActiveTab(tab.categoryId)}
-                                type="button"
+                                value={tab.categoryId}
+                                className={styles.tab}
                             >
                                 <span>{tab.categoryName}</span>
-                            </button>
+                            </TabsTrigger>
                         ))}
-                    </div>
+                    </TabsList>
 
                     <div className={styles.nodeList}>
                         {filteredFunctions.map((func) => (
@@ -178,7 +177,7 @@ const AddNodePanel: React.FC<AddNodePanelProps> = ({
                             </div>
                         )}
                     </div>
-                </div>
+                </Tabs>
             </div>
         </div>
     );

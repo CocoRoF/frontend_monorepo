@@ -5,7 +5,6 @@ import type { RouteComponentProps, MainFeatureModule } from '@xgen/types';
 import { ContentArea } from '@xgen/ui';
 import { useTranslation } from '@xgen/i18n';
 import './locales';
-import styles from './styles/chat-intro.module.scss';
 
 // ─────────────────────────────────────────────────────────────
 // Icons
@@ -73,26 +72,26 @@ const ChatIntroPage: React.FC<ChatIntroPageProps> = ({ onNavigate }) => {
 
   return (
     <ContentArea>
-      <div className={styles.container}>
+      <div className="flex flex-col gap-12 p-12 max-w-[1200px] mx-auto">
         {/* Hero Section */}
-        <section className={styles.heroSection}>
-          <div className={styles.heroIcon}>
+        <section className="flex flex-col items-center text-center gap-6 py-12">
+          <div className="w-20 h-20 flex items-center justify-center bg-gradient-to-br from-primary to-primary/70 rounded-2xl text-white [&_svg]:w-12 [&_svg]:h-12">
             <ChatAiIcon />
           </div>
-          <h1 className={styles.heroTitle}>
+          <h1 className="text-3xl font-bold text-foreground">
             {t('chatIntro.heroTitle')}
           </h1>
-          <p className={styles.heroDescription}>
+          <p className="text-lg text-muted-foreground max-w-[600px] leading-relaxed">
             {t('chatIntro.heroDescription')}
           </p>
 
-          <div className={styles.buttonGroup}>
-            <button onClick={handleStartNewChat} className={styles.primaryButton}>
+          <div className="flex gap-4 mt-4 max-[480px]:flex-col max-[480px]:w-full">
+            <button onClick={handleStartNewChat} className="flex items-center gap-2 px-8 py-4 bg-primary text-white border-none rounded-lg text-base font-medium cursor-pointer transition-colors hover:bg-primary/90 [&_svg]:w-[18px] [&_svg]:h-[18px]">
               <MessageIcon />
               {t('chatIntro.startNewChat')}
               <ArrowRightIcon />
             </button>
-            <button onClick={handleViewHistory} className={styles.secondaryButton}>
+            <button onClick={handleViewHistory} className="flex items-center gap-2 px-8 py-4 bg-transparent text-foreground border border-border rounded-lg text-base font-medium cursor-pointer transition-all hover:bg-muted hover:border-muted-foreground/40 [&_svg]:w-[18px] [&_svg]:h-[18px]">
               <ClockIcon />
               {t('chatIntro.viewHistory')}
             </button>
@@ -100,25 +99,25 @@ const ChatIntroPage: React.FC<ChatIntroPageProps> = ({ onNavigate }) => {
         </section>
 
         {/* Features Grid */}
-        <section className={styles.featuresGrid}>
-          <div className={styles.featureCard}>
-            <div className={styles.featureIcon}>
+        <section className="grid grid-cols-3 gap-6 max-[900px]:grid-cols-2 max-[600px]:grid-cols-1">
+          <div className="flex flex-col gap-4 p-8 bg-white border border-border rounded-xl transition-all hover:shadow-md hover:-translate-y-0.5 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-foreground [&_h3]:m-0 [&_p]:text-sm [&_p]:text-muted-foreground [&_p]:leading-relaxed [&_p]:m-0">
+            <div className="w-12 h-12 flex items-center justify-center bg-primary/10 rounded-lg text-primary [&_svg]:w-6 [&_svg]:h-6">
               <ChatAiIcon />
             </div>
             <h3>{t('chatIntro.features.naturalLanguage.title')}</h3>
             <p>{t('chatIntro.features.naturalLanguage.description')}</p>
           </div>
 
-          <div className={styles.featureCard}>
-            <div className={styles.featureIcon}>
+          <div className="flex flex-col gap-4 p-8 bg-white border border-border rounded-xl transition-all hover:shadow-md hover:-translate-y-0.5 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-foreground [&_h3]:m-0 [&_p]:text-sm [&_p]:text-muted-foreground [&_p]:leading-relaxed [&_p]:m-0">
+            <div className="w-12 h-12 flex items-center justify-center bg-primary/10 rounded-lg text-primary [&_svg]:w-6 [&_svg]:h-6">
               <SearchIcon />
             </div>
             <h3>{t('chatIntro.features.contextSearch.title')}</h3>
             <p>{t('chatIntro.features.contextSearch.description')}</p>
           </div>
 
-          <div className={styles.featureCard}>
-            <div className={styles.featureIcon}>
+          <div className="flex flex-col gap-4 p-8 bg-white border border-border rounded-xl transition-all hover:shadow-md hover:-translate-y-0.5 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-foreground [&_h3]:m-0 [&_p]:text-sm [&_p]:text-muted-foreground [&_p]:leading-relaxed [&_p]:m-0">
+            <div className="w-12 h-12 flex items-center justify-center bg-primary/10 rounded-lg text-primary [&_svg]:w-6 [&_svg]:h-6">
               <ZapIcon />
             </div>
             <h3>{t('chatIntro.features.toolIntegration.title')}</h3>
@@ -127,26 +126,26 @@ const ChatIntroPage: React.FC<ChatIntroPageProps> = ({ onNavigate }) => {
         </section>
 
         {/* Quick Start Guide */}
-        <section className={styles.quickStart}>
+        <section className="flex flex-col gap-6 p-8 bg-muted rounded-xl [&>h3]:text-xl [&>h3]:font-semibold [&>h3]:text-foreground [&>h3]:m-0">
           <h3>{t('chatIntro.quickStart.title')}</h3>
-          <div className={styles.steps}>
-            <div className={styles.step}>
-              <div className={styles.stepNumber}>1</div>
-              <div className={styles.stepContent}>
+          <div className="flex flex-col gap-6">
+            <div className="flex gap-6">
+              <div className="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-full text-sm font-bold shrink-0">1</div>
+              <div className="flex flex-col gap-1 [&_h4]:text-base [&_h4]:font-semibold [&_h4]:text-foreground [&_h4]:m-0 [&_p]:text-sm [&_p]:text-muted-foreground [&_p]:m-0">
                 <h4>{t('chatIntro.quickStart.step1.title')}</h4>
                 <p>{t('chatIntro.quickStart.step1.description')}</p>
               </div>
             </div>
-            <div className={styles.step}>
-              <div className={styles.stepNumber}>2</div>
-              <div className={styles.stepContent}>
+            <div className="flex gap-6">
+              <div className="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-full text-sm font-bold shrink-0">2</div>
+              <div className="flex flex-col gap-1 [&_h4]:text-base [&_h4]:font-semibold [&_h4]:text-foreground [&_h4]:m-0 [&_p]:text-sm [&_p]:text-muted-foreground [&_p]:m-0">
                 <h4>{t('chatIntro.quickStart.step2.title')}</h4>
                 <p>{t('chatIntro.quickStart.step2.description')}</p>
               </div>
             </div>
-            <div className={styles.step}>
-              <div className={styles.stepNumber}>3</div>
-              <div className={styles.stepContent}>
+            <div className="flex gap-6">
+              <div className="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-full text-sm font-bold shrink-0">3</div>
+              <div className="flex flex-col gap-1 [&_h4]:text-base [&_h4]:font-semibold [&_h4]:text-foreground [&_h4]:m-0 [&_p]:text-sm [&_p]:text-muted-foreground [&_p]:m-0">
                 <h4>{t('chatIntro.quickStart.step3.title')}</h4>
                 <p>{t('chatIntro.quickStart.step3.description')}</p>
               </div>
@@ -155,18 +154,18 @@ const ChatIntroPage: React.FC<ChatIntroPageProps> = ({ onNavigate }) => {
         </section>
 
         {/* Additional Features */}
-        <section className={styles.additionalInfo}>
+        <section className="flex flex-col gap-6 [&>h3]:text-xl [&>h3]:font-semibold [&>h3]:text-foreground [&>h3]:m-0">
           <h3>{t('chatIntro.additionalFeatures.title')}</h3>
-          <div className={styles.infoGrid}>
-            <div className={styles.infoCard}>
+          <div className="grid grid-cols-3 gap-6 max-[900px]:grid-cols-2 max-[600px]:grid-cols-1">
+            <div className="flex flex-col gap-2 p-6 bg-white border border-border rounded-lg [&_h4]:text-base [&_h4]:font-semibold [&_h4]:text-foreground [&_h4]:m-0 [&_p]:text-sm [&_p]:text-muted-foreground [&_p]:leading-relaxed [&_p]:m-0">
               <h4>{t('chatIntro.additionalFeatures.multimodal.title')}</h4>
               <p>{t('chatIntro.additionalFeatures.multimodal.description')}</p>
             </div>
-            <div className={styles.infoCard}>
+            <div className="flex flex-col gap-2 p-6 bg-white border border-border rounded-lg [&_h4]:text-base [&_h4]:font-semibold [&_h4]:text-foreground [&_h4]:m-0 [&_p]:text-sm [&_p]:text-muted-foreground [&_p]:leading-relaxed [&_p]:m-0">
               <h4>{t('chatIntro.additionalFeatures.history.title')}</h4>
               <p>{t('chatIntro.additionalFeatures.history.description')}</p>
             </div>
-            <div className={styles.infoCard}>
+            <div className="flex flex-col gap-2 p-6 bg-white border border-border rounded-lg [&_h4]:text-base [&_h4]:font-semibold [&_h4]:text-foreground [&_h4]:m-0 [&_p]:text-sm [&_p]:text-muted-foreground [&_p]:leading-relaxed [&_p]:m-0">
               <h4>{t('chatIntro.additionalFeatures.workflow.title')}</h4>
               <p>{t('chatIntro.additionalFeatures.workflow.description')}</p>
             </div>

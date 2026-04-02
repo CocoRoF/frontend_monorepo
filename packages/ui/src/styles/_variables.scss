@@ -1,6 +1,15 @@
 // ─────────────────────────────────────────────────────────────
-// @xgen/ui Design Tokens
-// Figma 기반 디자인 시스템 토큰
+// @xgen/ui Design Tokens — SCSS → CSS Custom Properties 브릿지
+//
+// ⚠️ 이 파일은 전환기 하위 호환을 위해 존재한다.
+//    디자인 토큰의 진본(Single Source of Truth)은 globals.css의 @theme 블록이다.
+//    새 코드에서는 Tailwind 유틸리티 클래스 또는 CSS var()를 직접 사용한다.
+//    Phase 3 완료 후 이 파일은 삭제된다.
+//
+// ⚠️ SCSS 함수(lighten, darken, mix 등)에 var()를 전달할 수 없다.
+//    색상 변형이 필요하면 CSS color-mix() 또는 opacity 변형을 사용한다.
+//    예: color-mix(in srgb, var(--color-primary) 10%, transparent)
+//        또는 Tailwind: bg-primary/10
 // ─────────────────────────────────────────────────────────────
 
 // ─────────────────────────────────────────────────────────────

@@ -7,7 +7,6 @@ import { useTranslation } from '@xgen/i18n';
 import './locales';
 import { createApiClient } from '@xgen/api-client';
 
-import styles from './styles/chat-current.module.scss';
 import type {
   ChatCurrentPageProps,
   StoredChatData,
@@ -149,9 +148,9 @@ const MessageItem: React.FC<MessageItemProps> = ({ message, onRetry }) => {
 
   if (message.sender === 'system') {
     return (
-      <div className={`${styles.messageGroup} ${styles.system}`}>
-        <div className={styles.messageContent}>
-          <div className={`${styles.messageBubble} ${styles.system}`}>
+      <div className="flex gap-4 max-w-[90%] self-center">
+        <div className="flex flex-col gap-1">
+          <div className="bg-muted text-muted-foreground text-xs text-center px-4 py-2 rounded-xl">
             {message.content}
           </div>
         </div>
@@ -160,36 +159,38 @@ const MessageItem: React.FC<MessageItemProps> = ({ message, onRetry }) => {
   }
 
   return (
-    <div className={`${styles.messageGroup} ${styles[message.sender]}`}>
-      <div className={`${styles.avatar} ${styles[message.sender]}`}>
+    <div className={`flex gap-4 max-w-[80%] ${message.sender === 'user' ? 'self-end flex-row-reverse' : 'self-start'}`}>
+      <div className={`w-9 h-9 rounded-full shrink-0 flex items-center justify-center [&_svg]:w-[18px] [&_svg]:h-[18px] ${message.sender === 'user' ? 'bg-primary text-white' : 'bg-gradient-to-br from-secondary to-primary text-white'}`}>
         {message.sender === 'user' ? <UserIcon /> : <BotIcon />}
       </div>
-      <div className={styles.messageContent}>
+      <div className="flex flex-col gap-1">
         <div
-          className={`${styles.messageBubble} ${styles[message.sender]} ${
-            message.status === 'error' ? styles.error : ''
-          } ${message.status === 'streaming' ? styles.streaming : ''}`}
+          className={`px-6 py-4 rounded-xl leading-relaxed text-sm ${
+            message.sender === 'user'
+              ? 'bg-primary text-white rounded-br-sm'
+              : 'bg-white border border-border text-foreground rounded-bl-sm'
+          } ${message.status === 'error' ? 'bg-red-500/10 border-red-500' : ''} ${message.status === 'streaming' ? 'after:content-["▋"] after:animate-pulse after:text-primary' : ''}`}
         >
           {message.content}
-          {message.status === 'streaming' && <span className={styles.cursor}>▊</span>}
+          {message.status === 'streaming' && <span className="inline-block ml-0.5 animate-pulse text-primary">▊</span>}
         </div>
         {message.attachments && message.attachments.length > 0 && (
-          <div className={styles.attachments}>
+          <div className="flex flex-wrap gap-2 mt-2">
             {message.attachments.map((attachment) => (
-              <div key={attachment.id} className={styles.attachment}>
+              <div key={attachment.id} className="flex items-center gap-1 px-2 py-1 bg-muted rounded text-xs text-muted-foreground [&_svg]:w-3.5 [&_svg]:h-3.5">
                 <FileIcon />
                 <span>{attachment.name}</span>
               </div>
             ))}
           </div>
         )}
-        <span className={styles.messageTime}>{formatTime(message.createdAt)}</span>
+        <span className={`text-xs text-muted-foreground/60 ${message.sender === 'user' ? 'text-right' : ''}`}>{formatTime(message.createdAt)}</span>
         {message.status === 'error' && (
-          <div className={styles.messageError}>
+          <div className="flex items-center gap-1 text-xs text-red-500 mt-1 [&_svg]:w-3.5 [&_svg]:h-3.5">
             <AlertIcon />
             <span>{message.metadata?.error || t('chat.sendError')}</span>
             {onRetry && (
-              <button className={styles.retryButton} onClick={onRetry}>
+              <button className="px-2 py-0.5 bg-transparent border border-red-500 rounded text-red-500 text-xs cursor-pointer transition-all hover:bg-red-500/10" onClick={onRetry}>
                 {t('chat.retry')}
               </button>
             )}
@@ -205,14 +206,14 @@ const MessageItem: React.FC<MessageItemProps> = ({ message, onRetry }) => {
 // ─────────────────────────────────────────────────────────────
 
 const TypingIndicator: React.FC = () => (
-  <div className={`${styles.messageGroup} ${styles.assistant}`}>
-    <div className={`${styles.avatar} ${styles.assistant}`}>
+  <div className="flex gap-4 max-w-[80%] self-start">
+    <div className="w-9 h-9 rounded-full shrink-0 flex items-center justify-center bg-gradient-to-br from-secondary to-primary text-white [&_svg]:w-[18px] [&_svg]:h-[18px]">
       <BotIcon />
     </div>
-    <div className={styles.typingIndicator}>
-      <span className={styles.typingDot} />
-      <span className={styles.typingDot} />
-      <span className={styles.typingDot} />
+    <div className="flex items-center gap-1 px-6 py-4 bg-white border border-border rounded-xl rounded-bl-sm">
+      <span className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-bounce [animation-delay:0s]" />
+      <span className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-bounce [animation-delay:0.2s]" />
+      <span className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-bounce [animation-delay:0.4s]" />
     </div>
   </div>
 );
@@ -587,9 +588,9 @@ const ChatCurrentPage: React.FC<RouteComponentProps & ChatCurrentPageProps> = ({
   if (loading) {
     return (
       <ContentArea title={t('chat.currentChat')}>
-        <div className={styles.container}>
-          <div className={styles.loading}>
-            <div className={styles.spinner} />
+        <div className="flex flex-col h-full bg-muted">
+          <div className="flex flex-col items-center justify-center gap-4 h-full text-muted-foreground/60 [&_p]:m-0 [&_p]:text-sm">
+            <div className="w-10 h-10 border-3 border-border border-t-primary rounded-full animate-spin" />
             <p>{t('common.loading')}</p>
           </div>
         </div>
@@ -600,8 +601,8 @@ const ChatCurrentPage: React.FC<RouteComponentProps & ChatCurrentPageProps> = ({
   if (error || !chatData) {
     return (
       <ContentArea title={t('chat.currentChat')}>
-        <div className={styles.container}>
-          <div className={styles.errorState}>
+        <div className="flex flex-col h-full bg-muted">
+          <div className="flex flex-col items-center justify-center gap-4 h-full p-12 text-center [&_svg]:w-12 [&_svg]:h-12 [&_svg]:text-muted-foreground/60 [&_p]:m-0 [&_p]:text-base [&_p]:text-muted-foreground [&_button]:px-6 [&_button]:py-2 [&_button]:text-sm [&_button]:font-medium [&_button]:text-white [&_button]:bg-primary [&_button]:border-none [&_button]:rounded-lg [&_button]:cursor-pointer [&_button]:transition-colors hover:[&_button]:bg-primary/90">
             <AlertIcon />
             <p>{error || t('chat.error.noSession')}</p>
             <button onClick={() => onNavigate?.('new-chat')}>
@@ -615,32 +616,32 @@ const ChatCurrentPage: React.FC<RouteComponentProps & ChatCurrentPageProps> = ({
 
   return (
     <ContentArea title={t('chat.currentChat')}>
-      <div className={styles.container}>
+      <div className="flex flex-col h-full bg-muted">
         {/* Header */}
-        <header className={styles.header}>
-          <div className={styles.headerInfo}>
-            <div className={styles.workflowIcon}>
+        <header className="flex items-center justify-between px-8 py-4 bg-white border-b border-border shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center shrink-0 [&_svg]:w-5 [&_svg]:h-5 [&_svg]:text-white">
               <WorkflowIcon />
             </div>
-            <div className={styles.workflowDetails}>
-              <h1 className={styles.workflowName}>{chatData.workflowName}</h1>
-              <p className={styles.workflowMeta}>
+            <div className="flex flex-col gap-0.5">
+              <h1 className="text-base font-semibold text-foreground m-0">{chatData.workflowName}</h1>
+              <p className="text-xs text-muted-foreground/60 m-0">
                 {t('chat.interactionCount', {
                   count: messages.filter((m) => m.sender !== 'system').length,
                 })}
               </p>
             </div>
           </div>
-          <div className={styles.headerActions}>
+          <div className="flex items-center gap-2">
             <button
-              className={styles.headerButton}
+              className="flex items-center justify-center w-9 h-9 p-0 bg-transparent border border-border rounded-lg cursor-pointer text-muted-foreground transition-all hover:border-primary hover:text-primary hover:bg-primary/5 [&_svg]:w-[18px] [&_svg]:h-[18px]"
               onClick={handleNewChat}
               title={t('chat.newChat')}
             >
               <NewChatIcon />
             </button>
             <button
-              className={styles.headerButton}
+              className="flex items-center justify-center w-9 h-9 p-0 bg-transparent border border-border rounded-lg cursor-pointer text-muted-foreground transition-all hover:border-primary hover:text-primary hover:bg-primary/5 [&_svg]:w-[18px] [&_svg]:h-[18px]"
               onClick={handleViewHistory}
               title={t('chat.viewHistory')}
             >
@@ -650,7 +651,7 @@ const ChatCurrentPage: React.FC<RouteComponentProps & ChatCurrentPageProps> = ({
         </header>
 
         {/* Messages */}
-        <div className={styles.messagesArea}>
+        <div className="flex-1 overflow-y-auto p-8 flex flex-col gap-6">
           {messages.map((message) => (
             <MessageItem
               key={message.id}
@@ -667,15 +668,15 @@ const ChatCurrentPage: React.FC<RouteComponentProps & ChatCurrentPageProps> = ({
         </div>
 
         {/* Input Area */}
-        <div className={styles.inputArea}>
+        <div className="px-8 py-6 bg-white border-t border-border shrink-0">
           {attachments.length > 0 && (
-            <div className={styles.inputAttachments}>
+            <div className="flex flex-wrap gap-2 py-2">
               {attachments.map((file, index) => (
-                <div key={index} className={styles.inputAttachment}>
+                <div key={index} className="flex items-center gap-1 px-2 py-1 bg-muted border border-border rounded text-xs text-muted-foreground [&_svg]:w-3.5 [&_svg]:h-3.5">
                   <FileIcon />
                   <span>{file.name}</span>
                   <button
-                    className={styles.removeAttachment}
+                    className="flex items-center justify-center w-4 h-4 p-0 bg-transparent border-none rounded-full cursor-pointer text-muted-foreground/60 transition-colors hover:text-red-500 [&_svg]:w-3 [&_svg]:h-3"
                     onClick={() => handleRemoveAttachment(index)}
                   >
                     <CloseIcon />
@@ -684,11 +685,11 @@ const ChatCurrentPage: React.FC<RouteComponentProps & ChatCurrentPageProps> = ({
               ))}
             </div>
           )}
-          <div className={`${styles.inputWrapper} ${isExecuting ? styles.disabled : ''}`}>
-            <div className={styles.textareaContainer}>
+          <div className={`flex items-end gap-4 bg-muted border border-border rounded-xl p-2 transition-colors focus-within:border-primary ${isExecuting ? 'opacity-60 pointer-events-none' : ''}`}>
+            <div className="flex-1 relative">
               <textarea
                 ref={textareaRef}
-                className={styles.textarea}
+                className="w-full min-h-6 max-h-[150px] p-2 border-none bg-transparent text-base leading-relaxed text-foreground resize-none overflow-y-auto placeholder:text-muted-foreground/60 focus:outline-none"
                 value={inputContent}
                 onChange={(e) => setInputContent(e.target.value)}
                 onKeyDown={handleKeyDown}
@@ -699,9 +700,9 @@ const ChatCurrentPage: React.FC<RouteComponentProps & ChatCurrentPageProps> = ({
                 rows={1}
               />
             </div>
-            <div className={styles.inputActions}>
+            <div className="flex items-center gap-2">
               <button
-                className={styles.attachButton}
+                className="flex items-center justify-center w-9 h-9 p-0 bg-transparent border-none rounded-lg cursor-pointer text-muted-foreground/60 transition-colors hover:text-primary [&_svg]:w-5 [&_svg]:h-5"
                 onClick={handleAttach}
                 disabled={isExecuting}
                 title={t('chat.attach')}
@@ -710,7 +711,7 @@ const ChatCurrentPage: React.FC<RouteComponentProps & ChatCurrentPageProps> = ({
               </button>
               {isExecuting ? (
                 <button
-                  className={`${styles.sendButton} ${styles.stop}`}
+                  className="flex items-center justify-center w-10 h-10 p-0 bg-red-500 border-none rounded-lg cursor-pointer text-white transition-all hover:bg-red-600 [&_svg]:w-5 [&_svg]:h-5"
                   onClick={handleStop}
                   title={t('chat.stop')}
                 >
@@ -718,7 +719,7 @@ const ChatCurrentPage: React.FC<RouteComponentProps & ChatCurrentPageProps> = ({
                 </button>
               ) : (
                 <button
-                  className={styles.sendButton}
+                  className="flex items-center justify-center w-10 h-10 p-0 bg-primary border-none rounded-lg cursor-pointer text-white transition-all hover:bg-primary/90 disabled:bg-muted-foreground/40 disabled:cursor-not-allowed [&_svg]:w-5 [&_svg]:h-5"
                   onClick={handleSend}
                   disabled={!inputContent.trim()}
                   title={t('chat.send')}

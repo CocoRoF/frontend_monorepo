@@ -44,57 +44,36 @@ const CommentIcon: React.FC = () => (
   </svg>
 );
 
-// ─────────────────────────────────────────────────────────────
-// Styles
-// ─────────────────────────────────────────────────────────────
-
-const styles = {
-  container: { padding: '24px' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' },
-  title: { fontSize: '24px', fontWeight: 700, color: '#1F2937' },
-  controls: { display: 'flex', gap: '16px', marginBottom: '24px' },
-  searchWrapper: { flex: 1, maxWidth: '400px' },
-  summaryRow: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' },
-  summaryCard: { padding: '20px', background: '#fff', borderRadius: '14px', border: '1px solid #E5E7EB', textAlign: 'center' as const },
-  summaryValue: { fontSize: '28px', fontWeight: 700, marginBottom: '4px' },
-  summaryLabel: { fontSize: '13px', color: '#6B7280' },
-  requestList: { display: 'flex', flexDirection: 'column' as const, gap: '12px' },
-  requestCard: { background: '#fff', borderRadius: '14px', border: '1px solid #E5E7EB', padding: '20px', display: 'flex', gap: '16px', alignItems: 'flex-start' },
-  priorityIndicator: { width: '4px', height: '100%', borderRadius: '2px', minHeight: '80px' },
-  requestContent: { flex: 1 },
-  requestHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' },
-  requestTitle: { fontSize: '15px', fontWeight: 600, color: '#1F2937', margin: 0 },
-  requestId: { fontSize: '12px', color: '#9CA3AF', fontFamily: 'monospace' },
-  requestDesc: { fontSize: '13px', color: '#6B7280', lineHeight: 1.5, marginBottom: '12px' },
-  requestMeta: { display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' as const },
-  metaItem: { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#6B7280' },
-  statusBadge: { padding: '4px 10px', borderRadius: '10px', fontSize: '11px', fontWeight: 500 },
-  categoryBadge: { padding: '3px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 600 },
-  priorityBadge: { padding: '3px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 600 },
-  requestActions: { display: 'flex', gap: '8px', flexShrink: 0 },
+const priorityClasses: Record<RequestPriority, string> = {
+  low: 'bg-green-500',
+  medium: 'bg-yellow-500',
+  high: 'bg-red-500',
+  urgent: 'bg-red-600',
 };
 
-const priorityColors: Record<RequestPriority, string> = {
-  low: '#22C55E',
-  medium: '#F59E0B',
-  high: '#EF4444',
-  urgent: '#DC2626',
+const priorityBadgeClasses: Record<RequestPriority, string> = {
+  low: 'bg-green-500/10 text-green-500',
+  medium: 'bg-yellow-500/10 text-yellow-500',
+  high: 'bg-red-500/10 text-red-500',
+  urgent: 'bg-red-600/10 text-red-600',
 };
 
-const statusStyles: Record<RequestStatus, { bg: string; color: string }> = {
-  open: { bg: 'rgba(99, 102, 241, 0.1)', color: '#6366F1' },
-  'in-progress': { bg: 'rgba(245, 158, 11, 0.1)', color: '#D97706' },
-  resolved: { bg: 'rgba(34, 197, 94, 0.1)', color: '#16A34A' },
-  closed: { bg: 'rgba(107, 114, 128, 0.1)', color: '#6B7280' },
+const statusClasses: Record<RequestStatus, string> = {
+  open: 'bg-indigo-500/10 text-indigo-500',
+  'in-progress': 'bg-amber-600/10 text-amber-600',
+  resolved: 'bg-green-600/10 text-green-600',
+  closed: 'bg-gray-500/10 text-gray-500',
 };
 
-const categoryStyles: Record<RequestCategory, { bg: string; color: string }> = {
-  bug: { bg: 'rgba(239, 68, 68, 0.1)', color: '#DC2626' },
-  feature: { bg: 'rgba(99, 102, 241, 0.1)', color: '#6366F1' },
-  question: { bg: 'rgba(6, 182, 212, 0.1)', color: '#0891B2' },
-  access: { bg: 'rgba(245, 158, 11, 0.1)', color: '#D97706' },
-  other: { bg: 'rgba(107, 114, 128, 0.1)', color: '#6B7280' },
+const categoryClasses: Record<RequestCategory, string> = {
+  bug: 'bg-red-500/10 text-red-600',
+  feature: 'bg-indigo-500/10 text-indigo-500',
+  question: 'bg-cyan-500/10 text-cyan-700',
+  access: 'bg-amber-500/10 text-amber-600',
+  other: 'bg-gray-500/10 text-gray-500',
 };
+
+const summaryValueClasses = ['text-indigo-500', 'text-amber-600', 'text-green-600', 'text-red-500'];
 
 // ─────────────────────────────────────────────────────────────
 // Mock Data
@@ -214,9 +193,9 @@ const ServiceRequestPage: React.FC<ServiceRequestPageProps> = () => {
 
   return (
     <ContentArea title={t('serviceRequest.title')}>
-      <div style={styles.container}>
-        <div style={styles.header}>
-          <h1 style={styles.title}>{t('serviceRequest.title')}</h1>
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-foreground">{t('serviceRequest.title')}</h1>
           <Button variant="primary">
             <PlusIcon />
             {t('serviceRequest.newRequest')}
@@ -224,27 +203,22 @@ const ServiceRequestPage: React.FC<ServiceRequestPageProps> = () => {
         </div>
 
         {/* Summary */}
-        <div style={styles.summaryRow}>
-          <div style={styles.summaryCard}>
-            <div style={{ ...styles.summaryValue, color: '#6366F1' }}>{openCount}</div>
-            <div style={styles.summaryLabel}>{t('serviceRequest.summary.open')}</div>
-          </div>
-          <div style={styles.summaryCard}>
-            <div style={{ ...styles.summaryValue, color: '#D97706' }}>{inProgressCount}</div>
-            <div style={styles.summaryLabel}>{t('serviceRequest.summary.inProgress')}</div>
-          </div>
-          <div style={styles.summaryCard}>
-            <div style={{ ...styles.summaryValue, color: '#16A34A' }}>{resolvedCount}</div>
-            <div style={styles.summaryLabel}>{t('serviceRequest.summary.resolved')}</div>
-          </div>
-          <div style={styles.summaryCard}>
-            <div style={{ ...styles.summaryValue, color: '#EF4444' }}>{urgentCount}</div>
-            <div style={styles.summaryLabel}>{t('serviceRequest.summary.urgent')}</div>
-          </div>
+        <div className="grid grid-cols-4 gap-4 mb-6">
+          {[
+            { value: openCount, label: t('serviceRequest.summary.open'), cls: summaryValueClasses[0] },
+            { value: inProgressCount, label: t('serviceRequest.summary.inProgress'), cls: summaryValueClasses[1] },
+            { value: resolvedCount, label: t('serviceRequest.summary.resolved'), cls: summaryValueClasses[2] },
+            { value: urgentCount, label: t('serviceRequest.summary.urgent'), cls: summaryValueClasses[3] },
+          ].map((item, i) => (
+            <div key={i} className="p-5 bg-white rounded-[14px] border border-border text-center">
+              <div className={`text-[28px] font-bold mb-1 ${item.cls}`}>{item.value}</div>
+              <div className="text-[13px] text-muted-foreground">{item.label}</div>
+            </div>
+          ))}
         </div>
 
-        <div style={styles.controls}>
-          <div style={styles.searchWrapper}>
+        <div className="flex gap-4 mb-6">
+          <div className="flex-1 max-w-[400px]">
             <SearchInput
               placeholder={t('serviceRequest.searchPlaceholder')}
               value={searchQuery}
@@ -264,69 +238,46 @@ const ServiceRequestPage: React.FC<ServiceRequestPageProps> = () => {
             description={t('serviceRequest.empty.description')}
           />
         ) : (
-          <div style={styles.requestList}>
+          <div className="flex flex-col gap-3">
             {filteredRequests.map(request => (
-              <div key={request.id} style={styles.requestCard}>
-                <div
-                  style={{
-                    ...styles.priorityIndicator,
-                    background: priorityColors[request.priority],
-                  }}
-                />
-                <div style={styles.requestContent}>
-                  <div style={styles.requestHeader}>
+              <div key={request.id} className="bg-white rounded-[14px] border border-border p-5 flex gap-4 items-start">
+                <div className={`w-1 rounded-sm min-h-[80px] ${priorityClasses[request.priority]}`} />
+                <div className="flex-1">
+                  <div className="flex justify-between items-start mb-2">
                     <div>
-                      <h3 style={styles.requestTitle}>{request.title}</h3>
-                      <span style={styles.requestId}>{request.id}</span>
+                      <h3 className="text-[15px] font-semibold text-foreground m-0">{request.title}</h3>
+                      <span className="text-xs text-muted-foreground/60 font-mono">{request.id}</span>
                     </div>
-                    <span
-                      style={{
-                        ...styles.statusBadge,
-                        background: statusStyles[request.status].bg,
-                        color: statusStyles[request.status].color,
-                      }}
-                    >
+                    <span className={`px-2.5 py-1 rounded-[10px] text-[11px] font-medium ${statusClasses[request.status]}`}>
                       {request.status}
                     </span>
                   </div>
-                  <p style={styles.requestDesc}>{request.description}</p>
-                  <div style={styles.requestMeta}>
-                    <span
-                      style={{
-                        ...styles.categoryBadge,
-                        background: categoryStyles[request.category].bg,
-                        color: categoryStyles[request.category].color,
-                      }}
-                    >
+                  <p className="text-[13px] text-muted-foreground leading-relaxed mb-3">{request.description}</p>
+                  <div className="flex gap-4 items-center flex-wrap">
+                    <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold ${categoryClasses[request.category]}`}>
                       {request.category}
                     </span>
-                    <span
-                      style={{
-                        ...styles.priorityBadge,
-                        background: `${priorityColors[request.priority]}15`,
-                        color: priorityColors[request.priority],
-                      }}
-                    >
+                    <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold ${priorityBadgeClasses[request.priority]}`}>
                       {request.priority}
                     </span>
-                    <span style={styles.metaItem}>
+                    <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       {t('serviceRequest.by')} {request.requester}
                     </span>
                     {request.assignee && (
-                      <span style={styles.metaItem}>
+                      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         → {request.assignee}
                       </span>
                     )}
-                    <span style={styles.metaItem}>
+                    <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <CommentIcon />
                       {request.responses}
                     </span>
-                    <span style={styles.metaItem}>
+                    <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       {formatDate(request.updatedAt)}
                     </span>
                   </div>
                 </div>
-                <div style={styles.requestActions}>
+                <div className="flex gap-2 shrink-0">
                   <Button variant="outline" size="sm">{t('serviceRequest.view')}</Button>
                 </div>
               </div>

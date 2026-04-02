@@ -1,66 +1,45 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
-import styles from './content-area.module.scss';
+import { cn } from '../lib/utils';
 
 export type ContentAreaVariant = 'card' | 'page' | 'fullWidth' | 'toolStorage';
 
 export interface ContentAreaProps {
-  /** 페이지/섹션 제목 */
   title?: string;
-  /** 페이지/섹션 설명 */
   description?: string;
-  /** 헤더 표시 여부 (기본 true) */
   showHeader?: boolean;
-  /** 레이아웃 변형 */
   variant?: ContentAreaVariant;
-  /** 콘텐츠 영역 */
   children: React.ReactNode;
-  /** 추가 클래스 */
   className?: string;
-  /** 헤더 우측 액션 버튼 슬롯 */
   headerActions?: React.ReactNode;
 }
 
-/**
- * ContentArea - 페이지 콘텐츠 래퍼 컴포넌트
- *
- * @example
- * ```tsx
- * <ContentArea
- *   title="워크플로우 목록"
- *   description="생성된 워크플로우를 관리합니다."
- *   headerActions={<Button onClick={onCreate}>새 워크플로우</Button>}
- * >
- *   <WorkflowList />
- * </ContentArea>
- * ```
- */
+const variantClasses: Record<ContentAreaVariant, string> = {
+  card: 'bg-card rounded-xl border border-border p-6',
+  page: 'bg-background p-6 max-w-7xl mx-auto',
+  fullWidth: 'bg-background p-6',
+  toolStorage: 'bg-background p-6 max-w-7xl mx-auto',
+};
+
 export const ContentArea: React.FC<ContentAreaProps> = ({
-  title,
-  description,
-  showHeader = true,
-  variant = 'card',
-  children,
-  className,
-  headerActions,
+  title, description, showHeader = true, variant = 'card',
+  children, className, headerActions,
 }) => {
   const shouldShowHeader = showHeader && (title || description || headerActions);
 
   return (
-    <div className={`${styles.container} ${styles[variant]} ${className || ''}`}>
+    <div className={cn(variantClasses[variant], className)}>
       {shouldShowHeader && (
-        <header className={styles.header}>
-          <div className={styles.headerText}>
-            {title && <h1 className={styles.title}>{title}</h1>}
-            {description && <p className={styles.description}>{description}</p>}
+        <header className="flex items-start justify-between mb-6">
+          <div className="flex flex-col gap-1">
+            {title && <h1 className="text-xl font-bold text-foreground">{title}</h1>}
+            {description && <p className="text-sm text-muted-foreground">{description}</p>}
           </div>
-          {headerActions && (
-            <div className={styles.headerActions}>{headerActions}</div>
-          )}
+          {headerActions && <div className="flex items-center gap-2 shrink-0">{headerActions}</div>}
         </header>
       )}
-      <div className={styles.body}>{children}</div>
+      <div>{children}</div>
     </div>
   );
 };

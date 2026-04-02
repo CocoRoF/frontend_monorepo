@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import styles from '../styles/dashboard.module.scss';
 import type { LatestUpdateItem } from '../types';
 import { useTranslation } from '@xgen/i18n';
 import { Button } from '@xgen/ui';
@@ -19,9 +18,9 @@ export const LatestUpdatesSection: React.FC<LatestUpdatesSectionProps> = ({
   const { t } = useTranslation();
 
   return (
-    <section className={styles.updatesSection}>
-      <div className={styles.updatesSectionHeader}>
-        <h3 className={styles.sectionTitle}>
+    <section className="flex flex-col bg-white rounded-xl shadow-md overflow-hidden">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+        <h3 className="text-lg font-semibold text-foreground m-0">
           {t('dashboard.latestUpdates')}
         </h3>
         {onViewAll && (
@@ -36,19 +35,19 @@ export const LatestUpdatesSection: React.FC<LatestUpdatesSectionProps> = ({
         )}
       </div>
 
-      <div className={styles.updatesList}>
+      <div className="flex flex-col">
         {updates.length === 0 ? (
-          <div className={styles.updateItem}>
-            <span className={styles.updateText}>
+          <div className="flex items-center px-6 py-4">
+            <span className="text-sm text-foreground">
               {t('dashboard.noUpdates')}
             </span>
           </div>
         ) : (
           updates.map((update) => (
-            <div key={update.id} className={styles.updateItem}>
-              <span className={styles.updatePrefix}>{update.prefix}</span>
+            <div key={update.id} className="flex items-center px-6 py-4 border-b border-border last:border-b-0">
+              <span className="text-sm text-muted-foreground/60 mr-2 shrink-0">{update.prefix}</span>
               <span
-                className={`${styles.updateText} ${update.isLink ? styles.isLink : ''}`}
+                className={`text-sm ${update.isLink ? 'text-primary cursor-pointer hover:underline' : 'text-foreground'}`}
                 onClick={update.onClick}
               >
                 {update.text}

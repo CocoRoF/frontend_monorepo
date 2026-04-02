@@ -2,6 +2,7 @@ import './locales';
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from '@xgen/i18n';
 import type { CanvasPagePlugin } from '@xgen/types';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@xgen/ui';
 import styles from './styles/auto-workflow-sidebar.module.scss';
 
 // ── Types ──────────────────────────────────────────────────────
@@ -257,11 +258,16 @@ const AutoWorkflowSidebar: React.FC<AutoWorkflowSidebarProps> = ({
                     {selectedAgentNode && availableModels.length > 0 && selectedAgentNode.id.toLowerCase().includes('openai') && (
                         <div className={styles.section}>
                             <h3>{t('canvas.autoWorkflow.selectModel', '모델 선택')}</h3>
-                            <select className={styles.modelSelect} value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)}>
-                                {availableModels.map((model) => (
-                                    <option key={model.value} value={model.value}>{model.label}</option>
-                                ))}
-                            </select>
+                            <Select value={selectedModel} onValueChange={setSelectedModel}>
+                                <SelectTrigger className={styles.modelSelect}>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {availableModels.map((model) => (
+                                        <SelectItem key={model.value} value={model.value}>{model.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
                     )}
 

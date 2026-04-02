@@ -7,7 +7,6 @@ import { useTranslation } from '@xgen/i18n';
 import './locales';
 import { createApiClient } from '@xgen/api-client';
 
-import styles from './styles/chat-history.module.scss';
 import type { ChatHistoryPageProps, ExecutionMeta, WorkflowDetail } from './types';
 
 // ─────────────────────────────────────────────────────────────
@@ -305,7 +304,7 @@ const ChatHistoryPage: React.FC<RouteComponentProps & ChatHistoryPageProps> = ({
       headerActions={
         <button
           onClick={loadChatHistory}
-          className={`${styles.refreshButton} ${loading ? styles.loading : ''}`}
+          className={`inline-flex items-center justify-center w-9 h-9 bg-transparent border border-border rounded-lg text-muted-foreground cursor-pointer transition-all hover:bg-muted hover:text-foreground [&_svg]:w-[18px] [&_svg]:h-[18px] ${loading ? 'animate-spin' : ''}`}
           disabled={loading}
           aria-label={t('common.refresh')}
         >
@@ -313,9 +312,9 @@ const ChatHistoryPage: React.FC<RouteComponentProps & ChatHistoryPageProps> = ({
         </button>
       }
     >
-      <div className={styles.container}>
+      <div className="flex flex-col gap-6">
         {/* Header: Filters & Search */}
-        <div className={styles.header}>
+        <div className="flex items-center justify-between gap-4 flex-wrap">
           <FilterTabs
             tabs={filterTabs}
             activeKey={filter}
@@ -332,7 +331,7 @@ const ChatHistoryPage: React.FC<RouteComponentProps & ChatHistoryPageProps> = ({
 
         {/* Error State */}
         {error && (
-          <div className={styles.errorBanner}>
+          <div className="flex items-center justify-between px-6 py-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 [&_span]:text-sm [&_button]:bg-transparent [&_button]:border-none [&_button]:text-red-500 [&_button]:text-sm [&_button]:font-medium [&_button]:cursor-pointer [&_button]:underline">
             <span>{error}</span>
             <button onClick={loadChatHistory}>{t('common.retry')}</button>
           </div>
@@ -340,9 +339,9 @@ const ChatHistoryPage: React.FC<RouteComponentProps & ChatHistoryPageProps> = ({
 
         {/* Content */}
         {loading ? (
-          <div className={styles.loadingState}>
-            <div className={styles.spinner} />
-            <p>{t('common.loading')}</p>
+          <div className="flex flex-col items-center justify-center p-16 gap-4">
+            <div className="w-10 h-10 border-3 border-border border-t-primary rounded-full animate-spin" />
+            <p className="text-sm text-muted-foreground m-0">{t('common.loading')}</p>
           </div>
         ) : filteredChats.length === 0 ? (
           <EmptyState
@@ -355,41 +354,41 @@ const ChatHistoryPage: React.FC<RouteComponentProps & ChatHistoryPageProps> = ({
             }}
           />
         ) : (
-          <div className={styles.chatList}>
+          <div className="flex flex-col gap-2">
             {filteredChats.map((chat) => (
               <article
                 key={chat.id}
-                className={`${styles.chatItem} ${chat.isWorkflowDeleted ? styles.deleted : ''}`}
+                className={`group flex items-center gap-4 px-6 py-4 bg-white border border-border rounded-lg cursor-pointer transition-all hover:border-primary hover:shadow-sm ${chat.isWorkflowDeleted ? 'opacity-60 hover:opacity-80' : ''}`}
               >
-                <div className={styles.chatIcon}>
+                <div className="w-10 h-10 flex items-center justify-center bg-primary/10 rounded-lg text-primary shrink-0 [&_svg]:w-5 [&_svg]:h-5">
                   <MessageIcon />
                 </div>
 
-                <div className={styles.chatContent}>
-                  <h3 className={styles.chatTitle}>{chat.workflowName}</h3>
-                  <div className={styles.chatMeta}>
-                    <span className={styles.metaItem}>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base font-medium text-foreground m-0 overflow-hidden text-ellipsis whitespace-nowrap">{chat.workflowName}</h3>
+                  <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground flex-wrap">
+                    <span>
                       {t('chatHistory.interactions', { count: chat.interactionCount })}
                     </span>
-                    <span className={styles.metaSeparator}>•</span>
-                    <span className={styles.metaItem}>{formatDate(chat.updatedAt)}</span>
+                    <span className="text-border">•</span>
+                    <span>{formatDate(chat.updatedAt)}</span>
 
                     {chat.isWorkflowDeleted && (
-                      <span className={`${styles.badge} ${styles.badgeDeleted}`}>
+                      <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-red-500/10 text-red-500">
                         {t('chatHistory.deleted')}
                       </span>
                     )}
                     {isDeployChat(chat.interactionId) && (
-                      <span className={`${styles.badge} ${styles.badgeDeploy}`}>
+                      <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-primary/10 text-primary">
                         {t('chatHistory.deploy')}
                       </span>
                     )}
                   </div>
                 </div>
 
-                <div className={styles.chatActions}>
+                <div className="flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
                   <button
-                    className={`${styles.actionButton} ${styles.primary}`}
+                    className="flex items-center justify-center gap-1 px-4 py-1 min-w-8 h-8 bg-primary border border-primary text-white rounded text-sm cursor-pointer transition-all hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed [&_span]:font-medium [&_svg]:w-4 [&_svg]:h-4 [&_svg]:shrink-0"
                     onClick={() => handleContinueChat(chat)}
                     disabled={chat.isWorkflowDeleted}
                     title={t('chatHistory.continue')}
@@ -398,7 +397,7 @@ const ChatHistoryPage: React.FC<RouteComponentProps & ChatHistoryPageProps> = ({
                     <span>{t('chatHistory.continue')}</span>
                   </button>
                   <button
-                    className={`${styles.actionButton} ${styles.danger}`}
+                    className="flex items-center justify-center gap-1 px-2 py-1 min-w-8 h-8 bg-transparent border border-border text-muted-foreground rounded text-sm cursor-pointer transition-all hover:bg-red-500/10 hover:border-red-500 hover:text-red-500 [&_svg]:w-4 [&_svg]:h-4 [&_svg]:shrink-0"
                     onClick={() => handleDeleteChat(chat)}
                     title={t('chatHistory.delete')}
                   >

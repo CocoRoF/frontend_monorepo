@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { createPortal } from 'react-dom';
 import { useTranslation } from '@xgen/i18n';
 import { useAuth } from '@xgen/auth-provider';
 import {
@@ -21,6 +20,11 @@ import {
   generateEmbedJs,
 } from '@xgen/api-client';
 import { config } from '@xgen/config';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+  Tabs, TabsList, TabsTrigger, TabsContent,
+  RadioGroup, RadioGroupItem,
+} from '@xgen/ui';
 import styles from './styles/deploy-modal.module.scss';
 
 // Side-effect: register translations
@@ -264,8 +268,6 @@ export const DeploymentModal: React.FC<DeploymentModalProps> = ({
     }
   }, [customEmbedParams, embedType, baseUrl]);
 
-  if (!isOpen) return null;
-
   // Derived values
   const apiEndpoint = `${baseUrl}/api/workflow/execute/deploy/stream`;
   const webPageUrl = `${baseUrl}/chatbot/${workflow.id}?userId=${encodeURIComponent(userId)}`;
@@ -338,21 +340,13 @@ ${outputSchema ? `\n// Output Schema:\n// ${formatParams(outputSchema)}` : ''}`;
     })
 </script>`;
 
-  const modalContent = (
-    <div className={styles.backdrop} onClick={onClose} role="presentation">
-      <div
-        className={styles.container}
-        role="dialog"
-        aria-modal="true"
-        onClick={(e) => e.stopPropagation()}
-      >
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className={styles.container} aria-describedby={undefined}>
         {/* Header */}
-        <div className={styles.header}>
-          <h3>{t('canvas.deploy.title', { workflowName: workflow.name })}</h3>
-          <button ref={closeRef} onClick={onClose} className={styles.closeButton} type="button" aria-label="Close">
-            <LuX />
-          </button>
-        </div>
+        <DialogHeader className={styles.header}>
+          <DialogTitle>{t('canvas.deploy.title', { workflowName: workflow.name })}</DialogTitle>
+        </DialogHeader>
 
         {/* Copy feedback */}
         {copyFeedback && (
@@ -362,34 +356,18 @@ ${outputSchema ? `\n// Output Schema:\n// ${formatParams(outputSchema)}` : ''}`;
         )}
 
         {/* Tabs */}
-        <div className={styles.tabContainer}>
-          {(['website', 'api', 'curl', 'embed'] as const).map((tab) => {
-            const icons = { website: LuExternalLink, api: LuCode, curl: LuTerminal, embed: LuShare2 };
-            const labels = {
-              website: t('canvas.deploy.tabWebpage'),
-              api: t('canvas.deploy.tabApi'),
-              curl: t('canvas.deploy.tabCurl'),
-              embed: t('canvas.deploy.tabEmbed'),
-            };
-            const Icon = icons[tab];
-            return (
-              <button
-                key={tab}
-                className={`${styles.tabButton} ${activeTab === tab ? styles.active : ''}`}
-                onClick={() => setActiveTab(tab)}
-                type="button"
-              >
-                <Icon /> {labels[tab]}
-              </button>
-            );
-          })}
-        </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className={styles.tabContainer}>
+            <TabsTrigger value="website" className={styles.tabButton}><LuExternalLink /> {t('canvas.deploy.tabWebpage')}</TabsTrigger>
+            <TabsTrigger value="api" className={styles.tabButton}><LuCode /> {t('canvas.deploy.tabApi')}</TabsTrigger>
+            <TabsTrigger value="curl" className={styles.tabButton}><LuTerminal /> {t('canvas.deploy.tabCurl')}</TabsTrigger>
+            <TabsTrigger value="embed" className={styles.tabButton}><LuShare2 /> {t('canvas.deploy.tabEmbed')}</TabsTrigger>
+          </TabsList>
 
         {/* Content */}
         <div className={styles.content}>
           {/* ── Website Tab ── */}
-          {activeTab === 'website' && (
-            <div className={styles.tabPanel}>
+          <TabsContent value="website" className={styles.tabPanel}>
               <div className={styles.deployInfo}>
                 <p>{t('canvas.deploy.webpageDesc')}</p>
                 {workflow.name !== 'default_mode' ? (
@@ -419,41 +397,27 @@ ${outputSchema ? `\n// Output Schema:\n// ${formatParams(outputSchema)}` : ''}`;
                   Copy
                 </button>
               </div>
-            </div>
-          )}
+          </TabsContent>
 
           {/* ── API Tab ── */}
-          {activeTab === 'api' && (
-            <div className={styles.tabPanel}>
+          <TabsContent value="api" className={styles.tabPanel}>
               <p>{t('canvas.deploy.apiDesc')}</p>
-              <div className={styles.nestedTabContainer}>
-                <button
-                  type="button"
-                  className={`${styles.langTabButton} ${activeApiLang === 'python' ? styles.active : ''}`}
-                  onClick={() => setActiveApiLang('python')}
-                >
-                  Python
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.langTabButton} ${activeApiLang === 'javascript' ? styles.active : ''}`}
-                  onClick={() => setActiveApiLang('javascript')}
-                >
-                  JavaScript
-                </button>
-              </div>
-              {activeApiLang === 'python' && (
-                <CodeBlock code={baseUrl ? pythonCode : t('canvas.deploy.codeGenerating')} onCopy={handleCopy} />
-              )}
-              {activeApiLang === 'javascript' && (
-                <CodeBlock code={baseUrl ? jsCode : t('canvas.deploy.codeGenerating')} onCopy={handleCopy} />
-              )}
-            </div>
-          )}
+              <Tabs value={activeApiLang} onValueChange={setActiveApiLang}>
+                <TabsList className={styles.nestedTabContainer}>
+                  <TabsTrigger value="python" className={styles.langTabButton}>Python</TabsTrigger>
+                  <TabsTrigger value="javascript" className={styles.langTabButton}>JavaScript</TabsTrigger>
+                </TabsList>
+                <TabsContent value="python">
+                  <CodeBlock code={baseUrl ? pythonCode : t('canvas.deploy.codeGenerating')} onCopy={handleCopy} />
+                </TabsContent>
+                <TabsContent value="javascript">
+                  <CodeBlock code={baseUrl ? jsCode : t('canvas.deploy.codeGenerating')} onCopy={handleCopy} />
+                </TabsContent>
+              </Tabs>
+          </TabsContent>
 
           {/* ── cURL Tab ── */}
-          {activeTab === 'curl' && (
-            <div className={styles.tabPanel}>
+          <TabsContent value="curl" className={styles.tabPanel}>
               <p>{t('canvas.deploy.curlDesc')}</p>
               <textarea
                 className={styles.payloadTextarea}
@@ -464,55 +428,43 @@ ${outputSchema ? `\n// Output Schema:\n// ${formatParams(outputSchema)}` : ''}`;
               />
               <h5 className={styles.sectionTitle}>{t('canvas.deploy.generatedCurl')}</h5>
               <CodeBlock code={baseUrl ? curlCode : t('canvas.deploy.codeGenerating')} onCopy={handleCopy} />
-            </div>
-          )}
+          </TabsContent>
 
           {/* ── Embed Tab ── */}
-          {activeTab === 'embed' && (
-            <div className={styles.tabPanel}>
-              <div className={styles.nestedTabContainer}>
-                <button
-                  type="button"
-                  className={`${styles.langTabButton} ${embedMode === 'basic' ? styles.active : ''}`}
-                  onClick={() => setEmbedMode('basic')}
-                >
+          <TabsContent value="embed" className={styles.tabPanel}>
+            <Tabs value={embedMode} onValueChange={(v) => setEmbedMode(v as 'basic' | 'custom')}>
+              <TabsList className={styles.nestedTabContainer}>
+                <TabsTrigger value="basic" className={styles.langTabButton}>
                   {t('canvas.deploy.basicEmbedCode')}
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.langTabButton} ${embedMode === 'custom' ? styles.active : ''}`}
-                  onClick={() => setEmbedMode('custom')}
-                >
+                </TabsTrigger>
+                <TabsTrigger value="custom" className={styles.langTabButton}>
                   <LuPlus /> {t('canvas.deploy.customJsGenerate')}
-                </button>
-              </div>
+                </TabsTrigger>
+              </TabsList>
 
-              {embedMode === 'basic' && (
-                <>
+              <TabsContent value="basic">
                   <p>{t('canvas.deploy.embedDesc')}</p>
                   <h5 className={styles.sectionTitle}>{t('canvas.deploy.embedPopup')}</h5>
                   <CodeBlock code={baseUrl ? popupHtml : t('canvas.deploy.codeGenerating')} onCopy={handleCopy} />
                   <h5 className={styles.sectionTitle}>{t('canvas.deploy.embedFullPage')}</h5>
                   <CodeBlock code={baseUrl ? fullPageHtml : t('canvas.deploy.codeGenerating')} onCopy={handleCopy} />
-                </>
-              )}
+              </TabsContent>
 
-              {embedMode === 'custom' && (
-                <>
+              <TabsContent value="custom">
                   <p>{t('canvas.deploy.editParams')}</p>
 
                   <div className={styles.embedTypeSelector}>
                     <label>{t('canvas.deploy.embedType')}</label>
-                    <div className={styles.radioGroup}>
-                      <label className={styles.radioLabel}>
-                        <input type="radio" name="embedType" value="popup" checked={embedType === 'popup'} onChange={() => setEmbedType('popup')} />
-                        <span>{t('canvas.deploy.embedPopup')}</span>
-                      </label>
-                      <label className={styles.radioLabel}>
-                        <input type="radio" name="embedType" value="full" checked={embedType === 'full'} onChange={() => setEmbedType('full')} />
-                        <span>{t('canvas.deploy.embedFullPage')}</span>
-                      </label>
-                    </div>
+                    <RadioGroup value={embedType} onValueChange={(v) => setEmbedType(v as 'popup' | 'full')} className={styles.radioGroup}>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="popup" id="embed-popup" />
+                        <label htmlFor="embed-popup">{t('canvas.deploy.embedPopup')}</label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="full" id="embed-full" />
+                        <label htmlFor="embed-full">{t('canvas.deploy.embedFullPage')}</label>
+                      </div>
+                    </RadioGroup>
                   </div>
 
                   <div className={styles.embedParamsForm}>
@@ -570,16 +522,14 @@ ${outputSchema ? `\n// Output Schema:\n// ${formatParams(outputSchema)}` : ''}`;
                       </a>
                     </div>
                   )}
-                </>
-              )}
-            </div>
-          )}
+              </TabsContent>
+            </Tabs>
+          </TabsContent>
         </div>
-      </div>
-    </div>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
   );
-
-  return createPortal(modalContent, document.body);
 };
 
 export default DeploymentModal;

@@ -115,26 +115,6 @@ const MOCK_DOCUMENTS: DocumentItem[] = [
 ];
 
 // ─────────────────────────────────────────────────────────────
-// Styles
-// ─────────────────────────────────────────────────────────────
-
-const styles = {
-  container: { padding: '24px', maxWidth: '1400px', margin: '0 auto' },
-  header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap' as const, gap: '16px' },
-  headerLeft: { display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: '300px' },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' },
-  card: { display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', background: '#fff', border: '1px solid #E5E7EB', borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s ease' },
-  cardIcon: { width: '48px', height: '48px', borderRadius: '8px', background: 'rgba(48, 94, 235, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  cardContent: { flex: 1, minWidth: 0 },
-  cardName: { fontSize: '14px', fontWeight: 600, color: '#1F2937', margin: '0 0 4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const },
-  cardMeta: { fontSize: '12px', color: '#6B7280', display: 'flex', gap: '12px' },
-  statusBadge: { padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 500 },
-  indexed: { background: 'rgba(34, 197, 94, 0.1)', color: '#22C55E' },
-  processing: { background: 'rgba(234, 179, 8, 0.1)', color: '#EAB308' },
-  failed: { background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444' },
-  loading: { display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '300px' },
-  spinner: { width: '40px', height: '40px', border: '3px solid #E5E7EB', borderTopColor: '#305EEB', borderRadius: '50%', animation: 'spin 1s linear infinite' },
-};
 
 // ─────────────────────────────────────────────────────────────
 // Documents Page
@@ -187,9 +167,9 @@ const DocumentsPage: React.FC<DocumentsPageProps> = () => {
         </Button>
       }
     >
-      <div style={styles.container}>
-        <div style={styles.header}>
-          <div style={styles.headerLeft}>
+      <div className="p-6 max-w-[1400px] mx-auto">
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+          <div className="flex items-center gap-4 flex-1 min-w-[300px]">
             <SearchInput
               value={search}
               onChange={setSearch}
@@ -200,8 +180,8 @@ const DocumentsPage: React.FC<DocumentsPageProps> = () => {
         </div>
 
         {loading ? (
-          <div style={styles.loading}>
-            <div style={styles.spinner} />
+          <div className="flex items-center justify-center min-h-[300px]">
+            <div className="w-10 h-10 border-3 border-border border-t-primary rounded-full animate-spin" />
           </div>
         ) : filteredDocuments.length === 0 ? (
           <EmptyState
@@ -210,25 +190,25 @@ const DocumentsPage: React.FC<DocumentsPageProps> = () => {
             description={t('documents.empty.description')}
           />
         ) : (
-          <div style={styles.grid}>
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4">
             {filteredDocuments.map(doc => (
-              <div key={doc.id} style={styles.card}>
-                <div style={styles.cardIcon}>
+              <div key={doc.id} className="flex items-center gap-4 p-4 bg-white border border-border rounded-xl cursor-pointer transition-all duration-200 hover:shadow-md">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                   <PdfIcon />
                 </div>
-                <div style={styles.cardContent}>
-                  <h3 style={styles.cardName}>{doc.name}</h3>
-                  <div style={styles.cardMeta}>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-semibold text-foreground mb-1 truncate">{doc.name}</h3>
+                  <div className="text-xs text-muted-foreground flex gap-3">
                     <span>{formatSize(doc.size)}</span>
                     {doc.chunkCount !== undefined && doc.chunkCount > 0 && (
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span className="flex items-center gap-1">
                         <ChunkIcon />
                         {doc.chunkCount} chunks
                       </span>
                     )}
                   </div>
                 </div>
-                <span style={{ ...styles.statusBadge, ...(doc.status === 'indexed' ? styles.indexed : doc.status === 'processing' ? styles.processing : styles.failed) }}>
+                <span className={`px-2 py-0.5 rounded text-[11px] font-medium ${doc.status === 'indexed' ? 'bg-green-500/10 text-green-500' : doc.status === 'processing' ? 'bg-yellow-500/10 text-yellow-500' : 'bg-red-500/10 text-red-500'}`}>
                   {doc.status}
                 </span>
               </div>

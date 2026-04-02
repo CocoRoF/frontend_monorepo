@@ -8,7 +8,6 @@ import { useTranslation } from '@xgen/i18n';
 import { useAuth } from '@xgen/auth-provider';
 import { listBatchHistory, cancelBatch, deleteBatch } from './api';
 import type { BatchSession } from './api';
-import styles from './styles/workflow-tester.module.scss';
 
 // ─────────────────────────────────────────────────────────────
 // Types
@@ -129,15 +128,15 @@ export const WorkflowTester: React.FC<WorkflowTesterProps> = ({ className }) => 
   ];
 
   return (
-    <div className={`${styles.container} ${className || ''}`}>
+    <div className={`flex flex-col h-full gap-6 ${className || ''}`}>
       {/* Header */}
-      <div className={styles.header}>
-        <div className={styles.headerLeft}>
-          <div className={styles.filterTabs}>
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-4">
+          <div className="flex gap-1 p-1 bg-muted rounded-lg">
             {filterTabs.map((tab) => (
               <button
                 key={tab.key}
-                className={`${styles.filterTab} ${filterStatus === tab.key ? styles.active : ''}`}
+                className={`px-3 py-1.5 border-none bg-transparent text-muted-foreground text-[13px] font-medium cursor-pointer rounded transition-all duration-150 hover:text-foreground ${filterStatus === tab.key ? 'bg-white text-primary shadow-sm' : ''}`}
                 onClick={() => setFilterStatus(tab.key as TesterFilterStatus)}
               >
                 {tab.label}
@@ -146,7 +145,7 @@ export const WorkflowTester: React.FC<WorkflowTesterProps> = ({ className }) => 
           </div>
         </div>
 
-        <div className={styles.headerRight}>
+        <div className="flex items-center gap-2">
           <Button
             variant="primary"
             size="sm"
@@ -164,15 +163,15 @@ export const WorkflowTester: React.FC<WorkflowTesterProps> = ({ className }) => 
             disabled={loading}
             title={t('workflows.tester.refresh')}
           >
-            <FiRefreshCw className={loading ? styles.spinning : ''} />
+            <FiRefreshCw className={loading ? 'animate-spin' : ''} />
           </Button>
         </div>
       </div>
 
       {/* Content */}
-      <div className={styles.content}>
+      <div className="flex-1 min-h-0 overflow-y-auto">
         {!isInitialized ? (
-          <div className={styles.loadingState}>
+          <div className="flex items-center justify-center h-[200px] text-muted-foreground text-sm">
             <p>{t('workflows.tester.loading')}</p>
           </div>
         ) : error ? (
@@ -186,31 +185,31 @@ export const WorkflowTester: React.FC<WorkflowTesterProps> = ({ className }) => 
             }}
           />
         ) : filteredSessions.length === 0 ? (
-          <div className={styles.emptyState}>
-            <div className={styles.emptyIcon}>
+          <div className="flex flex-col items-center py-16 text-center">
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6 [&_svg]:w-8 [&_svg]:h-8 [&_svg]:text-primary">
               <FiPlay />
             </div>
-            <h3 className={styles.emptyTitle}>{t('workflows.tester.empty.title')}</h3>
-            <p className={styles.emptyDescription}>{t('workflows.tester.empty.description')}</p>
+            <h3 className="m-0 mb-2 text-lg font-semibold text-foreground">{t('workflows.tester.empty.title')}</h3>
+            <p className="m-0 mb-8 text-sm text-muted-foreground max-w-[400px]">{t('workflows.tester.empty.description')}</p>
 
-            <div className={styles.emptySteps}>
-              <div className={styles.step}>
-                <div className={styles.stepNumber}>1</div>
-                <div className={styles.stepContent}>
+            <div className="flex flex-col gap-4 mb-8 max-w-[400px] w-full">
+              <div className="flex items-start gap-4 text-left">
+                <div className="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center text-sm font-semibold shrink-0">1</div>
+                <div className="flex-1 [&_h4]:m-0 [&_h4]:mb-1 [&_h4]:text-sm [&_h4]:font-semibold [&_h4]:text-foreground [&_p]:m-0 [&_p]:text-[13px] [&_p]:text-muted-foreground">
                   <h4>{t('workflows.tester.steps.selectWorkflow')}</h4>
                   <p>{t('workflows.tester.steps.selectWorkflowDesc')}</p>
                 </div>
               </div>
-              <div className={styles.step}>
-                <div className={styles.stepNumber}>2</div>
-                <div className={styles.stepContent}>
+              <div className="flex items-start gap-4 text-left">
+                <div className="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center text-sm font-semibold shrink-0">2</div>
+                <div className="flex-1 [&_h4]:m-0 [&_h4]:mb-1 [&_h4]:text-sm [&_h4]:font-semibold [&_h4]:text-foreground [&_p]:m-0 [&_p]:text-[13px] [&_p]:text-muted-foreground">
                   <h4>{t('workflows.tester.steps.uploadFile')}</h4>
                   <p>{t('workflows.tester.steps.uploadFileDesc')}</p>
                 </div>
               </div>
-              <div className={styles.step}>
-                <div className={styles.stepNumber}>3</div>
-                <div className={styles.stepContent}>
+              <div className="flex items-start gap-4 text-left">
+                <div className="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center text-sm font-semibold shrink-0">3</div>
+                <div className="flex-1 [&_h4]:m-0 [&_h4]:mb-1 [&_h4]:text-sm [&_h4]:font-semibold [&_h4]:text-foreground [&_p]:m-0 [&_p]:text-[13px] [&_p]:text-muted-foreground">
                   <h4>{t('workflows.tester.steps.runTest')}</h4>
                   <p>{t('workflows.tester.steps.runTestDesc')}</p>
                 </div>
@@ -223,38 +222,43 @@ export const WorkflowTester: React.FC<WorkflowTesterProps> = ({ className }) => 
             </Button>
           </div>
         ) : (
-          <div className={styles.sessionList}>
+          <div className="flex flex-col gap-4">
             {filteredSessions.map((session) => (
-              <div key={session.batchId} className={styles.sessionCard}>
-                <div className={styles.sessionHeader}>
-                  <div className={styles.sessionInfo}>
-                    <h4 className={styles.sessionWorkflow}>{session.workflowName}</h4>
-                    <span className={`${styles.sessionStatus} ${styles[session.status]}`}>
+              <div key={session.batchId} className="bg-white border border-border rounded-xl p-6 transition-all duration-150 hover:border-primary hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <h4 className="m-0 text-[15px] font-semibold text-foreground">{session.workflowName}</h4>
+                    <span className={`px-2 py-0.5 rounded text-[11px] font-semibold uppercase ${
+                      session.status === 'running' ? 'bg-primary/10 text-primary' :
+                      session.status === 'success' ? 'bg-green-500/10 text-green-500' :
+                      session.status === 'failed' ? 'bg-red-500/10 text-red-500' :
+                      'bg-muted text-muted-foreground'
+                    }`}>
                       {STATUS_BADGE_MAP[session.status]?.text || session.status}
                     </span>
                   </div>
-                  <span className={styles.sessionDate}>{formatDate(session.createdAt)}</span>
+                  <span className="text-xs text-muted-foreground">{formatDate(session.createdAt)}</span>
                 </div>
 
-                <div className={styles.sessionProgress}>
-                  <div className={styles.progressBar}>
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="flex-1 h-2 bg-muted rounded overflow-hidden">
                     <div
-                      className={styles.progressFill}
+                      className="h-full bg-primary rounded transition-[width] duration-300 ease-out"
                       style={{ width: `${session.progress}%` }}
                     />
                   </div>
-                  <span className={styles.progressText}>
+                  <span className="text-[13px] font-medium text-muted-foreground min-w-[80px] text-right">
                     {session.completedCount}/{session.totalCount} ({formatProgress(session.completedCount, session.totalCount)})
                   </span>
                 </div>
 
-                <div className={styles.sessionStats}>
-                  <div className={styles.stat}>
-                    <FiCheckCircle className={styles.statIconSuccess} />
+                <div className="flex gap-6">
+                  <div className="flex items-center gap-1 text-[13px] text-muted-foreground">
+                    <FiCheckCircle className="text-green-500" />
                     <span>{session.successCount}</span>
                   </div>
-                  <div className={styles.stat}>
-                    <FiAlertCircle className={styles.statIconError} />
+                  <div className="flex items-center gap-1 text-[13px] text-muted-foreground">
+                    <FiAlertCircle className="text-red-500" />
                     <span>{session.errorCount}</span>
                   </div>
                   {session.status === 'running' && (
@@ -276,23 +280,23 @@ export const WorkflowTester: React.FC<WorkflowTesterProps> = ({ className }) => 
 
       {/* Create Test Modal */}
       {isCreateModalOpen && (
-        <div className={styles.modalOverlay} onClick={() => setIsCreateModalOpen(false)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]" onClick={() => setIsCreateModalOpen(false)}>
+          <div className="bg-white rounded-xl max-w-[600px] w-[90%] max-h-[90vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-6 border-b border-border [&_h3]:m-0 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-foreground">
               <h3>{t('workflows.tester.create.title')}</h3>
-              <button className={styles.closeButton} onClick={() => setIsCreateModalOpen(false)}>
+              <button className="w-8 h-8 border-none bg-transparent text-2xl text-muted-foreground cursor-pointer rounded transition-all duration-150 hover:bg-muted hover:text-foreground" onClick={() => setIsCreateModalOpen(false)}>
                 ×
               </button>
             </div>
 
-            <div className={styles.modalContent}>
-              <div className={styles.uploadArea}>
-                <FiUpload className={styles.uploadIcon} />
+            <div className="flex-1 p-6 overflow-y-auto">
+              <div className="border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer transition-all duration-150 hover:border-primary hover:bg-primary/[0.02] [&_p]:mt-4 [&_p]:mb-2 [&_p]:text-[15px] [&_p]:font-medium [&_p]:text-foreground">
+                <FiUpload className="w-12 h-12 text-primary" />
                 <p>{t('workflows.tester.create.uploadPrompt')}</p>
-                <span className={styles.uploadHint}>{t('workflows.tester.create.uploadHint')}</span>
+                <span className="text-[13px] text-muted-foreground">{t('workflows.tester.create.uploadHint')}</span>
               </div>
 
-              <div className={styles.workflowSelect}>
+              <div className="mt-6 [&_label]:block [&_label]:mb-2 [&_label]:text-sm [&_label]:font-medium [&_label]:text-foreground [&_select]:w-full [&_select]:py-2.5 [&_select]:px-3 [&_select]:border [&_select]:border-border [&_select]:rounded-lg [&_select]:text-sm [&_select]:text-foreground [&_select]:bg-white [&_select]:cursor-pointer [&_select:focus]:outline-none [&_select:focus]:border-primary [&_select:disabled]:bg-muted [&_select:disabled]:cursor-not-allowed">
                 <label>{t('workflows.tester.create.selectWorkflow')}</label>
                 <select disabled>
                   <option value="">{t('workflows.tester.create.selectPlaceholder')}</option>
@@ -300,7 +304,7 @@ export const WorkflowTester: React.FC<WorkflowTesterProps> = ({ className }) => 
               </div>
             </div>
 
-            <div className={styles.modalFooter}>
+            <div className="flex gap-2 justify-end p-6 border-t border-border">
               <Button variant="outline" onClick={() => setIsCreateModalOpen(false)}>
                 {t('common.cancel')}
               </Button>

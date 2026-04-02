@@ -20,12 +20,6 @@ $sidebar-collapsed-width: 72px;
   flex: 1;
   min-width: 0;
   overflow-y: auto;
-  margin-left: $sidebar-width;
-  transition: margin-left 0.25s ease-out;
-
-  &.sidebarCollapsed {
-    margin-left: $sidebar-collapsed-width;
-  }
 }
 
 // ─────────────────────────────────────────────────────────────

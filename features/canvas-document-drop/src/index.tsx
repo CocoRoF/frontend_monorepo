@@ -1,10 +1,10 @@
 'use client';
 import './locales';
 import React, { useState, useEffect, useCallback } from 'react';
-import { createPortal } from 'react-dom';
-import { FiX, FiFile } from '@xgen/icons';
+import { FiFile } from '@xgen/icons';
 import { useTranslation } from '@xgen/i18n';
 import type { CanvasPagePlugin } from '@xgen/types';
+import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@xgen/ui';
 import styles from './styles/canvas-document-drop-modal.module.scss';
 
 // ── Types ──────────────────────────────────────────────────────
@@ -142,27 +142,13 @@ const CanvasDocumentDropModal: React.FC<CanvasDocumentDropModalProps> = ({
         onComplete(selectedCollectionName);
     }, [selectedCollectionName, onComplete]);
 
-    const handleOverlayClick = useCallback(
-        (e: React.MouseEvent) => { if (e.target === e.currentTarget) onCancel(); },
-        [onCancel],
-    );
-
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => { if (e.key === 'Escape') onCancel(); };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [onCancel]);
-
-    return createPortal(
-        <div className={styles.modalOverlay} onClick={handleOverlayClick} role="presentation">
-            <div className={styles.modal} role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+    return (
+        <Dialog open onOpenChange={(open) => { if (!open) onCancel(); }}>
+            <DialogContent className={styles.modal} aria-describedby={undefined}>
                 {/* Header */}
-                <div className={styles.header}>
-                    <h3 className={styles.title}>{t('canvas.documentDrop.modalTitle', '문서 업로드')}</h3>
-                    <button className={styles.closeButton} onClick={onCancel} type="button">
-                        <FiX size={18} />
-                    </button>
-                </div>
+                <DialogHeader className={styles.header}>
+                    <DialogTitle className={styles.title}>{t('canvas.documentDrop.modalTitle', '문서 업로드')}</DialogTitle>
+                </DialogHeader>
 
                 {/* File info */}
                 <div className={styles.fileInfo}>
@@ -263,7 +249,7 @@ const CanvasDocumentDropModal: React.FC<CanvasDocumentDropModalProps> = ({
                 </div>
 
                 {/* Footer */}
-                <div className={styles.footer}>
+                <DialogFooter className={styles.footer}>
                     <button className={`${styles.footerButton} ${styles.cancel}`} onClick={onCancel} type="button">
                         {t('canvas.documentDrop.cancel', '취소')}
                     </button>
@@ -275,10 +261,9 @@ const CanvasDocumentDropModal: React.FC<CanvasDocumentDropModalProps> = ({
                     >
                         {t('canvas.documentDrop.upload', '업로드')}
                     </button>
-                </div>
-            </div>
-        </div>,
-        document.body,
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 };
 

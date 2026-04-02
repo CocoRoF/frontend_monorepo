@@ -7,7 +7,6 @@ import { FiFolder, FiPlay, FiPause, FiTrash2, FiRefreshCw, FiPlus, FiClock, FiCa
 import { useTranslation } from '@xgen/i18n';
 import { useAuth } from '@xgen/auth-provider';
 import { listWorkflowSchedules, deleteWorkflowSchedule, toggleWorkflowSchedule } from './api';
-import styles from './styles/workflow-scheduler.module.scss';
 
 // ─────────────────────────────────────────────────────────────
 // Types
@@ -186,15 +185,15 @@ export const WorkflowScheduler: React.FC<WorkflowSchedulerProps> = ({ className 
   ];
 
   return (
-    <div className={`${styles.container} ${className || ''}`}>
+    <div className={`flex flex-col h-full gap-6 ${className || ''}`}>
       {/* Header */}
-      <div className={styles.header}>
-        <div className={styles.headerLeft}>
-          <div className={styles.filterTabs}>
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-4">
+          <div className="flex gap-1 p-1 bg-muted rounded-lg">
             {filterTabs.map((tab) => (
               <button
                 key={tab.key}
-                className={`${styles.filterTab} ${filterStatus === tab.key ? styles.active : ''}`}
+                className={`px-3 py-1.5 border-none bg-transparent text-muted-foreground text-[13px] font-medium cursor-pointer rounded transition-all duration-150 hover:text-foreground ${filterStatus === tab.key ? 'bg-white text-primary shadow-sm' : ''}`}
                 onClick={() => setFilterStatus(tab.key as ScheduleFilterStatus)}
               >
                 {tab.label}
@@ -203,7 +202,7 @@ export const WorkflowScheduler: React.FC<WorkflowSchedulerProps> = ({ className 
           </div>
         </div>
 
-        <div className={styles.headerRight}>
+        <div className="flex items-center gap-2">
           <Button
             variant="primary"
             size="sm"
@@ -221,15 +220,15 @@ export const WorkflowScheduler: React.FC<WorkflowSchedulerProps> = ({ className 
             disabled={loading}
             title={t('workflows.scheduler.refresh')}
           >
-            <FiRefreshCw className={loading ? styles.spinning : ''} />
+            <FiRefreshCw className={loading ? 'animate-spin' : ''} />
           </Button>
         </div>
       </div>
 
       {/* Content */}
-      <div className={styles.content}>
+      <div className="flex-1 min-h-0 overflow-y-auto">
         {!isInitialized ? (
-          <div className={styles.loadingState}>
+          <div className="flex items-center justify-center h-[200px] text-muted-foreground text-sm">
             <p>{t('workflows.scheduler.loading')}</p>
           </div>
         ) : error ? (
@@ -262,8 +261,8 @@ export const WorkflowScheduler: React.FC<WorkflowSchedulerProps> = ({ className 
 
       {/* TODO: Create Schedule Modal */}
       {isCreateModalOpen && (
-        <div className={styles.modalOverlay} onClick={() => setIsCreateModalOpen(false)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]" onClick={() => setIsCreateModalOpen(false)}>
+          <div className="bg-white rounded-xl p-8 max-w-[600px] w-[90%] text-center [&_h3]:m-0 [&_h3]:mb-4 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-foreground [&_p]:m-0 [&_p]:mb-6 [&_p]:text-sm [&_p]:text-muted-foreground" onClick={(e) => e.stopPropagation()}>
             <h3>{t('workflows.scheduler.createModal.title')}</h3>
             <p>{t('workflows.scheduler.createModal.description')}</p>
             <Button variant="primary" onClick={() => setIsCreateModalOpen(false)}>

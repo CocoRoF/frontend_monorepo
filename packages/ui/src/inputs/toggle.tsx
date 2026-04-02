@@ -1,39 +1,61 @@
-'use client';
+﻿'use client';
 
 import React, { useId } from 'react';
-import styles from './toggle.module.scss';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '../lib/utils';
+
+const toggleTrack = cva(
+  'relative inline-flex shrink-0 cursor-pointer rounded-full transition-colors duration-200 focus-within:ring-2 focus-within:ring-primary/30',
+  {
+    variants: {
+      size: {
+        sm: 'h-4 w-7',
+        md: 'h-5 w-9',
+        lg: 'h-6 w-11',
+      },
+      checked: {
+        true: 'bg-primary',
+        false: 'bg-gray-300',
+      },
+    },
+    defaultVariants: { size: 'md', checked: false },
+  }
+);
+
+const toggleKnob = cva(
+  'absolute top-0.5 rounded-full bg-white shadow-sm transition-transform duration-200',
+  {
+    variants: {
+      size: {
+        sm: 'h-3 w-3',
+        md: 'h-4 w-4',
+        lg: 'h-5 w-5',
+      },
+      checked: {
+        true: '',
+        false: 'translate-x-0.5',
+      },
+    },
+    compoundVariants: [
+      { size: 'sm', checked: true, class: 'translate-x-3.5' },
+      { size: 'md', checked: true, class: 'translate-x-4.5' },
+      { size: 'lg', checked: true, class: 'translate-x-5.5' },
+    ],
+    defaultVariants: { size: 'md', checked: false },
+  }
+);
 
 export interface ToggleProps {
-  /** 토글 상태 */
   checked: boolean;
-  /** 토글 변경 핸들러 */
   onChange: (checked: boolean) => void;
-  /** 라벨 텍스트 */
   label?: string;
-  /** 라벨 위치 */
   labelPosition?: 'left' | 'right';
-  /** 비활성화 여부 */
   disabled?: boolean;
-  /** 크기 */
   size?: 'sm' | 'md' | 'lg';
-  /** 추가 클래스 */
   className?: string;
-  /** name 속성 */
   name?: string;
 }
 
-/**
- * Toggle - 토글 스위치 컴포넌트
- *
- * @example
- * ```tsx
- * <Toggle
- *   checked={isActive}
- *   onChange={setIsActive}
- *   label="활성화"
- * />
- * ```
- */
 export const Toggle: React.FC<ToggleProps> = ({
   checked,
   onChange,
@@ -50,8 +72,8 @@ export const Toggle: React.FC<ToggleProps> = ({
     onChange(e.target.checked);
   };
 
-  const toggle = (
-    <div className={`${styles.toggle} ${styles[size]} ${checked ? styles.checked : ''}`}>
+  const track = (
+    <div className={toggleTrack({ size, checked })}>
       <input
         type="checkbox"
         id={id}
@@ -59,32 +81,28 @@ export const Toggle: React.FC<ToggleProps> = ({
         checked={checked}
         onChange={handleChange}
         disabled={disabled}
-        className={styles.input}
+        className="sr-only"
       />
-      <span className={styles.slider}>
-        <span className={styles.knob} />
-      </span>
+      <span className={toggleKnob({ size, checked })} />
     </div>
   );
 
-  if (!label) {
-    return (
-      <div className={`${styles.container} ${disabled ? styles.disabled : ''} ${className || ''}`}>
-        {toggle}
-      </div>
-    );
-  }
-
   return (
-    <div className={`${styles.container} ${disabled ? styles.disabled : ''} ${className || ''}`}>
-      {labelPosition === 'left' && (
-        <label htmlFor={id} className={styles.label}>
+    <div
+      className={cn(
+        'inline-flex items-center gap-2',
+        disabled && 'opacity-50 pointer-events-none',
+        className,
+      )}
+    >
+      {label && labelPosition === 'left' && (
+        <label htmlFor={id} className="text-sm text-foreground cursor-pointer select-none">
           {label}
         </label>
       )}
-      {toggle}
-      {labelPosition === 'right' && (
-        <label htmlFor={id} className={styles.label}>
+      {track}
+      {label && labelPosition === 'right' && (
+        <label htmlFor={id} className="text-sm text-foreground cursor-pointer select-none">
           {label}
         </label>
       )}

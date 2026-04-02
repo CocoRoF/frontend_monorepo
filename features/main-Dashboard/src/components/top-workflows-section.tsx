@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import styles from '../styles/dashboard.module.scss';
 import type { TopWorkflowItem } from '../types';
 import { useTranslation } from '@xgen/i18n';
 import { Button } from '@xgen/ui';
@@ -19,9 +18,9 @@ export const TopWorkflowsSection: React.FC<TopWorkflowsSectionProps> = ({
   const { t } = useTranslation();
 
   return (
-    <section className={styles.workflowsSection}>
-      <div className={styles.updatesSectionHeader}>
-        <h3 className={styles.sectionTitle}>
+    <section className="flex flex-col bg-white rounded-xl shadow-md overflow-hidden">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+        <h3 className="text-lg font-semibold text-foreground m-0">
           {t('dashboard.topWorkflows')}
         </h3>
         {onViewAll && (
@@ -36,19 +35,19 @@ export const TopWorkflowsSection: React.FC<TopWorkflowsSectionProps> = ({
         )}
       </div>
 
-      <div className={styles.workflowsList}>
+      <div className="flex flex-col">
         {workflows.length === 0 ? (
-          <div className={styles.workflowItem}>
-            <span className={styles.workflowName}>
+          <div className="flex items-center px-6 py-4">
+            <span className="text-sm text-foreground">
               {t('dashboard.noWorkflows')}
             </span>
           </div>
         ) : (
           workflows.map((workflow, index) => (
-            <div key={workflow.id} className={styles.workflowItem}>
-              <span className={styles.workflowRank}>{index + 1}</span>
+            <div key={workflow.id} className="flex items-center px-6 py-4 border-b border-border last:border-b-0">
+              <span className="w-6 h-6 flex items-center justify-center bg-muted rounded-full text-xs font-bold text-muted-foreground mr-4">{index + 1}</span>
               <span
-                className={`${styles.workflowName} ${workflow.isLink ? styles.isLink : ''}`}
+                className={`text-sm ${workflow.isLink ? 'text-primary cursor-pointer hover:underline' : 'text-foreground'}`}
                 onClick={workflow.onClick}
               >
                 {workflow.name}

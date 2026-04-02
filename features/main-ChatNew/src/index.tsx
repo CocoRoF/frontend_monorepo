@@ -7,7 +7,6 @@ import { useTranslation } from '@xgen/i18n';
 import './locales';
 import { createApiClient } from '@xgen/api-client';
 
-import styles from './styles/chat-new.module.scss';
 import type { ChatNewPageProps, WorkflowDetailFromAPI, WorkflowFilter, WorkflowOwnerFilter } from './types';
 
 // ─────────────────────────────────────────────────────────────
@@ -162,18 +161,18 @@ const WorkflowCard: React.FC<WorkflowCardProps> = ({
 
   return (
     <article
-      className={`${styles.workflowCard} ${!isActive ? styles.draft : ''}`}
+      className={`group relative flex flex-col p-4 bg-white border border-border rounded-2xl cursor-pointer transition-all hover:border-primary hover:shadow-[0_4px_12px_rgba(37,99,235,0.1)] focus:outline-2 focus:outline-primary focus:outline-offset-2 ${!isActive ? 'opacity-70 cursor-not-allowed hover:border-border hover:shadow-none' : ''}`}
       onClick={isActive ? onSelect : undefined}
       role="button"
       tabIndex={isActive ? 0 : -1}
       aria-label={workflow.name}
     >
-      <div className={styles.cardHeader}>
-        <div className={styles.cardIcon}>
+      <div className="flex justify-between items-start mb-3">
+        <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-primary/10 to-primary/20 rounded-xl text-primary">
           <WorkflowIcon />
         </div>
         <button
-          className={`${styles.favoriteButton} ${isFavorite ? styles.active : ''}`}
+          className={`flex items-center justify-center w-7 h-7 p-0 bg-transparent border-none rounded-lg cursor-pointer transition-all hover:text-yellow-500 hover:bg-yellow-500/10 ${isFavorite ? 'text-yellow-500' : 'text-muted-foreground'}`}
           onClick={handleFavoriteClick}
           aria-label={isFavorite ? t('chatNew.removeFavorite') : t('chatNew.addFavorite')}
         >
@@ -181,42 +180,46 @@ const WorkflowCard: React.FC<WorkflowCardProps> = ({
         </button>
       </div>
 
-      <div className={styles.cardBody}>
-        <h3 className={styles.cardTitle}>{workflow.name}</h3>
+      <div className="flex-1 flex flex-col gap-2 mb-4">
+        <h3 className="m-0 text-base font-semibold text-foreground overflow-hidden text-ellipsis whitespace-nowrap">{workflow.name}</h3>
         {workflow.description && (
-          <p className={styles.cardDescription}>{workflow.description}</p>
+          <p className="m-0 text-sm text-muted-foreground leading-normal overflow-hidden line-clamp-2">{workflow.description}</p>
         )}
       </div>
 
-      <div className={styles.cardFooter}>
-        <div className={styles.cardMeta}>
+      <div className="flex justify-between items-center pt-3 border-t border-muted">
+        <div className="flex items-center gap-3">
           {workflow.isShared ? (
-            <span className={styles.metaItem} title={t('chatNew.shared')}>
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground [&_svg]:shrink-0 [&_svg]:w-3.5 [&_svg]:h-3.5" title={t('chatNew.shared')}>
               <UsersIcon />
               {workflow.username || t('chatNew.shared')}
             </span>
           ) : (
-            <span className={styles.metaItem} title={t('chatNew.personal')}>
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground [&_svg]:shrink-0 [&_svg]:w-3.5 [&_svg]:h-3.5" title={t('chatNew.personal')}>
               <UserIcon />
               {t('chatNew.personal')}
             </span>
           )}
           {workflow.nodeCount !== undefined && (
-            <span className={styles.metaItem}>
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground [&_svg]:shrink-0 [&_svg]:w-3.5 [&_svg]:h-3.5">
               <NodesIcon />
               {workflow.nodeCount}
             </span>
           )}
         </div>
 
-        <span className={`${styles.statusBadge} ${styles[workflow.status]}`}>
+        <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${
+          workflow.status === 'active' ? 'text-green-600 bg-green-500/10' :
+          workflow.status === 'draft' ? 'text-yellow-600 bg-yellow-500/10' :
+          'text-muted-foreground bg-muted'
+        }`}>
           {t(`chatNew.status.${workflow.status}`)}
         </span>
       </div>
 
       {isActive && (
-        <div className={styles.cardOverlay}>
-          <button className={styles.startButton}>
+        <div className="absolute inset-0 flex items-center justify-center bg-white/95 rounded-2xl opacity-0 transition-opacity group-hover:opacity-100">
+          <button className="inline-flex items-center gap-2 px-5 py-3 text-sm font-semibold text-white bg-primary border-none rounded-xl cursor-pointer transition-all shadow-[0_4px_12px_rgba(37,99,235,0.3)] hover:bg-primary/90 hover:-translate-y-px hover:shadow-[0_6px_16px_rgba(37,99,235,0.4)] active:translate-y-0 [&_svg]:w-4 [&_svg]:h-4">
             <PlayIcon />
             <span>{t('chatNew.startChat')}</span>
             <ArrowRightIcon />
@@ -407,7 +410,7 @@ const ChatNewPage: React.FC<RouteComponentProps & ChatNewPageProps> = ({
       headerActions={
         <button
           onClick={loadWorkflows}
-          className={`${styles.refreshButton} ${loading ? styles.loading : ''}`}
+          className={`inline-flex items-center justify-center w-9 h-9 border border-border rounded-lg bg-white text-muted-foreground cursor-pointer transition-all hover:border-primary hover:text-primary hover:bg-primary/5 disabled:opacity-60 disabled:cursor-not-allowed ${loading ? '[&_svg]:animate-spin' : ''}`}
           disabled={loading}
           aria-label={t('common.refresh')}
         >
@@ -415,29 +418,33 @@ const ChatNewPage: React.FC<RouteComponentProps & ChatNewPageProps> = ({
         </button>
       }
     >
-      <div className={styles.container}>
+      <div className="flex flex-col gap-6 p-4 max-w-[1400px] mx-auto w-full">
         {/* Header */}
-        <div className={styles.header}>
-          <div className={styles.headerText}>
-            <h1 className={styles.title}>{t('chatNew.header.title')}</h1>
-            <p className={styles.subtitle}>{t('chatNew.header.subtitle')}</p>
+        <div className="flex justify-between items-start gap-4 pb-4 border-b border-border">
+          <div className="flex flex-col gap-1">
+            <h1 className="m-0 text-2xl font-semibold text-foreground">{t('chatNew.header.title')}</h1>
+            <p className="m-0 text-sm text-muted-foreground">{t('chatNew.header.subtitle')}</p>
           </div>
         </div>
 
         {/* Filters */}
-        <div className={styles.filters}>
-          <div className={styles.filterRow}>
+        <div className="flex flex-col gap-3">
+          <div className="flex justify-between items-center gap-4 flex-wrap">
             <FilterTabs
               tabs={statusTabs}
               activeKey={statusFilter}
               onChange={(key) => setStatusFilter(key as WorkflowFilter)}
               variant="pills"
             />
-            <div className={styles.ownerFilters}>
+            <div className="flex gap-2">
               {ownerTabs.map((tab) => (
                 <button
                   key={tab.key}
-                  className={`${styles.ownerButton} ${ownerFilter === tab.key ? styles.active : ''}`}
+                  className={`inline-flex items-center gap-1 px-3 py-1 text-sm border rounded-full cursor-pointer transition-all ${
+                    ownerFilter === tab.key
+                      ? 'bg-primary border-primary text-white [&_svg]:text-white'
+                      : 'bg-transparent border-border text-muted-foreground hover:border-primary hover:text-primary'
+                  }`}
                   onClick={() => setOwnerFilter(tab.key as WorkflowOwnerFilter)}
                 >
                   {tab.key === 'personal' && <UserIcon />}
@@ -457,7 +464,7 @@ const ChatNewPage: React.FC<RouteComponentProps & ChatNewPageProps> = ({
 
         {/* Error State */}
         {error && (
-          <div className={styles.errorBanner}>
+          <div className="flex justify-between items-center gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm [&_button]:px-3 [&_button]:py-1 [&_button]:text-xs [&_button]:font-medium [&_button]:text-red-600 [&_button]:bg-white [&_button]:border [&_button]:border-red-600 [&_button]:rounded-lg [&_button]:cursor-pointer [&_button]:transition-all hover:[&_button]:bg-red-600 hover:[&_button]:text-white">
             <span>{error}</span>
             <button onClick={loadWorkflows}>{t('common.retry')}</button>
           </div>
@@ -465,9 +472,9 @@ const ChatNewPage: React.FC<RouteComponentProps & ChatNewPageProps> = ({
 
         {/* Content */}
         {loading ? (
-          <div className={styles.loadingState}>
-            <div className={styles.spinner} />
-            <p>{t('common.loading')}</p>
+          <div className="flex flex-col items-center justify-center gap-3 p-12 text-muted-foreground">
+            <div className="w-8 h-8 border-3 border-border border-t-primary rounded-full animate-spin" />
+            <p className="m-0 text-sm">{t('common.loading')}</p>
           </div>
         ) : filteredWorkflows.length === 0 ? (
           <EmptyState
@@ -476,16 +483,16 @@ const ChatNewPage: React.FC<RouteComponentProps & ChatNewPageProps> = ({
             description={t('chatNew.empty.description')}
           />
         ) : (
-          <div className={styles.content}>
+          <div className="flex flex-col gap-6">
             {/* Favorites Section */}
             {favoriteWorkflows.length > 0 && (
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>
+              <section className="flex flex-col gap-4">
+                <h2 className="flex items-center gap-2 m-0 text-base font-semibold text-foreground [&_svg]:w-[18px] [&_svg]:h-[18px] [&_svg]:text-muted-foreground">
                   <StarIcon filled />
                   {t('chatNew.sections.favorites')}
-                  <span className={styles.sectionCount}>{favoriteWorkflows.length}</span>
+                  <span className="inline-flex items-center justify-center min-w-5 h-5 px-1 text-xs font-medium text-muted-foreground bg-muted rounded-full">{favoriteWorkflows.length}</span>
                 </h2>
-                <div className={styles.workflowGrid}>
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4">
                   {favoriteWorkflows.map((workflow) => (
                     <WorkflowCard
                       key={workflow.id}
@@ -500,13 +507,13 @@ const ChatNewPage: React.FC<RouteComponentProps & ChatNewPageProps> = ({
             )}
 
             {/* All Workflows Section */}
-            <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>
+            <section className="flex flex-col gap-4">
+              <h2 className="flex items-center gap-2 m-0 text-base font-semibold text-foreground [&_svg]:w-[18px] [&_svg]:h-[18px] [&_svg]:text-muted-foreground">
                 <WorkflowIcon />
                 {t('chatNew.sections.all')}
-                <span className={styles.sectionCount}>{regularWorkflows.length}</span>
+                <span className="inline-flex items-center justify-center min-w-5 h-5 px-1 text-xs font-medium text-muted-foreground bg-muted rounded-full">{regularWorkflows.length}</span>
               </h2>
-              <div className={styles.workflowGrid}>
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4">
                 {regularWorkflows.map((workflow) => (
                   <WorkflowCard
                     key={workflow.id}

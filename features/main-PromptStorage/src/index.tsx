@@ -111,29 +111,7 @@ const MOCK_PROMPTS: PromptItem[] = [
   },
 ];
 
-// ─────────────────────────────────────────────────────────────
-// Styles
-// ─────────────────────────────────────────────────────────────
 
-const styles = {
-  container: { padding: '24px', maxWidth: '1400px', margin: '0 auto' },
-  header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap' as const, gap: '16px' },
-  headerLeft: { display: 'flex', alignItems: 'center', gap: '16px', flex: 1 },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '16px' },
-  card: { display: 'flex', flexDirection: 'column' as const, padding: '20px', background: '#fff', border: '1px solid #E5E7EB', borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s ease' },
-  cardHeader: { display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' },
-  cardIcon: { width: '40px', height: '40px', borderRadius: '8px', background: 'rgba(48, 94, 235, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#305EEB' },
-  cardInfo: { flex: 1, minWidth: 0 },
-  cardName: { fontSize: '14px', fontWeight: 600, color: '#1F2937', margin: '0 0 4px' },
-  cardType: { fontSize: '11px', color: '#6B7280', textTransform: 'uppercase' as const, letterSpacing: '0.5px' },
-  cardDescription: { fontSize: '13px', color: '#6B7280', margin: '0 0 12px', lineHeight: 1.5 },
-  cardContent: { padding: '12px', background: '#F9FAFB', borderRadius: '8px', fontSize: '12px', color: '#4B5563', fontFamily: 'monospace', marginBottom: '12px', maxHeight: '60px', overflow: 'hidden', textOverflow: 'ellipsis' },
-  cardMeta: { fontSize: '12px', color: '#9CA3AF', display: 'flex', gap: '16px', marginTop: 'auto' },
-  cardVariables: { display: 'flex', flexWrap: 'wrap' as const, gap: '6px', marginBottom: '12px' },
-  variable: { padding: '2px 8px', background: 'rgba(48, 94, 235, 0.1)', borderRadius: '4px', fontSize: '11px', color: '#305EEB', fontFamily: 'monospace' },
-  loading: { display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '300px' },
-  spinner: { width: '40px', height: '40px', border: '3px solid #E5E7EB', borderTopColor: '#305EEB', borderRadius: '50%', animation: 'spin 1s linear infinite' },
-};
 
 // ─────────────────────────────────────────────────────────────
 // Prompt Storage Page
@@ -204,9 +182,9 @@ const PromptStoragePage: React.FC<PromptStoragePageProps> = () => {
         </Button>
       }
     >
-      <div style={styles.container}>
-        <div style={styles.header}>
-          <div style={styles.headerLeft}>
+      <div className="p-6 max-w-[1400px] mx-auto">
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+          <div className="flex items-center gap-4 flex-1">
             <FilterTabs
               tabs={filterTabs}
               activeKey={filter}
@@ -222,8 +200,8 @@ const PromptStoragePage: React.FC<PromptStoragePageProps> = () => {
         </div>
 
         {loading ? (
-          <div style={styles.loading}>
-            <div style={styles.spinner} />
+          <div className="flex items-center justify-center min-h-[300px]">
+            <div className="w-10 h-10 border-3 border-border border-t-primary rounded-full animate-spin" />
           </div>
         ) : filteredPrompts.length === 0 ? (
           <EmptyState
@@ -232,28 +210,28 @@ const PromptStoragePage: React.FC<PromptStoragePageProps> = () => {
             description={t('promptStorage.empty.description')}
           />
         ) : (
-          <div style={styles.grid}>
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(360px,1fr))] gap-4">
             {filteredPrompts.map(prompt => (
-              <div key={prompt.id} style={styles.card}>
-                <div style={styles.cardHeader}>
-                  <div style={styles.cardIcon}>
+              <div key={prompt.id} className="flex flex-col p-5 bg-card border border-border rounded-xl cursor-pointer transition-all hover:shadow-md">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 text-primary">
                     {getTypeIcon(prompt.type)}
                   </div>
-                  <div style={styles.cardInfo}>
-                    <h3 style={styles.cardName}>{prompt.name}</h3>
-                    <span style={styles.cardType}>{prompt.type} · v{prompt.version}</span>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-semibold text-foreground mb-1">{prompt.name}</h3>
+                    <span className="text-[11px] text-muted-foreground uppercase tracking-wide">{prompt.type} · v{prompt.version}</span>
                   </div>
                 </div>
-                <p style={styles.cardDescription}>{prompt.description}</p>
-                <div style={styles.cardContent}>{prompt.content}</div>
+                <p className="text-[13px] text-muted-foreground mb-3 leading-relaxed">{prompt.description}</p>
+                <div className="p-3 bg-gray-50 rounded-lg text-xs text-gray-600 font-mono mb-3 max-h-[60px] overflow-hidden text-ellipsis">{prompt.content}</div>
                 {prompt.variables && prompt.variables.length > 0 && (
-                  <div style={styles.cardVariables}>
+                  <div className="flex flex-wrap gap-1.5 mb-3">
                     {prompt.variables.map(v => (
-                      <span key={v} style={styles.variable}>{`{{${v}}}`}</span>
+                      <span key={v} className="px-2 py-0.5 bg-primary/10 rounded text-[11px] text-primary font-mono">{`{{${v}}}`}</span>
                     ))}
                   </div>
                 )}
-                <div style={styles.cardMeta}>
+                <div className="text-xs text-muted-foreground/70 flex gap-4 mt-auto">
                   <span>{prompt.usageCount.toLocaleString()} uses</span>
                   <span>{prompt.category}</span>
                 </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@xgen/ui';
 import styles from '../styles/node-modal.module.scss';
 
 export interface NodeModalProps {
@@ -32,19 +33,12 @@ const NodeModal: React.FC<NodeModalProps> = ({
         onClose();
     };
 
-    const handleOverlayClick = (e: React.MouseEvent) => {
-        if (e.target === e.currentTarget) handleCancel();
-    };
-
-    if (!isOpen) return null;
-
     return (
-        <div className={styles.modalOverlay} onClick={handleOverlayClick}>
-            <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-                <div className={styles.modalHeader}>
-                    <h3>Edit {parameterName}</h3>
-                    <button className={styles.closeButton} onClick={handleCancel} type="button">×</button>
-                </div>
+        <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleCancel(); }}>
+            <DialogContent className={styles.modalContent} aria-describedby={undefined}>
+                <DialogHeader className={styles.modalHeader}>
+                    <DialogTitle>Edit {parameterName}</DialogTitle>
+                </DialogHeader>
                 <div className={styles.modalBody}>
                     <textarea
                         value={value}
@@ -62,12 +56,12 @@ const NodeModal: React.FC<NodeModalProps> = ({
                         autoFocus
                     />
                 </div>
-                <div className={styles.modalFooter}>
+                <DialogFooter className={styles.modalFooter}>
                     <button className={styles.cancelButton} onClick={handleCancel} type="button">Cancel</button>
                     <button className={styles.saveButton} onClick={handleSave} type="button">Save</button>
-                </div>
-            </div>
-        </div>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 };
 

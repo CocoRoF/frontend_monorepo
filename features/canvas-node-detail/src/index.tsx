@@ -1,6 +1,5 @@
 import './locales';
 import React, { useState, useEffect, useCallback } from 'react';
-import { createPortal } from 'react-dom';
 import {
     FiCpu,
     FiArrowDownCircle,
@@ -11,6 +10,7 @@ import {
 } from '@xgen/icons';
 import { useTranslation } from '@xgen/i18n';
 import type { CanvasPagePlugin } from '@xgen/types';
+import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@xgen/ui';
 import styles from './styles/node-detail-modal.module.scss';
 
 // ── Types ──────────────────────────────────────────────────────
@@ -152,21 +152,8 @@ const NodeDetailModal: React.FC<NodeDetailModalProps> = ({
         }
     }, [isOpen]);
 
-    useEffect(() => {
-        if (!isOpen) return;
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') { e.preventDefault(); onClose(); }
-        };
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [isOpen, onClose]);
-
     const toggleSection = (section: keyof SectionState) => {
         setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
-    };
-
-    const handleOverlayClick = (e: React.MouseEvent) => {
-        if (e.target === e.currentTarget) onClose();
     };
 
     const formatValue = (value: any): string => {
@@ -181,22 +168,22 @@ const NodeDetailModal: React.FC<NodeDetailModalProps> = ({
         return en;
     };
 
-    if (!isOpen) return null;
-
-    const modalContent = (
-        <div className={styles.modalOverlay} onClick={handleOverlayClick}>
-            <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+    return (
+        <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+            <DialogContent className={styles.modalContent} aria-describedby={undefined}>
                 {/* Header */}
-                <div className={styles.modalHeader}>
+                <DialogHeader className={styles.modalHeader}>
                     <div className={styles.headerInfo}>
-                        <h3 className={styles.nodeName}>
-                            <span className={styles.nodeIcon}><FiCpu /></span>
-                            {(() => {
-                                const name = nodeDetail?.nodeName || nodeName;
-                                const nameKo = nodeDetail?.nodeNameKo;
-                                return (locale === 'ko' && nameKo) ? nameKo : name;
-                            })()}
-                        </h3>
+                        <DialogTitle asChild>
+                            <h3 className={styles.nodeName}>
+                                <span className={styles.nodeIcon}><FiCpu /></span>
+                                {(() => {
+                                    const name = nodeDetail?.nodeName || nodeName;
+                                    const nameKo = nodeDetail?.nodeNameKo;
+                                    return (locale === 'ko' && nameKo) ? nameKo : name;
+                                })()}
+                            </h3>
+                        </DialogTitle>
                         <div className={styles.headerMeta}>
                             <span className={styles.nodeId}>{nodeDataId}</span>
                             {nodeDetail?.tags && nodeDetail.tags.length > 0 && (
@@ -208,8 +195,7 @@ const NodeDetailModal: React.FC<NodeDetailModalProps> = ({
                             )}
                         </div>
                     </div>
-                    <button className={styles.closeButton} onClick={onClose} type="button" aria-label="Close">×</button>
-                </div>
+                </DialogHeader>
 
                 {/* Body */}
                 <div className={styles.modalBody}>
@@ -467,16 +453,14 @@ const NodeDetailModal: React.FC<NodeDetailModalProps> = ({
                 </div>
 
                 {/* Footer */}
-                <div className={styles.modalFooter}>
+                <DialogFooter className={styles.modalFooter}>
                     <button className={styles.closeFooterButton} onClick={onClose} type="button">
                         {t('canvas.nodeDetail.close', '닫기')}
                     </button>
-                </div>
-            </div>
-        </div>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
-
-    return createPortal(modalContent, document.body);
 };
 
 // ── Plugin Export ───────────────────────────────────────────────

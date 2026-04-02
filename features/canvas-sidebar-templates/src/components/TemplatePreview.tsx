@@ -1,7 +1,7 @@
-import React, { useRef, useEffect, type MouseEvent } from 'react';
-import { createPortal } from 'react-dom';
-import { LuX, LuCopy } from '@xgen/icons';
+import React, { useRef, type MouseEvent } from 'react';
+import { LuCopy } from '@xgen/icons';
 import { useTranslation } from '@xgen/i18n';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@xgen/ui';
 import MiniCanvas, { type Template } from './MiniCanvas';
 import styles from '../styles/template-preview.module.scss';
 
@@ -15,35 +15,28 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ template, onClose, on
     const { t } = useTranslation();
     const previewRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        const handleEscapeKey = (event: KeyboardEvent): void => {
-            if (event.key === 'Escape') onClose();
-        };
-        document.addEventListener('keydown', handleEscapeKey);
-        return () => document.removeEventListener('keydown', handleEscapeKey);
-    }, [onClose]);
-
     const handleUseTemplate = (tmpl: Template | null): void => {
         onUseTemplate(tmpl);
         onClose();
     };
 
-    if (!template) return null;
-
-    const modalContent = (
-        <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
-            <div
+    return (
+        <Dialog open={!!template} onOpenChange={(open) => { if (!open) onClose(); }}>
+            <DialogContent
                 className={styles.previewContainer}
                 ref={previewRef}
                 data-template-preview="true"
                 onClick={(e: MouseEvent<HTMLDivElement>) => e.stopPropagation()}
                 onMouseDown={(e: MouseEvent<HTMLDivElement>) => e.stopPropagation()}
+                aria-describedby={undefined}
             >
-                <div className={styles.header}>
+                <DialogHeader className={styles.header}>
                     <div className={styles.titleSection}>
-                        <h3>{template.name}</h3>
+                        <DialogTitle asChild>
+                            <h3>{template?.name}</h3>
+                        </DialogTitle>
                         <div className={styles.tagsContainer}>
-                            {template.tags?.map((tag) => (
+                            {template?.tags?.map((tag) => (
                                 <span key={tag} className={styles.category}>{tag}</span>
                             ))}
                         </div>
@@ -59,37 +52,26 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ template, onClose, on
                             <LuCopy />
                             {t('canvas.templatePreview.useTemplate', 'Use Template')}
                         </button>
-                        <button
-                            className={styles.closeButton}
-                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose(); }}
-                            onMouseDown={(e) => e.stopPropagation()}
-                            title={t('canvas.templatePreview.closePreview', 'Close Preview')}
-                            type="button"
-                        >
-                            <LuX />
-                        </button>
                     </div>
-                </div>
+                </DialogHeader>
 
                 <div className={styles.previewContent}>
                     <div className={styles.canvasContainer}>
-                        <MiniCanvas template={template} />
+                        {template && <MiniCanvas template={template} />}
                     </div>
                     <div className={styles.templateInfo}>
-                        <p className={styles.description}>{template.description}</p>
+                        <p className={styles.description}>{template?.description}</p>
                         <div className={styles.stats}>
                             <div className={styles.stat}>
                                 <span className={styles.statLabel}>Nodes:</span>
-                                <span className={styles.statValue}>{template.nodes}</span>
+                                <span className={styles.statValue}>{template?.nodes}</span>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </DialogContent>
+        </Dialog>
     );
-
-    return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : null;
 };
 
 export default TemplatePreview;

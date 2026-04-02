@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import type { FeatureModule, IntroductionSectionPlugin } from '@xgen/types';
-import styles from './styles/landing.module.scss';
 
 export interface LandingPageProps {
   plugins: IntroductionSectionPlugin[];
@@ -22,9 +21,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ plugins }) => {
   const FooterComp   = plugins.find((p) => p.footerComponent)?.footerComponent;
 
   return (
-    <div className={styles.container}>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 relative overflow-x-hidden before:content-[''] before:fixed before:inset-0 before:bg-[radial-gradient(ellipse_at_15%_25%,rgba(37,99,235,0.04)_0%,transparent_50%),radial-gradient(ellipse_at_85%_75%,rgba(124,58,237,0.03)_0%,transparent_50%),radial-gradient(ellipse_at_50%_0%,rgba(148,163,184,0.06)_0%,transparent_40%)] before:pointer-events-none before:z-0">
       {HeaderComp && <HeaderComp user={user} onLogout={handleLogout} />}
-      <main className={styles.main}>
+      <main className="relative flex flex-col items-center w-full max-w-[100vw] z-[1]">
         {HeroComp     && <HeroComp />}
         {FeaturesComp && <FeaturesComp />}
         {CtaComp      && <CtaComp />}

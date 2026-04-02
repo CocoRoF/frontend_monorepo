@@ -50,43 +50,13 @@ const ThumbDownIcon: React.FC = () => (
   </svg>
 );
 
-// ─────────────────────────────────────────────────────────────
-// Styles
-// ─────────────────────────────────────────────────────────────
-
-const styles = {
-  container: { padding: '24px', maxWidth: '900px', margin: '0 auto' },
-  header: { textAlign: 'center' as const, marginBottom: '40px' },
-  title: { fontSize: '32px', fontWeight: 700, color: '#1F2937', marginBottom: '12px' },
-  subtitle: { fontSize: '16px', color: '#6B7280', lineHeight: 1.6 },
-  searchSection: { marginBottom: '32px' },
-  searchWrapper: { maxWidth: '600px', margin: '0 auto 20px' },
-  tabsWrapper: { display: 'flex', justifyContent: 'center' },
-  faqList: { display: 'flex', flexDirection: 'column' as const, gap: '12px' },
-  faqItem: { background: '#fff', borderRadius: '14px', border: '1px solid #E5E7EB', overflow: 'hidden' },
-  faqQuestion: { padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', transition: 'background 0.2s ease' },
-  questionText: { fontSize: '15px', fontWeight: 600, color: '#1F2937', margin: 0, flex: 1 },
-  categoryTag: { padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 500, marginRight: '16px' },
-  chevron: { color: '#9CA3AF', flexShrink: 0 },
-  faqAnswer: { padding: '0 24px 20px', overflow: 'hidden', transition: 'max-height 0.3s ease, padding 0.3s ease' },
-  answerText: { fontSize: '14px', color: '#6B7280', lineHeight: 1.8, margin: 0 },
-  feedbackSection: { display: 'flex', alignItems: 'center', gap: '16px', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #F3F4F6' },
-  feedbackLabel: { fontSize: '12px', color: '#9CA3AF' },
-  feedbackButton: { display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', color: '#6B7280', transition: 'all 0.2s ease' },
-  feedbackCount: { fontWeight: 600 },
-  contactSection: { marginTop: '48px', padding: '32px', background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%)', borderRadius: '20px', textAlign: 'center' as const },
-  contactTitle: { fontSize: '20px', fontWeight: 600, color: '#1F2937', marginBottom: '12px' },
-  contactDesc: { fontSize: '14px', color: '#6B7280', marginBottom: '20px' },
-  contactLink: { color: '#6366F1', fontWeight: 500, textDecoration: 'none', cursor: 'pointer' },
-};
-
-const categoryStyles: Record<FAQCategory, { bg: string; color: string }> = {
-  'getting-started': { bg: 'rgba(34, 197, 94, 0.1)', color: '#16A34A' },
-  'models': { bg: 'rgba(99, 102, 241, 0.1)', color: '#6366F1' },
-  'data': { bg: 'rgba(6, 182, 212, 0.1)', color: '#0891B2' },
-  'api': { bg: 'rgba(245, 158, 11, 0.1)', color: '#D97706' },
-  'billing': { bg: 'rgba(236, 72, 153, 0.1)', color: '#DB2777' },
-  'security': { bg: 'rgba(139, 92, 246, 0.1)', color: '#7C3AED' },
+const categoryClasses: Record<FAQCategory, string> = {
+  'getting-started': 'bg-green-500/10 text-green-600',
+  'models': 'bg-indigo-500/10 text-indigo-500',
+  'data': 'bg-cyan-500/10 text-cyan-700',
+  'api': 'bg-amber-500/10 text-amber-600',
+  'billing': 'bg-pink-500/10 text-pink-600',
+  'security': 'bg-violet-500/10 text-violet-600',
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -187,21 +157,21 @@ const FAQPage: React.FC<FAQPageProps> = ({ onNavigate }) => {
 
   return (
     <ContentArea title={t('faq.title')}>
-      <div style={styles.container}>
-        <div style={styles.header}>
-          <h1 style={styles.title}>{t('faq.title')}</h1>
-          <p style={styles.subtitle}>{t('faq.subtitle')}</p>
+      <div className="p-6 max-w-[900px] mx-auto">
+        <div className="text-center mb-10">
+          <h1 className="text-[32px] font-bold text-foreground mb-3">{t('faq.title')}</h1>
+          <p className="text-base text-muted-foreground leading-relaxed">{t('faq.subtitle')}</p>
         </div>
 
-        <div style={styles.searchSection}>
-          <div style={styles.searchWrapper}>
+        <div className="mb-8">
+          <div className="max-w-[600px] mx-auto mb-5">
             <SearchInput
               placeholder={t('faq.searchPlaceholder')}
               value={searchQuery}
               onChange={setSearchQuery}
             />
           </div>
-          <div style={styles.tabsWrapper}>
+          <div className="flex justify-center">
             <FilterTabs
               tabs={tabs}
               activeTab={activeTab}
@@ -210,43 +180,34 @@ const FAQPage: React.FC<FAQPageProps> = ({ onNavigate }) => {
           </div>
         </div>
 
-        <div style={styles.faqList}>
+        <div className="flex flex-col gap-3">
           {filteredFAQs.map(faq => (
-            <div key={faq.id} style={styles.faqItem}>
+            <div key={faq.id} className="bg-white rounded-[14px] border border-border overflow-hidden">
               <div
-                style={{
-                  ...styles.faqQuestion,
-                  background: expandedId === faq.id ? '#F9FAFB' : 'transparent',
-                }}
+                className={`px-6 py-5 flex justify-between items-center cursor-pointer transition-colors duration-200 ${expandedId === faq.id ? 'bg-muted/50' : ''}`}
                 onClick={() => toggleExpand(faq.id)}
               >
-                <span
-                  style={{
-                    ...styles.categoryTag,
-                    background: categoryStyles[faq.category].bg,
-                    color: categoryStyles[faq.category].color,
-                  }}
-                >
+                <span className={`px-2.5 py-1 rounded-md text-[11px] font-medium mr-4 ${categoryClasses[faq.category]}`}>
                   {faq.category}
                 </span>
-                <h3 style={styles.questionText}>{faq.question}</h3>
-                <div style={styles.chevron}>
+                <h3 className="text-[15px] font-semibold text-foreground m-0 flex-1">{faq.question}</h3>
+                <div className="text-muted-foreground/60 shrink-0">
                   <ChevronIcon expanded={expandedId === faq.id} />
                 </div>
               </div>
 
               {expandedId === faq.id && (
-                <div style={styles.faqAnswer}>
-                  <p style={styles.answerText}>{faq.answer}</p>
-                  <div style={styles.feedbackSection}>
-                    <span style={styles.feedbackLabel}>{t('faq.wasHelpful')}</span>
-                    <button style={styles.feedbackButton}>
+                <div className="px-6 pb-5 overflow-hidden">
+                  <p className="text-sm text-muted-foreground leading-[1.8] m-0">{faq.answer}</p>
+                  <div className="flex items-center gap-4 mt-4 pt-4 border-t border-border/50">
+                    <span className="text-xs text-muted-foreground/60">{t('faq.wasHelpful')}</span>
+                    <button className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/50 border border-border rounded-lg cursor-pointer text-xs text-muted-foreground transition-all duration-200 hover:bg-muted">
                       <ThumbUpIcon />
-                      <span style={styles.feedbackCount}>{faq.helpful}</span>
+                      <span className="font-semibold">{faq.helpful}</span>
                     </button>
-                    <button style={styles.feedbackButton}>
+                    <button className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/50 border border-border rounded-lg cursor-pointer text-xs text-muted-foreground transition-all duration-200 hover:bg-muted">
                       <ThumbDownIcon />
-                      <span style={styles.feedbackCount}>{faq.notHelpful}</span>
+                      <span className="font-semibold">{faq.notHelpful}</span>
                     </button>
                   </div>
                 </div>
@@ -255,10 +216,10 @@ const FAQPage: React.FC<FAQPageProps> = ({ onNavigate }) => {
           ))}
         </div>
 
-        <div style={styles.contactSection}>
-          <h2 style={styles.contactTitle}>{t('faq.contact.title')}</h2>
-          <p style={styles.contactDesc}>{t('faq.contact.description')}</p>
-          <span style={styles.contactLink} onClick={() => onNavigate?.('service-request')}>
+        <div className="mt-12 p-8 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-[20px] text-center">
+          <h2 className="text-xl font-semibold text-foreground mb-3">{t('faq.contact.title')}</h2>
+          <p className="text-sm text-muted-foreground mb-5">{t('faq.contact.description')}</p>
+          <span className="text-indigo-500 font-medium cursor-pointer" onClick={() => onNavigate?.('service-request')}>
             {t('faq.contact.link')} →
           </span>
         </div>

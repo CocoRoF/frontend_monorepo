@@ -1,7 +1,7 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
-import styles from './card.module.scss';
+import { cn } from '../lib/utils';
 
 export interface CardMetadata {
   icon?: React.ReactNode;
@@ -25,55 +25,29 @@ export interface CardBadge {
   variant: BadgeVariant;
 }
 
+const badgeClasses: Record<BadgeVariant, string> = {
+  success: 'bg-success/10 text-success',
+  warning: 'bg-warning/10 text-warning',
+  error: 'bg-error/10 text-error',
+  info: 'bg-info/10 text-info',
+  default: 'bg-gray-100 text-gray-600',
+};
+
 export interface CardProps {
-  /** 카드 ID */
   id: string;
-  /** 카드 제목 */
   title: string;
-  /** 카드 설명 */
   description?: string;
-  /** 썸네일 (이미지 URL 또는 컴포넌트) */
   thumbnail?: string | React.ReactNode;
-  /** 메타데이터 목록 */
   metadata?: CardMetadata[];
-  /** 상태 배지 */
   badge?: CardBadge;
-  /** 드롭다운 메뉴 액션 */
   actions?: CardAction[];
-  /** 선택 가능 여부 */
   selectable?: boolean;
-  /** 선택 상태 */
   selected?: boolean;
-  /** 카드 클릭 콜백 */
   onClick?: () => void;
-  /** 선택 변경 콜백 */
   onSelect?: (id: string, selected: boolean) => void;
-  /** 추가 클래스 */
   className?: string;
 }
 
-/**
- * Card - 범용 카드 컴포넌트
- *
- * @example
- * ```tsx
- * <Card
- *   id="workflow-1"
- *   title="이커머스 법률챗"
- *   description="고객 법률 상담 워크플로우"
- *   metadata={[
- *     { icon: <FiClock />, label: '수정일', value: '2025.01.28' },
- *     { icon: <FiPlay />, label: '실행', value: 1234 },
- *   ]}
- *   badge={{ text: 'Active', variant: 'success' }}
- *   actions={[
- *     { id: 'edit', label: '수정', onClick: handleEdit },
- *     { id: 'delete', label: '삭제', onClick: handleDelete, danger: true },
- *   ]}
- *   onClick={() => handleOpenDetail(workflow)}
- * />
- * ```
- */
 export const Card: React.FC<CardProps> = ({
   id,
   title,
@@ -91,12 +65,10 @@ export const Card: React.FC<CardProps> = ({
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // 메뉴 버튼이나 체크박스 클릭 시 카드 클릭 무시
-    if ((e.target as HTMLElement).closest(`.${styles.moreButton}`) ||
-        (e.target as HTMLElement).closest(`.${styles.checkbox}`)) {
+    if ((e.target as HTMLElement).closest('[data-card-menu]') ||
+        (e.target as HTMLElement).closest('[data-card-checkbox]')) {
       return;
     }
-
     if (selectable && onSelect) {
       onSelect(id, !selected);
     } else if (onClick) {
@@ -116,62 +88,56 @@ export const Card: React.FC<CardProps> = ({
 
   return (
     <div
-      className={`${styles.card} ${selected ? styles.selected : ''} ${isClickable ? styles.clickable : ''} ${className || ''}`}
+      className={cn(
+        'relative rounded-lg border border-border bg-card overflow-hidden transition-shadow',
+        selected && 'ring-2 ring-primary border-primary',
+        isClickable && 'cursor-pointer hover:shadow-md',
+        className,
+      )}
       onClick={handleCardClick}
     >
-      {/* Thumbnail */}
       {thumbnail && (
-        <div className={styles.thumbnail}>
+        <div className="h-40 bg-gray-50 overflow-hidden flex items-center justify-center">
           {typeof thumbnail === 'string' ? (
-            <img src={thumbnail} alt={title} />
+            <img src={thumbnail} alt={title} className="w-full h-full object-cover" />
           ) : (
             thumbnail
           )}
         </div>
       )}
 
-      {/* Body */}
-      <div className={styles.body}>
-        <div className={styles.header}>
-          <h3 className={styles.title}>{title}</h3>
+      <div className="p-4 flex flex-col gap-2">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="text-sm font-semibold text-foreground line-clamp-1">{title}</h3>
           {badge && (
-            <span className={`${styles.badge} ${styles[badge.variant]}`}>
+            <span className={cn('shrink-0 px-2 py-0.5 rounded-full text-xs font-medium', badgeClasses[badge.variant])}>
               {badge.text}
             </span>
           )}
         </div>
-        {description && <p className={styles.description}>{description}</p>}
+        {description && <p className="text-xs text-muted-foreground line-clamp-2">{description}</p>}
         {metadata && metadata.length > 0 && (
-          <div className={styles.metadata}>
+          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
             {metadata.map((meta, idx) => (
-              <div key={idx} className={styles.metaItem}>
-                {meta.icon && <span className={styles.metaIcon}>{meta.icon}</span>}
-                <span className={styles.metaLabel}>{meta.label}:</span>
-                <span className={styles.metaValue}>{meta.value}</span>
+              <div key={idx} className="flex items-center gap-1 text-xs text-muted-foreground">
+                {meta.icon && <span className="text-muted-foreground/70">{meta.icon}</span>}
+                <span>{meta.label}:</span>
+                <span className="font-medium text-foreground">{meta.value}</span>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* Actions Dropdown */}
       {actions && actions.length > 0 && (
-        <div className={styles.actionsContainer}>
+        <div data-card-menu className="absolute top-2 right-2">
           <button
             type="button"
-            className={styles.moreButton}
-            onClick={(e) => {
-              e.stopPropagation();
-              setMenuOpen(!menuOpen);
-            }}
-            aria-label="더보기"
+            className="p-1 rounded-md hover:bg-gray-100 text-muted-foreground"
+            onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }}
+            aria-label="More actions"
           >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
               <circle cx="12" cy="5" r="2" />
               <circle cx="12" cy="12" r="2" />
               <circle cx="12" cy="19" r="2" />
@@ -179,23 +145,21 @@ export const Card: React.FC<CardProps> = ({
           </button>
           {menuOpen && (
             <>
-              <div
-                className={styles.menuOverlay}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setMenuOpen(false);
-                }}
-              />
-              <div className={styles.menu}>
+              <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setMenuOpen(false); }} />
+              <div className="absolute right-0 top-full mt-1 z-50 min-w-[140px] rounded-md border border-border bg-popover shadow-lg py-1">
                 {actions.map((action) => (
                   <button
                     key={action.id}
                     type="button"
-                    className={`${styles.menuItem} ${action.danger ? styles.danger : ''} ${action.disabled ? styles.disabled : ''}`}
+                    className={cn(
+                      'w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left transition-colors',
+                      action.danger ? 'text-error hover:bg-error/5' : 'text-foreground hover:bg-gray-50',
+                      action.disabled && 'opacity-50 cursor-not-allowed',
+                    )}
                     onClick={(e) => handleActionClick(action, e)}
                     disabled={action.disabled}
                   >
-                    {action.icon && <span className={styles.menuIcon}>{action.icon}</span>}
+                    {action.icon && <span className="w-4 h-4">{action.icon}</span>}
                     {action.label}
                   </button>
                 ))}
@@ -205,14 +169,14 @@ export const Card: React.FC<CardProps> = ({
         </div>
       )}
 
-      {/* Selection Checkbox */}
       {selectable && (
-        <div className={styles.checkbox}>
+        <div data-card-checkbox className="absolute top-2 left-2">
           <input
             type="checkbox"
             checked={selected}
             onChange={() => onSelect?.(id, !selected)}
             onClick={(e) => e.stopPropagation()}
+            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
           />
         </div>
       )}

@@ -8,7 +8,6 @@ import './locales';
 import { useAuth } from '@xgen/auth-provider';
 import { createApiClient } from '@xgen/api-client';
 
-import styles from './styles/dashboard.module.scss';
 import type { DashboardData, DashboardOverview, LatestUpdateItem, TopWorkflowItem, DashboardErrorItem } from './types';
 import { KpiSection } from './components/kpi-section';
 import { LatestUpdatesSection } from './components/latest-updates-section';
@@ -105,8 +104,8 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
   if (loading) {
     return (
       <ContentArea>
-        <div className={styles.loading}>
-          <div className={styles.spinner} />
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="w-10 h-10 border-3 border-border border-t-primary rounded-full animate-spin" />
         </div>
       </ContentArea>
     );
@@ -114,13 +113,13 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
 
   return (
     <ContentArea>
-      <div className={styles.container}>
+      <div className="flex flex-col gap-8 p-8 max-w-[1400px] mx-auto">
         {/* Welcome Section */}
-        <section className={styles.welcome}>
-          <h1 className={styles.welcomeTitle}>
+        <section className="flex flex-col gap-1">
+          <h1 className="text-2xl font-bold text-foreground m-0">
             {t('dashboard.welcome', { name: user?.username || 'User' })}
           </h1>
-          <p className={styles.welcomeSubtitle}>
+          <p className="text-base text-muted-foreground m-0">
             {t('dashboard.welcomeSubtitle')}
           </p>
         </section>
@@ -129,7 +128,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
         <KpiSection overview={data.overview} />
 
         {/* Two Column Layout */}
-        <div className={styles.twoColumn}>
+        <div className="grid grid-cols-2 gap-8 max-lg:grid-cols-1">
           <LatestUpdatesSection
             updates={data.latestUpdates}
             onViewAll={handleViewAllUpdates}

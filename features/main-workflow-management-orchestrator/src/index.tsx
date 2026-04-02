@@ -7,8 +7,6 @@ import { ContentArea, FilterTabs } from '@xgen/ui';
 import { useTranslation } from '@xgen/i18n';
 import './locales';
 
-import styles from './styles/workflows.module.scss';
-
 // ─────────────────────────────────────────────────────────────
 // WorkflowsPage — Tab Orchestrator (Registry 기반)
 // ─────────────────────────────────────────────────────────────
@@ -38,8 +36,8 @@ const WorkflowsPage: React.FC<WorkflowsPageProps> = ({ onNavigate }) => {
       title={t('workflows.title')}
       description={t('workflows.description')}
     >
-      <div className={styles.container}>
-        <div className={styles.header}>
+      <div className="flex flex-col h-full gap-6">
+        <div className="flex items-center mb-4">
           <FilterTabs
             tabs={tabs}
             activeKey={activeTab}
@@ -47,7 +45,7 @@ const WorkflowsPage: React.FC<WorkflowsPageProps> = ({ onNavigate }) => {
           />
         </div>
 
-        <div className={styles.content}>
+        <div className="flex-1 min-h-0 overflow-y-auto">
           {ActiveComponent && <ActiveComponent onNavigate={onNavigate} />}
         </div>
       </div>
