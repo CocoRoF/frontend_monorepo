@@ -2,7 +2,7 @@
 
 ## 1. 현상
 
-브라우저 DevTools에서 `* { box-sizing: border-box; margin: 0; padding: 0; }` 규칙이 **모든 요소**에 적용되고 있다.  
+브라우저 DevTools에서 `* { box-sizing: border-box; margin: 0; padding: 0; }` 규칙이 **모든 요소**에 적용되고 있다.
 이 규칙을 해제하면 정상적인 디자인이 렌더링되지만, 체크(활성화)하면 전체 레이아웃이 훼손된다.
 
 ---
@@ -27,7 +27,7 @@
 
 ### 3.1 Tailwind v4 Preflight와의 중복
 
-Tailwind v4는 `@import 'tailwindcss'`를 통해 자체 Preflight(CSS 리셋)를 자동으로 주입한다.  
+Tailwind v4는 `@import 'tailwindcss'`를 통해 자체 Preflight(CSS 리셋)를 자동으로 주입한다.
 Tailwind v4 Preflight가 이미 처리하는 항목:
 
 | 속성 | Tailwind Preflight | 우리 커스텀 `*` 규칙 |
@@ -94,7 +94,7 @@ Tailwind v4 Preflight가 이미 처리하는 항목:
 - Tailwind Preflight의 선택적 리셋이 더 안전하고 표준적
 - 원본(xgen-frontend)도 `margin: 0; padding: 0`을 사용하지 않았음
 
-**리스크**: 
+**리스크**:
 - Tailwind Preflight에 의존하지 않고 `* { margin: 0; padding: 0 }`에 의존하던 컴포넌트가 있다면 간격이 달라질 수 있음
 - 하지만 Tailwind Preflight가 `h1~h6, p, blockquote` 등에 이미 `margin: 0`을 적용하므로, 실질적 차이는 `<button>`, `<input>` 등 폼 요소의 padding 복원 정도
 
