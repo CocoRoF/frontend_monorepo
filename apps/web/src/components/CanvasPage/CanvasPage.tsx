@@ -1199,6 +1199,16 @@ const CanvasPage: React.FC<CanvasPageProps> = ({ onNavigate, sidebarCollapsed })
                                 executionProps.fetchExecutionOrderByData = getWorkflowExecutionOrderByData;
                                 executionProps.onToggleExpanded = () => setBottomPanelExpanded((prev) => !prev);
                             }
+                            if (panel.id === 'bottom-panel') {
+                                executionProps.output = executionOutput;
+                                executionProps.isLoading = isExecuting;
+                                executionProps.logs = executionLogs;
+                                executionProps.canvasState = currentCanvasState;
+                                executionProps.userId = workflowOriginUserId || (user?.user_id != null ? String(user.user_id) : null);
+                                executionProps.onExecuteWithInput = handleExecuteWithInput;
+                                executionProps.executionSource = executionSource;
+                                executionProps.fetchExecutionOrderByData = getWorkflowExecutionOrderByData;
+                            }
                             return (
                                 <PanelComponent
                                     key={panel.id}
