@@ -2,9 +2,8 @@ import React from 'react';
 import { useTranslation } from '@xgen/i18n';
 import { LuTrash2, LuChevronUp, LuChevronDown } from '@xgen/icons';
 import { FiMaximize2, FiMinimize2 } from '@xgen/icons';
+import { Button, Separator } from '@xgen/ui';
 import { useBottomPanel } from '../context/BottomPanelContext';
-
-const iconBtnClass = 'w-7 h-7 rounded-lg border-none p-0 flex items-center justify-center bg-transparent cursor-pointer text-[#40444d] transition-[background] duration-150 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-default [&_svg]:w-[18px] [&_svg]:h-[18px]';
 
 const BottomPanelHeader: React.FC = () => {
     const { t } = useTranslation();
@@ -29,31 +28,35 @@ const BottomPanelHeader: React.FC = () => {
     };
 
     return (
-        <div className="flex-[0_0_42px] h-[42px] flex items-center bg-white border-t border-b border-black/[0.08]">
+        <div className="flex-[0_0_42px] h-[42px] flex items-center bg-[var(--color-bg-50)] border-t border-b border-[var(--color-line-50)]">
             {/* Left: Execution label */}
             <div className="flex-[0_0_500px] min-w-[350px] max-w-[500px] flex items-center px-4">
-                <span className="text-xs font-bold leading-4 text-[#1d1f23]">
+                <span className="text-xs font-bold leading-4 text-[var(--color-gray-800)]">
                     {t('canvas.bottomPanel.execution')}
                 </span>
             </div>
 
             {/* Right: Log label + actions */}
-            <div className="flex-1 min-w-0 h-full flex items-center justify-between px-4 border-l border-black/[0.08]">
-                <span className="text-xs font-bold leading-4 text-[#1d1f23]">
+            <div className="flex-1 min-w-0 h-full flex items-center justify-between px-4 border-l border-[var(--color-line-50)]">
+                <span className="text-xs font-bold leading-4 text-[var(--color-gray-800)]">
                     {t('canvas.bottomPanel.log')}
                 </span>
-                <div className="flex items-center gap-2">
-                    <button
-                        className={iconBtnClass}
+                <div className="flex items-center gap-1">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-[var(--color-gray-600)] [&_svg]:w-[18px] [&_svg]:h-[18px]"
                         onClick={handleClear}
                         title={t('canvas.bottomPanel.clear')}
                         aria-label={t('canvas.bottomPanel.clear')}
                     >
                         <LuTrash2 />
-                    </button>
-                    <span className="block w-px h-7 bg-black/[0.08] shrink-0" />
-                    <button
-                        className={iconBtnClass}
+                    </Button>
+                    <Separator orientation="vertical" className="h-5 bg-[var(--color-line-50)]" />
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-[var(--color-gray-600)] [&_svg]:w-[18px] [&_svg]:h-[18px]"
                         onClick={handleToggleFullscreen}
                         title={
                             isFullscreen
@@ -67,9 +70,11 @@ const BottomPanelHeader: React.FC = () => {
                         }
                     >
                         {isFullscreen ? <FiMinimize2 /> : <FiMaximize2 />}
-                    </button>
-                    <button
-                        className={iconBtnClass}
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-[var(--color-gray-600)] [&_svg]:w-[18px] [&_svg]:h-[18px]"
                         onClick={togglePanel}
                         title={
                             isExpanded
@@ -83,7 +88,7 @@ const BottomPanelHeader: React.FC = () => {
                         }
                     >
                         {isExpanded ? <LuChevronDown /> : <LuChevronUp />}
-                    </button>
+                    </Button>
                 </div>
             </div>
         </div>

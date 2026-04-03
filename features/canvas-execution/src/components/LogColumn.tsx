@@ -8,9 +8,9 @@ import type { LogEntry, LogViewerProps } from '../types';
 const DefaultLogViewer: React.FC<LogViewerProps> = ({ logs, className }) => (
     <div className={className}>
         {logs.map((log, i) => (
-            <div key={i} style={{ padding: '2px 16px', fontSize: 12, fontFamily: 'monospace' }}>
-                <span style={{ color: '#7a7f89' }}>[{log.timestamp}]</span>{' '}
-                <span style={{ color: log.level === 'ERROR' ? '#e03131' : '#40444d' }}>
+            <div key={i} className="py-0.5 px-4 text-xs font-mono">
+                <span className="text-[var(--color-gray-500)]">[{log.timestamp}]</span>{' '}
+                <span className={log.level === 'ERROR' ? 'text-red-600' : 'text-[var(--color-gray-600)]'}>
                     {log.message}
                 </span>
             </div>
@@ -18,7 +18,7 @@ const DefaultLogViewer: React.FC<LogViewerProps> = ({ logs, className }) => (
     </div>
 );
 
-const filterLabelClass = 'flex items-center gap-1 text-[11px] text-[#7a7f89] cursor-pointer whitespace-nowrap select-none [&_input[type=checkbox]]:m-0 [&_input[type=checkbox]]:accent-primary';
+const filterLabelClass = 'flex items-center gap-1 text-[11px] text-[var(--color-gray-500)] cursor-pointer whitespace-nowrap select-none [&_input[type=checkbox]]:m-0 [&_input[type=checkbox]]:accent-primary';
 
 // ── Log Column ─────────────────────────────────────────────────
 
@@ -64,10 +64,10 @@ const LogColumn: React.FC<LogColumnInternalProps> = ({ LogViewerComponent }) => 
 
     return (
         <div className="flex-1 min-w-0 overflow-hidden flex flex-col">
-            <div className="flex items-center gap-2 py-1.5 px-3 border-b border-black/[0.08] bg-[#fafbfc] shrink-0">
+            <div className="flex items-center gap-2 py-1.5 px-3 border-b border-[var(--color-line-50)] bg-[var(--color-bg-50)] shrink-0">
                 <input
                     type="text"
-                    className="flex-1 py-1 px-2 border border-gray-300 rounded-lg text-xs leading-[18px] text-[#40444d] bg-white outline-none min-w-0 focus:border-primary placeholder:text-gray-400"
+                    className="flex-1 py-1 px-2 border border-[var(--color-line-50)] rounded-lg text-xs leading-[18px] text-[var(--color-gray-600)] bg-white outline-none min-w-0 focus:border-primary placeholder:text-[var(--color-gray-400)]"
                     placeholder={t('canvas.bottomPanel.logViewer.search')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -100,7 +100,7 @@ const LogColumn: React.FC<LogColumnInternalProps> = ({ LogViewerComponent }) => 
                 </label>
             </div>
             {noResults ? (
-                <div className="p-4 text-xs text-[#7a7f89] text-center">
+                <div className="p-4 text-xs text-[var(--color-gray-500)] text-center">
                     {t('canvas.bottomPanel.logViewer.noMatch')}
                 </div>
             ) : (

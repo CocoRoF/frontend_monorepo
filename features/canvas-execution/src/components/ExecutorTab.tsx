@@ -10,9 +10,9 @@ const ExecutorTab: React.FC = () => {
     const showPlaceholder = !buttonResultText && !showLoading;
 
     return (
-        <div className="flex-1 overflow-y-auto py-3 px-4 text-xs font-normal leading-4 text-[#40444d]">
+        <div className="flex-1 overflow-y-auto py-3 px-4 text-xs font-normal leading-4 text-[var(--color-gray-600)]">
             {showPlaceholder ? (
-                <span className="text-[#7a7f89]">
+                <span className="text-[var(--color-gray-500)]">
                     {t('canvas.bottomPanel.executor.placeholder')}
                 </span>
             ) : (

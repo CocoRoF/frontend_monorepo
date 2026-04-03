@@ -11,7 +11,7 @@ const statusColorMap: Record<string, string> = {
     running: 'text-primary animate-[exec-pulse_1s_infinite]',
     completed: 'text-green-600',
     failed: 'text-red-600',
-    bypassed: 'text-[#7a7f89]',
+    bypassed: 'text-[var(--color-gray-500)]',
 };
 
 const StatusIcon: React.FC<{ status?: ExecutionNodeState['status'] }> = ({ status }) => {
@@ -44,18 +44,18 @@ const OrderItem: React.FC<OrderItemProps> = ({ index, group, nodeStates, getNode
 
     return (
         <div className={cn('flex items-center gap-4 mb-2.5 last:mb-0', isGroup && 'items-start')}>
-            <span className="text-xs font-bold leading-4 text-[#40444d] shrink-0 w-[18px] text-center">{index + 1}</span>
+            <span className="text-xs font-bold leading-4 text-[var(--color-gray-600)] shrink-0 w-[18px] text-center">{index + 1}</span>
             {!isGroup ? (
                 <>
-                    <span className="text-xs font-normal leading-4 text-[#40444d] min-w-0 flex-1">{getNodeName(group[0])}</span>
+                    <span className="text-xs font-normal leading-4 text-[var(--color-gray-600)] min-w-0 flex-1">{getNodeName(group[0])}</span>
                     <StatusIcon status={nodeStates.get(group[0])?.status} />
                 </>
             ) : (
-                <div className="flex flex-col gap-1 min-w-0 flex-1 border-l border-black/[0.08] pl-2.5">
+                <div className="flex flex-col gap-1 min-w-0 flex-1 border-l border-[var(--color-line-50)] pl-2.5">
                     {group.map((nodeId, subIndex) => (
                         <div key={nodeId} className="flex items-center min-w-0 [&+&]:pt-1">
-                            <span className="text-xs font-normal text-[#40444d] mr-1.5 shrink-0">{subIndex + 1}.</span>
-                            <span className="text-xs font-normal leading-4 text-[#40444d] min-w-0">{getNodeName(nodeId)}</span>
+                            <span className="text-xs font-normal text-[var(--color-gray-600)] mr-1.5 shrink-0">{subIndex + 1}.</span>
+                            <span className="text-xs font-normal leading-4 text-[var(--color-gray-600)] min-w-0">{getNodeName(nodeId)}</span>
                             <StatusIcon status={nodeStates.get(nodeId)?.status} />
                         </div>
                     ))}
@@ -89,15 +89,15 @@ const ExecutionOrderColumn: React.FC = () => {
     const hasData = filteredOrder.length > 0;
 
     return (
-        <div className="flex-[0_0_252px] min-w-[180px] bg-[#f7f8fa] border-r border-black/[0.08] overflow-auto flex flex-col">
-            <div className="py-2 px-4 border-b border-black/[0.08] shrink-0">
-                <span className="text-xs font-bold leading-4 text-[#1d1f23]">
+        <div className="flex-[0_0_252px] min-w-[180px] bg-[var(--color-bg-50)] border-r border-[var(--color-line-50)] overflow-auto flex flex-col">
+            <div className="py-2 px-4 border-b border-[var(--color-line-50)] shrink-0">
+                <span className="text-xs font-bold leading-4 text-[var(--color-gray-800)]">
                     {t('canvas.bottomPanel.order.title')}
                 </span>
             </div>
             <div className="flex-1 overflow-y-auto p-4">
                 {isLoadingOrder && !executionOrder && (
-                    <div className="text-xs text-[#7a7f89]">
+                    <div className="text-xs text-[var(--color-gray-500)]">
                         {t('canvas.bottomPanel.order.loading')}
                     </div>
                 )}
@@ -111,7 +111,7 @@ const ExecutionOrderColumn: React.FC = () => {
                     />
                 ))}
                 {!isLoadingOrder && !hasData && (
-                    <div className="text-xs text-[#7a7f89]">
+                    <div className="text-xs text-[var(--color-gray-500)]">
                         {t('canvas.bottomPanel.order.empty')}
                     </div>
                 )}

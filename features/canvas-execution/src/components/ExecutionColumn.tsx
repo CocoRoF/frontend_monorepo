@@ -1,12 +1,9 @@
 import React from 'react';
 import { useTranslation } from '@xgen/i18n';
-import { cn } from '@xgen/ui';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@xgen/ui';
 import { useBottomPanel } from '../context/BottomPanelContext';
 import ChatTab from './ChatTab';
 import ExecutorTab from './ExecutorTab';
-
-const tabClass = 'flex-1 py-2 border-none bg-transparent text-xs font-medium text-gray-400 cursor-pointer relative flex items-center justify-center gap-1.5 transition-colors duration-150 hover:text-[#40444d]';
-const tabActiveClass = "text-primary font-semibold after:content-[''] after:absolute after:bottom-0 after:left-4 after:right-4 after:h-0.5 after:bg-primary after:rounded-[1px]";
 
 const ExecutionColumn: React.FC = () => {
     const { t } = useTranslation();
@@ -18,28 +15,34 @@ const ExecutionColumn: React.FC = () => {
     } = useBottomPanel();
 
     return (
-        <div className="flex-[0_0_500px] w-[500px] min-w-[350px] max-w-[500px] flex flex-col border-r border-black/[0.08]">
-            <div className="flex border-b border-black/[0.08] shrink-0 bg-[#fafbfc]">
-                <button
-                    type="button"
-                    className={cn(tabClass, activeExecutionTab === 'chat' && tabActiveClass)}
-                    onClick={() => setActiveExecutionTab('chat')}
-                >
-                    {t('canvas.bottomPanel.chat.title')}
-                </button>
-                <button
-                    type="button"
-                    className={cn(tabClass, activeExecutionTab === 'executor' && tabActiveClass)}
-                    onClick={() => setActiveExecutionTab('executor')}
-                >
-                    {t('canvas.bottomPanel.executor.title')}
-                    {executionSource === 'button' && isExecuting && (
-                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-[exec-pulse_1s_infinite]" />
-                    )}
-                </button>
-            </div>
-
-            {activeExecutionTab === 'chat' ? <ChatTab /> : <ExecutorTab />}
+        <div className="flex-[0_0_500px] w-[500px] min-w-[350px] max-w-[500px] flex flex-col border-r border-[var(--color-line-50)]">
+            <Tabs value={activeExecutionTab} onValueChange={setActiveExecutionTab} className="flex flex-col flex-1 min-h-0">
+                <TabsList className="h-auto rounded-none border-b border-[var(--color-line-50)] bg-[var(--color-bg-50)] p-0 w-full shrink-0">
+                    <TabsTrigger
+                        value="chat"
+                        className="flex-1 rounded-none border-b-2 border-transparent py-2 text-xs font-medium text-[var(--color-gray-500)] shadow-none data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:shadow-none data-[state=active]:bg-transparent"
+                    >
+                        {t('canvas.bottomPanel.chat.title')}
+                    </TabsTrigger>
+                    <TabsTrigger
+                        value="executor"
+                        className="flex-1 rounded-none border-b-2 border-transparent py-2 text-xs font-medium text-[var(--color-gray-500)] shadow-none data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:shadow-none data-[state=active]:bg-transparent"
+                    >
+                        <span className="inline-flex items-center gap-1.5">
+                            {t('canvas.bottomPanel.executor.title')}
+                            {executionSource === 'button' && isExecuting && (
+                                <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-[exec-pulse_1s_infinite]" />
+                            )}
+                        </span>
+                    </TabsTrigger>
+                </TabsList>
+                <TabsContent value="chat" className="flex-1 flex flex-col min-h-0 mt-0">
+                    <ChatTab />
+                </TabsContent>
+                <TabsContent value="executor" className="flex-1 flex flex-col min-h-0 mt-0">
+                    <ExecutorTab />
+                </TabsContent>
+            </Tabs>
         </div>
     );
 };

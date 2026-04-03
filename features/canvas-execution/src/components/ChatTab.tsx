@@ -36,9 +36,9 @@ const ChatTab: React.FC = () => {
 
     return (
         <>
-            <div className="flex-1 overflow-y-auto py-3 px-4 flex flex-col gap-2 text-xs font-normal leading-4 text-[#40444d]" ref={scrollRef}>
+            <div className="flex-1 overflow-y-auto py-3 px-4 flex flex-col gap-2 text-xs font-normal leading-4 text-[var(--color-gray-600)]" ref={scrollRef}>
                 {chatMessages.length === 0 ? (
-                    <span className="text-[#7a7f89]">
+                    <span className="text-[var(--color-gray-500)]">
                         {t('canvas.bottomPanel.chat.placeholder')}
                     </span>
                 ) : (
@@ -49,7 +49,7 @@ const ChatTab: React.FC = () => {
                                 'max-w-[85%] py-2 px-3 rounded-[10px] break-words',
                                 msg.role === 'user'
                                     ? 'self-end bg-primary text-white rounded-br-sm'
-                                    : 'self-start bg-gray-100 text-[#40444d] rounded-bl-sm',
+                                    : 'self-start bg-[var(--color-gray-100)] text-[var(--color-gray-600)] rounded-bl-sm',
                             )}
                         >
                             {msg.role === 'assistant' && !msg.content && isExecuting ? (
@@ -63,9 +63,9 @@ const ChatTab: React.FC = () => {
                     ))
                 )}
             </div>
-            <div className="flex items-end gap-1.5 py-2 px-3 border-t border-black/[0.08] bg-[#fafbfc] shrink-0">
+            <div className="flex items-end gap-1.5 py-2 px-3 border-t border-[var(--color-line-50)] bg-[var(--color-bg-50)] shrink-0">
                 <textarea
-                    className="flex-1 py-1.5 px-2.5 border border-gray-300 rounded-lg text-xs leading-[18px] text-[#40444d] bg-white resize-none min-h-[30px] max-h-[60px] outline-none transition-[border-color] duration-150 focus:border-primary focus:shadow-[0_0_0_2px_rgba(37,99,235,0.1)] placeholder:text-gray-400 disabled:opacity-50"
+                    className="flex-1 py-1.5 px-2.5 border border-[var(--color-line-50)] rounded-lg text-xs leading-[18px] text-[var(--color-gray-600)] bg-white resize-none min-h-[30px] max-h-[60px] outline-none transition-[border-color] duration-150 focus:border-primary focus:shadow-[0_0_0_2px_rgba(37,99,235,0.1)] placeholder:text-[var(--color-gray-400)] disabled:opacity-50"
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
                     onKeyDown={handleKeyDown}
