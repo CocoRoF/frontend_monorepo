@@ -554,10 +554,6 @@ const CanvasPage: React.FC<CanvasPageProps> = ({ onNavigate, sidebarCollapsed })
         setDirectPanel('template');
     }, []);
 
-    const handleEmptyAICreate = useCallback(() => {
-        setIsAutoWorkflowOpen(true);
-    }, []);
-
     // ── Header action handlers ──
     const handleAddNodeClick = useCallback(() => {
         setDirectPanel((prev) => prev === 'addNodes' ? null : 'addNodes');
@@ -869,6 +865,15 @@ const CanvasPage: React.FC<CanvasPageProps> = ({ onNavigate, sidebarCollapsed })
         } as any);
     }, []);
 
+    const handleStartAgent = useCallback(() => {
+        const agentNode = flatNodeSpecs.find((n: any) => n.id === 'agents/xgen');
+        if (agentNode) {
+            handleAddNodeToCenter(agentNode);
+        } else {
+            setDirectPanel('addNodes');
+        }
+    }, [flatNodeSpecs, handleAddNodeToCenter]);
+
     const handleSidebarDragStart = useCallback((nodeData: any) => {
         draggingNodeDataRef.current = nodeData;
     }, []);
@@ -1123,9 +1128,7 @@ const CanvasPage: React.FC<CanvasPageProps> = ({ onNavigate, sidebarCollapsed })
                     {/* Empty state overlay */}
                     {isCanvasEmpty && (
                         <CanvasEmptyState
-                            onAddStartNode={handleEmptyAddStartNode}
-                            onTemplateStart={handleEmptyTemplateStart}
-                            onAICreate={handleEmptyAICreate}
+                            onStartAgent={handleStartAgent}
                         />
                     )}
 

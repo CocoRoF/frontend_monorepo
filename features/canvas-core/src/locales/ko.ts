@@ -3,6 +3,7 @@ export const ko: Record<string, unknown> = {
   emptyState: {
     addStartNode: 'Start Node를 추가하세요',
     startFromTemplate: '템플릿으로 시작하세요',
+    startAgent: '에이전트 시작',
     aiCreate: 'Xgen AI로 제작하기',
     or: 'OR',
   },

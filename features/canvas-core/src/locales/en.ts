@@ -3,6 +3,7 @@ export const en: Record<string, unknown> = {
   emptyState: {
     addStartNode: 'Add Start Node',
     startFromTemplate: 'Start from template',
+    startAgent: 'Start Agent',
     aiCreate: 'Create with Xgen AI',
     or: 'OR',
   },
