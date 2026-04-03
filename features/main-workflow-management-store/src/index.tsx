@@ -127,7 +127,7 @@ export const WorkflowStore: React.FC<WorkflowStoreProps> = ({ onStorageRefresh }
       ];
 
       if (workflow.isTemplate) {
-        badges.push({ text: 'TEMPLATE', variant: 'purple' });
+        badges.push({ text: t('workflows.badges.template'), variant: 'purple' });
       }
 
       if (user && Number(workflow.userId) === Number(user.id)) {
