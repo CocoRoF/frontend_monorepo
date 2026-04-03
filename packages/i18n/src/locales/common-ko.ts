@@ -76,7 +76,7 @@ export const commonKo: TranslationData = {
     },
     knowledge: {
       title: '지식관리',
-      collections: { title: '지식컬렉션' },
+      collections: { title: '문서관리' },
     },
     model: {
       title: '모델',

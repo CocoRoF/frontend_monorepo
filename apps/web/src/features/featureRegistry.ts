@@ -184,10 +184,12 @@ export async function initializeFeatures(): Promise<void> {
     import('@xgen/main-workflow-intro'),
     import('@xgen/main-canvas-intro'),
     import('@xgen/main-workflow-management-orchestrator'),
-    import('@xgen/main-documents'),
     import('@xgen/main-tool-storage'),
     import('@xgen/main-prompt-storage'),
     import('@xgen/main-auth-profile'),
+
+    // Knowledge Section
+    import('@xgen/main-documents'),
 
     // Support Section
     import('@xgen/main-ServiceRequest'),
