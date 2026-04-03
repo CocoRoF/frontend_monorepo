@@ -805,6 +805,110 @@
           "execCount": "실행 횟수",
           "avgGpu": "평균 GPU"
         }
+      },
+      "testMonitoring": {
+        "title": "테스트 모니터링",
+        "subtitle": "테스트 실행을 모니터링합니다.",
+        "apiConnected": "API 연결됨",
+        "apiDisconnected": "API 연결 끊김",
+        "refreshSessions": "세션 새로고침",
+        "totalSessions": "전체 세션",
+        "running": "실행 중",
+        "completed": "완료",
+        "lastUpdate": "마지막 업데이트",
+        "batchRunning": "배치 실행 중",
+        "loadingSessions": "세션 목록을 불러오는 중...",
+        "noSessions": "세션 없음",
+        "noSessionsDescription": "아직 실행된 테스트 세션이 없습니다.",
+        "user": "사용자",
+        "batchId": "배치 ID",
+        "success": "성공",
+        "failure": "실패",
+        "results": "결과",
+        "cancel": "취소",
+        "deleteBtn": "삭제",
+        "cancelConfirm": "이 배치를 취소하시겠습니까?",
+        "cancelling": "취소 중...",
+        "cancelled": "배치가 취소되었습니다.",
+        "deleteBatchTitle": "배치 삭제",
+        "deleteBatchMessage": "이 배치 기록을 삭제하시겠습니까?",
+        "deleteBatchSuccess": "배치가 삭제되었습니다.",
+        "deleteBatchError": "배치 삭제에 실패했습니다.",
+        "loadingResults": "결과를 불러오는 중...",
+        "noResults": "결과가 없습니다.",
+        "statusRunning": "실행 중",
+        "statusCompleted": "완료",
+        "statusCancelled": "취소됨",
+        "statusError": "오류",
+        "resultSuccess": "성공",
+        "resultFailed": "실패",
+        "score": "{{score}}점",
+        "timeJustNow": "방금 전",
+        "timeMinutes": "{{count}}분 전",
+        "timeHours": "{{count}}시간 전",
+        "timeDays": "{{count}}일 전",
+        "columns": {
+          "index": "#",
+          "input": "입력",
+          "expected": "기대값",
+          "result": "결과",
+          "status": "상태",
+          "aiScore": "AI 점수",
+          "aiReason": "AI 판정 이유"
+        }
+      },
+      "agentTraces": {
+        "title": "에이전트 추적",
+        "subtitle": "에이전트 실행을 추적합니다.",
+        "loadError": "트레이스 로드에 실패했습니다.",
+        "loading": "트레이스를 불러오는 중...",
+        "errorOccurred": "오류가 발생했습니다",
+        "retry": "재시도",
+        "allStatus": "전체 상태",
+        "totalCount": "총 {{count}}건",
+        "pageInfo": "{{page}} / {{totalPages}} 페이지",
+        "prev": "이전",
+        "next": "다음",
+        "refresh": "새로고침",
+        "noData": "트레이스 데이터가 없습니다.",
+        "detailLoading": "로딩 중...",
+        "noSpanData": "Span 데이터가 없습니다.",
+        "columns": {
+          "time": "시간",
+          "workflow": "워크플로우",
+          "status": "상태",
+          "duration": "소요시간",
+          "llm": "LLM",
+          "tool": "Tool",
+          "spans": "Spans"
+        },
+        "spanLabels": {
+          "agentInput": "Agent Input",
+          "ragSearch": "RAG Search",
+          "fileProcess": "File Process",
+          "llmCall": "LLM Call",
+          "toolCall": "Tool Call",
+          "toolOutput": "Tool Output",
+          "agentOutput": "Agent Output",
+          "error": "Error"
+        },
+        "spanBody": {
+          "input": "입력",
+          "output": "출력",
+          "error": "오류"
+        },
+        "detail": {
+          "duration": "소요시간",
+          "llm": "LLM",
+          "tool": "Tool",
+          "spans": "Spans",
+          "total": "합계"
+        },
+        "filterStatus": {
+          "completed": "완료",
+          "running": "실행 중",
+          "error": "오류"
+        }
       }
     }
   }

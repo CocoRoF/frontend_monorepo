@@ -805,6 +805,110 @@
           "execCount": "Exec Count",
           "avgGpu": "Avg GPU"
         }
+      },
+      "testMonitoring": {
+        "title": "Test Monitoring",
+        "subtitle": "Monitor test executions.",
+        "apiConnected": "API Connected",
+        "apiDisconnected": "API Disconnected",
+        "refreshSessions": "Refresh Sessions",
+        "totalSessions": "Total Sessions",
+        "running": "Running",
+        "completed": "Completed",
+        "lastUpdate": "Last Updated",
+        "batchRunning": "Batch Running",
+        "loadingSessions": "Loading sessions...",
+        "noSessions": "No Sessions",
+        "noSessionsDescription": "No test sessions have been executed yet.",
+        "user": "User",
+        "batchId": "Batch ID",
+        "success": "Success",
+        "failure": "Failure",
+        "results": "Results",
+        "cancel": "Cancel",
+        "deleteBtn": "Delete",
+        "cancelConfirm": "Are you sure you want to cancel this batch?",
+        "cancelling": "Cancelling...",
+        "cancelled": "Batch cancelled.",
+        "deleteBatchTitle": "Delete Batch",
+        "deleteBatchMessage": "Are you sure you want to delete this batch record?",
+        "deleteBatchSuccess": "Batch deleted.",
+        "deleteBatchError": "Failed to delete batch.",
+        "loadingResults": "Loading results...",
+        "noResults": "No results available.",
+        "statusRunning": "Running",
+        "statusCompleted": "Completed",
+        "statusCancelled": "Cancelled",
+        "statusError": "Error",
+        "resultSuccess": "Success",
+        "resultFailed": "Failed",
+        "score": "{{score}} pts",
+        "timeJustNow": "Just now",
+        "timeMinutes": "{{count}}m ago",
+        "timeHours": "{{count}}h ago",
+        "timeDays": "{{count}}d ago",
+        "columns": {
+          "index": "#",
+          "input": "Input",
+          "expected": "Expected",
+          "result": "Result",
+          "status": "Status",
+          "aiScore": "AI Score",
+          "aiReason": "AI Reason"
+        }
+      },
+      "agentTraces": {
+        "title": "Agent Traces",
+        "subtitle": "Trace agent executions.",
+        "loadError": "Failed to load traces.",
+        "loading": "Loading traces...",
+        "errorOccurred": "An error occurred",
+        "retry": "Retry",
+        "allStatus": "All Status",
+        "totalCount": "Total: {{count}}",
+        "pageInfo": "Page {{page}} / {{totalPages}}",
+        "prev": "Prev",
+        "next": "Next",
+        "refresh": "Refresh",
+        "noData": "No trace data available.",
+        "detailLoading": "Loading...",
+        "noSpanData": "No span data available.",
+        "columns": {
+          "time": "Time",
+          "workflow": "Workflow",
+          "status": "Status",
+          "duration": "Duration",
+          "llm": "LLM",
+          "tool": "Tool",
+          "spans": "Spans"
+        },
+        "spanLabels": {
+          "agentInput": "Agent Input",
+          "ragSearch": "RAG Search",
+          "fileProcess": "File Process",
+          "llmCall": "LLM Call",
+          "toolCall": "Tool Call",
+          "toolOutput": "Tool Output",
+          "agentOutput": "Agent Output",
+          "error": "Error"
+        },
+        "spanBody": {
+          "input": "Input",
+          "output": "Output",
+          "error": "Error"
+        },
+        "detail": {
+          "duration": "Duration",
+          "llm": "LLM",
+          "tool": "Tool",
+          "spans": "Spans",
+          "total": "Total"
+        },
+        "filterStatus": {
+          "completed": "Completed",
+          "running": "Running",
+          "error": "Error"
+        }
       }
     }
   }

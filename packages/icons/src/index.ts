@@ -39,6 +39,7 @@ export {
   FiSlash,
 
   // Status & Feedback
+  FiActivity,
   FiCheck,
   FiCheckCircle,
   FiCheckSquare,
