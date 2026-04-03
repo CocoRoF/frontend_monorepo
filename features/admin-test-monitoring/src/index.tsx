@@ -227,7 +227,7 @@ const AdminTestMonitoringPage: React.FC<RouteComponentProps> = () => {
             ),
           );
         } catch {
-          toast.error(t(`${TM}.loadingResults`));
+          toast.error(t(`${TM}.noResults`));
           setSessions((prev) =>
             prev.map((s) =>
               s.batch_id === batchId ? { ...s, resultsLoading: false } : s,

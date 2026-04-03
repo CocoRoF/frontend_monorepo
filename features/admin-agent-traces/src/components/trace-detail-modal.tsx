@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Modal, StatusBadge, Button } from '@xgen/ui';
+import { Modal, StatusBadge, Button, useToast } from '@xgen/ui';
 import { useTranslation } from '@xgen/i18n';
 import { getTraceDetail } from '../api/trace-api';
 import type { AgentTrace, AgentTraceSpan } from '../types';
@@ -146,6 +146,7 @@ const DT = 'admin.workflowManagement.agentTraces.detail';
 
 const TraceDetailModal: React.FC<TraceDetailModalProps> = ({ traceId, onClose }) => {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const [trace, setTrace] = useState<AgentTrace | null>(null);
   const [spans, setSpans] = useState<AgentTraceSpan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -169,6 +170,7 @@ const TraceDetailModal: React.FC<TraceDetailModalProps> = ({ traceId, onClose })
         setExpandedSpans(autoExpand);
       } catch (err) {
         console.error('Failed to load trace detail:', err);
+        toast.error(t('admin.workflowManagement.agentTraces.loadError'));
       } finally {
         setLoading(false);
       }
@@ -200,7 +202,7 @@ const TraceDetailModal: React.FC<TraceDetailModalProps> = ({ traceId, onClose })
               {trace.workflow_name || trace.workflow_id}
             </h3>
             <StatusBadge variant={statusVariant(trace.status)}>
-              {trace.status}
+              {t(`admin.workflowManagement.agentTraces.filterStatus.${trace.status}`) || trace.status}
             </StatusBadge>
           </div>
 

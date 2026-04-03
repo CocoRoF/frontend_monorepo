@@ -21,7 +21,7 @@ const AT = 'admin.workflowManagement.agentTraces';
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return '-';
   try {
-    return new Date(dateStr).toLocaleString('ko-KR', {
+    return new Date(dateStr).toLocaleString(undefined, {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
