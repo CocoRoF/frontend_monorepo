@@ -22,11 +22,11 @@ export interface WorkflowSchedulerProps extends WorkflowTabPluginProps {
 // Helpers
 // ─────────────────────────────────────────────────────────────
 
-const STATUS_BADGE_MAP: Record<ScheduleStatus, { text: string; variant: CardBadge['variant'] }> = {
-  active: { text: 'ACTIVE', variant: 'success' },
-  paused: { text: 'PAUSED', variant: 'secondary' },
-  completed: { text: 'COMPLETED', variant: 'info' },
-  failed: { text: 'FAILED', variant: 'error' },
+const STATUS_BADGE_MAP: Record<ScheduleStatus, { textKey: string; variant: CardBadge['variant'] }> = {
+  active: { textKey: 'workflows.scheduler.filter.active', variant: 'success' },
+  paused: { textKey: 'workflows.scheduler.filter.paused', variant: 'secondary' },
+  completed: { textKey: 'workflows.scheduler.filter.completed', variant: 'info' },
+  failed: { textKey: 'workflows.scheduler.filter.failed', variant: 'error' },
 };
 
 function formatDate(dateString?: string): string {
@@ -118,7 +118,7 @@ export const WorkflowScheduler: React.FC<WorkflowSchedulerProps> = ({ className 
   const cardItems = useMemo(() => {
     return filteredSchedules.map((schedule) => {
       const statusBadge = STATUS_BADGE_MAP[schedule.status];
-      const badges: CardBadge[] = statusBadge ? [statusBadge] : [];
+      const badges: CardBadge[] = statusBadge ? [{ text: t(statusBadge.textKey), variant: statusBadge.variant }] : [];
 
       const frequencyKey = `workflows.scheduler.frequency.${schedule.frequency}`;
       badges.push({

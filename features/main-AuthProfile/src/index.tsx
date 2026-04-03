@@ -56,9 +56,9 @@ import './locales';
 // Constants & Helpers
 // ─────────────────────────────────────────────────────────────
 
-const STATUS_BADGE_MAP: Record<string, { text: string; variant: CardBadge['variant'] }> = {
-  active: { text: 'LIVE', variant: 'success' },
-  inactive: { text: 'OFF', variant: 'secondary' },
+const STATUS_BADGE_MAP: Record<string, { textKey: string; variant: CardBadge['variant'] }> = {
+  active: { textKey: 'authProfile.filter.active', variant: 'success' },
+  inactive: { textKey: 'authProfile.filter.inactive', variant: 'secondary' },
 };
 
 function formatDate(dateString: string): string {
@@ -335,7 +335,7 @@ const AuthProfilePage: React.FC<AuthProfilePageProps> = ({
       // Status badge
       const statusBadge = STATUS_BADGE_MAP[profile.status];
       if (statusBadge) {
-        badges.push(statusBadge);
+        badges.push({ text: t(statusBadge.textKey), variant: statusBadge.variant });
       }
 
       // Auth type badge
