@@ -159,10 +159,10 @@ const ServiceRequestPage: React.FC<ServiceRequestPageProps> = () => {
   const [activeTab, setActiveTab] = useState('all');
 
   const tabs = [
-    { id: 'all', label: t('serviceRequest.tabs.all') },
-    { id: 'open', label: t('serviceRequest.tabs.open') },
-    { id: 'in-progress', label: t('serviceRequest.tabs.inProgress') },
-    { id: 'resolved', label: t('serviceRequest.tabs.resolved') },
+    { key: 'all', label: t('serviceRequest.tabs.all') },
+    { key: 'open', label: t('serviceRequest.tabs.open') },
+    { key: 'in-progress', label: t('serviceRequest.tabs.inProgress') },
+    { key: 'resolved', label: t('serviceRequest.tabs.resolved') },
   ];
 
   const filteredRequests = mockRequests.filter(request => {
@@ -227,8 +227,9 @@ const ServiceRequestPage: React.FC<ServiceRequestPageProps> = () => {
           </div>
           <FilterTabs
             tabs={tabs}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
+            activeKey={activeTab}
+            onChange={setActiveTab}
+            variant="underline"
           />
         </div>
 

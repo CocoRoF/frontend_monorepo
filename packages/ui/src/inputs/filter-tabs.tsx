@@ -53,7 +53,7 @@ const tabVariants = cva(
       { variant: 'default', active: false, className: 'text-muted-foreground hover:text-foreground' },
       { variant: 'pills', active: true, className: 'bg-primary text-white' },
       { variant: 'pills', active: false, className: 'text-muted-foreground hover:bg-accent' },
-      { variant: 'underline', active: true, className: 'border-primary text-primary' },
+      { variant: 'underline', active: true, className: 'border-gray-510 text-gray-510' },
       { variant: 'underline', active: false, className: 'text-muted-foreground hover:text-foreground hover:border-gray-300' },
     ],
     defaultVariants: { variant: 'default', active: false },
