@@ -4,7 +4,6 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import type { AdminFeatureModule, AdminGroup, AdminUser, RouteComponentProps } from '@xgen/types';
 import {
   ContentArea, DataTable, StatusBadge, SearchInput, Button, useToast,
-  Tabs, TabsList, TabsTrigger, TabsContent,
 } from '@xgen/ui';
 import type { DataTableColumn } from '@xgen/ui';
 import { useTranslation } from '@xgen/i18n';
@@ -241,16 +240,6 @@ const AdminGroupPermissionsPage: React.FC<RouteComponentProps> = () => {
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
-                setSelectedGroup(row.group_name);
-              }}
-            >
-              {t('admin.userManagement.groupPermissions.viewUsers')}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
                 setEditingGroup(row);
               }}
             >
@@ -355,22 +344,9 @@ const AdminGroupPermissionsPage: React.FC<RouteComponentProps> = () => {
           {t('admin.pages.groupPermissions.title')}
         </h1>
 
-        <Tabs defaultValue="groups" className="w-full">
-          <TabsList>
-            <TabsTrigger value="groups">
-              {t('admin.userManagement.groupPermissions.groupsTab')}
-            </TabsTrigger>
-            <TabsTrigger value="members" disabled={!selectedGroup}>
-              {selectedGroup
-                ? t('admin.userManagement.groupPermissions.membersTab', {
-                    groupName: selectedGroup,
-                  })
-                : t('admin.userManagement.groupPermissions.membersTabEmpty')}
-            </TabsTrigger>
-          </TabsList>
-
-          {/* ─── Groups Tab ─── */}
-          <TabsContent value="groups" className="space-y-4 mt-4">
+        {!selectedGroup ? (
+          /* ─── Groups List View ─── */
+          <div className="space-y-4">
             <div className="flex items-center justify-between">
               <SearchInput
                 value={groupSearch}
@@ -392,45 +368,52 @@ const AdminGroupPermissionsPage: React.FC<RouteComponentProps> = () => {
               onRowClick={(row) => setSelectedGroup(row.group_name)}
               className="border rounded-lg"
             />
-          </TabsContent>
+          </div>
+        ) : (
+          /* ─── Members View (drill-down) ─── */
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedGroup(null);
+                    setUserSearch('');
+                  }}
+                >
+                  ← {t('admin.userManagement.groupPermissions.backToGroups')}
+                </Button>
+                <h2 className="text-lg font-semibold text-foreground">
+                  {t('admin.userManagement.groupPermissions.membersTab', {
+                    groupName: selectedGroup,
+                  })}
+                </h2>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button onClick={() => setShowAddMember(true)}>
+                  {t('admin.userManagement.groupPermissions.addMember')}
+                </Button>
+              </div>
+            </div>
 
-          {/* ─── Members Tab ─── */}
-          <TabsContent value="members" className="space-y-4 mt-4">
-            {selectedGroup && (
-              <>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSelectedGroup(null)}
-                    >
-                      ← {t('admin.userManagement.groupPermissions.backToGroups')}
-                    </Button>
-                    <SearchInput
-                      value={userSearch}
-                      onChange={setUserSearch}
-                      placeholder={t('admin.userManagement.userList.searchPlaceholder')}
-                      className="w-60"
-                    />
-                  </div>
-                  <Button onClick={() => setShowAddMember(true)}>
-                    {t('admin.userManagement.groupPermissions.addMember')}
-                  </Button>
-                </div>
+            <SearchInput
+              value={userSearch}
+              onChange={setUserSearch}
+              placeholder={t('admin.userManagement.userList.searchPlaceholder')}
+              className="w-72"
+            />
 
-                <DataTable
-                  data={filteredUsers}
-                  columns={userColumns}
-                  rowKey={(row) => row.id}
-                  loading={usersLoading}
-                  emptyMessage={t('admin.userManagement.groupPermissions.noUsersInGroup')}
-                  className="border rounded-lg"
-                />
-              </>
-            )}
-          </TabsContent>
-        </Tabs>
+            <DataTable
+              data={filteredUsers}
+              columns={userColumns}
+              rowKey={(row) => row.id}
+              loading={usersLoading}
+              emptyMessage={t('admin.userManagement.groupPermissions.noUsersInGroup')}
+              className="border rounded-lg"
+            />
+          </div>
+        )}
       </div>
 
       {/* Modals */}
