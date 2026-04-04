@@ -242,38 +242,38 @@ const AdminGovWorkflowApprovalPage: React.FC<RouteComponentProps> = () => {
           <div className="rounded-xl border border-border overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-muted/50 text-left">
+                <tr className="bg-muted/30 text-left">
                   <th
-                    className="px-4 py-3 font-medium text-muted-foreground cursor-pointer select-none"
+                    className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide cursor-pointer select-none"
                     onClick={() => handleSort('workflowName')}
                   >
                     {t('admin.governance.common.workflow')} {renderSortIcon('workflowName')}
                   </th>
                   <th
-                    className="px-4 py-3 font-medium text-muted-foreground cursor-pointer select-none"
+                    className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide cursor-pointer select-none"
                     onClick={() => handleSort('ownerName')}
                   >
                     {t('admin.governance.common.creator')} {renderSortIcon('ownerName')}
                   </th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground">
+                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">
                     {t('admin.governance.common.department')}
                   </th>
                   <th
-                    className="px-4 py-3 font-medium text-muted-foreground cursor-pointer select-none"
+                    className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide cursor-pointer select-none"
                     onClick={() => handleSort('governanceStatus')}
                   >
                     {t('admin.governance.workflowApproval.governanceStatus')} {renderSortIcon('governanceStatus')}
                   </th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground">
+                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">
                     {t('admin.governance.workflowApproval.reviewer')}
                   </th>
                   <th
-                    className="px-4 py-3 font-medium text-muted-foreground cursor-pointer select-none"
+                    className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide cursor-pointer select-none"
                     onClick={() => handleSort('updatedAt')}
                   >
                     {t('admin.governance.common.lastModified')} {renderSortIcon('updatedAt')}
                   </th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground w-32">
+                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide w-32">
                     {t('admin.governance.common.actions')}
                   </th>
                 </tr>
@@ -292,7 +292,7 @@ const AdminGovWorkflowApprovalPage: React.FC<RouteComponentProps> = () => {
                     return (
                       <tr
                         key={r.id}
-                        className="hover:bg-muted/30 transition-colors cursor-pointer"
+                        className="hover:bg-muted/40 transition-colors cursor-pointer"
                         onClick={() => openDetail(r)}
                       >
                         <td className="px-4 py-3">
@@ -427,13 +427,13 @@ const AdminGovWorkflowApprovalPage: React.FC<RouteComponentProps> = () => {
                         <h4 className="text-sm font-medium text-foreground">
                           {t('admin.governance.workflowApproval.nodeDetail')} — {selectedNode.nodeName}
                         </h4>
-                        <button
-                          type="button"
-                          className="text-muted-foreground hover:text-foreground text-lg leading-none"
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => setSelectedNode(null)}
                         >
                           ×
-                        </button>
+                        </Button>
                       </div>
                       <div className="grid grid-cols-2 gap-x-8 gap-y-2 mb-3">
                         <div className="flex flex-col gap-0.5">
@@ -502,18 +502,18 @@ const AdminGovWorkflowApprovalPage: React.FC<RouteComponentProps> = () => {
                       <div className="rounded-lg border border-border overflow-hidden">
                         <table className="w-full text-sm">
                           <thead>
-                            <tr className="bg-muted/50 text-left">
-                              <th className="px-3 py-2 font-medium text-muted-foreground">
+                            <tr className="bg-muted/30 text-left">
+                              <th className="px-3 py-2 font-semibold text-xs text-muted-foreground tracking-wide">
                                 {t('admin.governance.workflowApproval.nodeName')}
                               </th>
-                              <th className="px-3 py-2 font-medium text-muted-foreground">Function ID</th>
-                              <th className="px-3 py-2 font-medium text-muted-foreground">
+                              <th className="px-3 py-2 font-semibold text-xs text-muted-foreground tracking-wide">Function ID</th>
+                              <th className="px-3 py-2 font-semibold text-xs text-muted-foreground tracking-wide">
                                 {t('admin.governance.workflowApproval.category')}
                               </th>
-                              <th className="px-3 py-2 font-medium text-muted-foreground">
+                              <th className="px-3 py-2 font-semibold text-xs text-muted-foreground tracking-wide">
                                 {t('admin.governance.workflowApproval.paramCount')}
                               </th>
-                              <th className="px-3 py-2 font-medium text-muted-foreground">
+                              <th className="px-3 py-2 font-semibold text-xs text-muted-foreground tracking-wide">
                                 {t('admin.governance.workflowApproval.ioInfo')}
                               </th>
                             </tr>
@@ -525,7 +525,7 @@ const AdminGovWorkflowApprovalPage: React.FC<RouteComponentProps> = () => {
                                 className={`cursor-pointer transition-colors ${
                                   selectedNode?.nodeId === n.nodeId
                                     ? 'bg-primary/5'
-                                    : 'hover:bg-muted/30'
+                                    : 'hover:bg-muted/40'
                                 }`}
                                 onClick={() => setSelectedNode(n)}
                               >

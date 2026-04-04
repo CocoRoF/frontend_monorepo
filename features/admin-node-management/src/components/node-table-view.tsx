@@ -18,31 +18,31 @@ const NodeTableView: React.FC<NodeTableViewProps> = ({ nodes }) => {
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border bg-muted">
-            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+            <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide">
               {t(`${prefix}.columns.category`)}
             </th>
-            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+            <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide">
               {t(`${prefix}.columns.function`)}
             </th>
-            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+            <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide">
               {t(`${prefix}.columns.nodeName`)}
             </th>
-            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+            <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide">
               {t(`${prefix}.columns.description`)}
             </th>
-            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+            <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide">
               {t(`${prefix}.columns.tags`)}
             </th>
-            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+            <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide">
               {t(`${prefix}.columns.status`)}
             </th>
-            <th className="px-4 py-3 text-center font-medium text-muted-foreground">
+            <th className="px-4 py-3 text-center font-semibold text-xs text-muted-foreground tracking-wide">
               {t(`${prefix}.columns.inputs`)}
             </th>
-            <th className="px-4 py-3 text-center font-medium text-muted-foreground">
+            <th className="px-4 py-3 text-center font-semibold text-xs text-muted-foreground tracking-wide">
               {t(`${prefix}.columns.outputs`)}
             </th>
-            <th className="px-4 py-3 text-center font-medium text-muted-foreground">
+            <th className="px-4 py-3 text-center font-semibold text-xs text-muted-foreground tracking-wide">
               {t(`${prefix}.columns.parameters`)}
             </th>
           </tr>

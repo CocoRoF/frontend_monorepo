@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import type { AdminFeatureModule, RouteComponentProps } from '@xgen/types';
-import { ContentArea } from '@xgen/ui';
+import { ContentArea, Button } from '@xgen/ui';
 import { useTranslation } from '@xgen/i18n';
 import { getBackendLogs } from '@xgen/api-client';
 import { FiRefreshCw, FiChevronLeft, FiChevronRight } from '@xgen/icons';
@@ -103,14 +103,15 @@ const AdminBackendLogsPage: React.FC<RouteComponentProps> = () => {
               {t('admin.pages.backendLogs.description', 'View and filter backend application logs')}
             </p>
           </div>
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={fetchLogs}
             disabled={loading}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm border border-border rounded-md hover:bg-muted transition-colors disabled:opacity-50"
+            leftIcon={<FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />}
           >
-            <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             {t('common.refresh', 'Refresh')}
-          </button>
+          </Button>
         </div>
 
         {/* Filters */}
@@ -149,18 +150,18 @@ const AdminBackendLogsPage: React.FC<RouteComponentProps> = () => {
         <div className="rounded-lg border border-border overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-muted/50">
+              <tr className="bg-muted/30">
                 <th
-                  className="text-left p-3 font-medium text-muted-foreground cursor-pointer hover:text-foreground"
+                  className="text-left p-3 font-semibold text-xs text-muted-foreground tracking-wide cursor-pointer hover:text-foreground"
                   onClick={() => toggleSort('log_level')}
                 >
                   Level {sortField === 'log_level' && (sortDir === 'asc' ? '↑' : '↓')}
                 </th>
-                <th className="text-left p-3 font-medium text-muted-foreground">Message</th>
-                <th className="text-left p-3 font-medium text-muted-foreground">Function</th>
-                <th className="text-left p-3 font-medium text-muted-foreground">Endpoint</th>
+                <th className="text-left p-3 font-semibold text-xs text-muted-foreground tracking-wide">Message</th>
+                <th className="text-left p-3 font-semibold text-xs text-muted-foreground tracking-wide">Function</th>
+                <th className="text-left p-3 font-semibold text-xs text-muted-foreground tracking-wide">Endpoint</th>
                 <th
-                  className="text-left p-3 font-medium text-muted-foreground cursor-pointer hover:text-foreground"
+                  className="text-left p-3 font-semibold text-xs text-muted-foreground tracking-wide cursor-pointer hover:text-foreground"
                   onClick={() => toggleSort('created_at')}
                 >
                   Time {sortField === 'created_at' && (sortDir === 'asc' ? '↑' : '↓')}
@@ -215,20 +216,22 @@ const AdminBackendLogsPage: React.FC<RouteComponentProps> = () => {
             {total} logs total • Page {page} of {totalPages || 1}
           </span>
           <div className="flex items-center gap-2">
-            <button
+            <Button
+              variant="outline"
+              size="icon"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
-              className="p-1.5 rounded-md border border-border hover:bg-muted disabled:opacity-50 transition-colors"
             >
               <FiChevronLeft className="w-4 h-4" />
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages}
-              className="p-1.5 rounded-md border border-border hover:bg-muted disabled:opacity-50 transition-colors"
             >
               <FiChevronRight className="w-4 h-4" />
-            </button>
+            </Button>
           </div>
         </div>
 

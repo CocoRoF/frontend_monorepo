@@ -173,7 +173,7 @@ const AdminMlModelControlPage: React.FC<RouteComponentProps> = () => {
               {t('common.refresh', 'Refresh')}
             </Button>
             {models.length > 0 && (
-              <Button variant="outline" size="sm" onClick={handleUnloadAll} className="text-red-500 border-red-200 hover:bg-red-50">
+              <Button variant="danger" size="sm" onClick={handleUnloadAll}>
                 {t('admin.ml.unloadAll', 'Unload All')}
               </Button>
             )}
@@ -187,7 +187,7 @@ const AdminMlModelControlPage: React.FC<RouteComponentProps> = () => {
         {error && (
           <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 flex items-center justify-between">
             <span>{error}</span>
-            <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700 ml-4">✕</button>
+            <Button variant="danger" size="icon" onClick={() => setError(null)} className="ml-4">✕</Button>
           </div>
         )}
 
@@ -376,17 +376,17 @@ const AdminMlModelControlPage: React.FC<RouteComponentProps> = () => {
             <div className="rounded-xl border border-border overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-muted/50 text-left">
-                    <th className="px-4 py-3 font-medium text-muted-foreground">{t('admin.ml.modelId', 'Model ID')}</th>
-                    <th className="px-4 py-3 font-medium text-muted-foreground">{t('common.type', 'Type')}</th>
-                    <th className="px-4 py-3 font-medium text-muted-foreground">{t('admin.ml.owner', 'Owner')}</th>
-                    <th className="px-4 py-3 font-medium text-muted-foreground">{t('common.createdAt', 'Created')}</th>
-                    <th className="px-4 py-3 font-medium text-muted-foreground w-24">{t('common.actions', 'Actions')}</th>
+                  <tr className="bg-muted/30 text-left">
+                    <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.ml.modelId', 'Model ID')}</th>
+                    <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('common.type', 'Type')}</th>
+                    <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.ml.owner', 'Owner')}</th>
+                    <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('common.createdAt', 'Created')}</th>
+                    <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide w-24">{t('common.actions', 'Actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {models.map(m => (
-                    <tr key={m.id} className="hover:bg-muted/30 transition-colors">
+                    <tr key={m.id} className="hover:bg-muted/40 transition-colors">
                       <td className="px-4 py-3 font-mono text-foreground">{m.id}</td>
                       <td className="px-4 py-3 text-muted-foreground">{m.object}</td>
                       <td className="px-4 py-3 text-muted-foreground">{m.owned_by}</td>
@@ -395,10 +395,9 @@ const AdminMlModelControlPage: React.FC<RouteComponentProps> = () => {
                       </td>
                       <td className="px-4 py-3">
                         <Button
-                          variant="outline"
+                          variant="danger"
                           size="sm"
                           onClick={() => handleUnload(m.id)}
-                          className="text-red-500 border-red-200 hover:bg-red-50"
                         >
                           {t('admin.ml.unload', 'Unload')}
                         </Button>

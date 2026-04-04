@@ -159,9 +159,8 @@ const AdminUserCreatePage: React.FC<RouteComponentProps> = () => {
               {t('admin.userManagement.userCreate.approve')}
             </Button>
             <Button
-              variant="ghost"
+              variant="danger"
               size="sm"
-              className="text-destructive hover:text-destructive"
               onClick={(e) => {
                 e.stopPropagation();
                 handleReject(row);

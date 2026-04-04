@@ -23,22 +23,22 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all duration-200 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer no-underline',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all duration-200 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 disabled:pointer-events-none disabled:opacity-50 cursor-pointer no-underline',
   {
     variants: {
       variant: {
-        primary: 'bg-primary text-white hover:bg-primary/85 active:bg-primary/75',
-        secondary: 'bg-gray-100 text-gray-800 hover:bg-gray-200 active:bg-gray-300',
-        outline: 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-300 active:bg-gray-100',
-        ghost: 'bg-transparent text-foreground hover:bg-accent active:bg-gray-200',
-        danger: 'bg-error text-white hover:bg-error/85 active:bg-error/75',
-        gradient: 'bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-[0_4px_12px_rgba(37,99,235,0.3)] hover:from-blue-700 hover:to-purple-700 hover:-translate-y-px hover:shadow-[0_6px_20px_rgba(37,99,235,0.4)] border-none',
+        primary: 'bg-primary text-white hover:bg-primary/90 active:bg-primary/80',
+        secondary: 'bg-muted text-foreground hover:bg-accent active:bg-gray-200',
+        outline: 'border border-gray-300 bg-card text-foreground hover:bg-muted hover:border-gray-400 active:bg-accent',
+        ghost: 'bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground active:bg-accent',
+        danger: 'border border-error/25 bg-transparent text-error hover:bg-error/10 hover:border-error/40 active:bg-error/15',
+        gradient: 'bg-gradient-to-br from-primary-start to-primary-end text-white shadow-sm hover:shadow-md hover:-translate-y-px border-none',
       },
       size: {
-        sm: 'h-8 text-xs rounded-md',
-        md: 'h-10 text-sm rounded-md',
-        lg: 'h-12 text-base rounded-lg',
-        icon: 'h-9 w-9 p-0 rounded-lg',
+        sm: 'h-8 text-xs',
+        md: 'h-10 text-sm',
+        lg: 'h-12 text-base',
+        icon: 'h-9 w-9 p-0',
       },
       padding: {
         none: '',

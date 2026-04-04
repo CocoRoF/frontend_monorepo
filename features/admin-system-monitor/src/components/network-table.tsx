@@ -20,18 +20,18 @@ export const NetworkTable: React.FC<NetworkTableProps> = ({ networks }) => {
       <div className="rounded-lg border border-border overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-muted/50">
-              <th className="text-left p-3 font-medium text-muted-foreground">Interface</th>
-              <th className="text-center p-3 font-medium text-muted-foreground">Status</th>
-              <th className="text-right p-3 font-medium text-muted-foreground">Sent</th>
-              <th className="text-right p-3 font-medium text-muted-foreground">Received</th>
-              <th className="text-right p-3 font-medium text-muted-foreground">Packets Sent</th>
-              <th className="text-right p-3 font-medium text-muted-foreground">Packets Recv</th>
+            <tr className="bg-muted/30">
+              <th className="text-left p-3 font-semibold text-xs text-muted-foreground tracking-wide">Interface</th>
+              <th className="text-center p-3 font-semibold text-xs text-muted-foreground tracking-wide">Status</th>
+              <th className="text-right p-3 font-semibold text-xs text-muted-foreground tracking-wide">Sent</th>
+              <th className="text-right p-3 font-semibold text-xs text-muted-foreground tracking-wide">Received</th>
+              <th className="text-right p-3 font-semibold text-xs text-muted-foreground tracking-wide">Packets Sent</th>
+              <th className="text-right p-3 font-semibold text-xs text-muted-foreground tracking-wide">Packets Recv</th>
             </tr>
           </thead>
           <tbody>
             {networks.map((net, i) => (
-              <tr key={i} className="border-t border-border hover:bg-muted/30">
+              <tr key={i} className="border-t border-border hover:bg-muted/40">
                 <td className="p-3 font-mono text-xs">{net.interface}</td>
                 <td className="p-3 text-center">
                   <span

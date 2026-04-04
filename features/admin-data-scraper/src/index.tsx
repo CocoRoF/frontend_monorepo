@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import type { AdminFeatureModule, RouteComponentProps } from '@xgen/types';
-import { ContentArea, StatCard } from '@xgen/ui';
+import { ContentArea, StatCard, Button } from '@xgen/ui';
 import { useTranslation } from '@xgen/i18n';
 import { FiRefreshCw, FiPlus, FiX } from '@xgen/icons';
 import {
@@ -107,19 +107,22 @@ const AdminDataScraperPage: React.FC<RouteComponentProps> = () => {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button
+            <Button
+              variant="primary"
+              size="sm"
               onClick={() => setShowCreate(true)}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+              leftIcon={<FiPlus className="w-4 h-4" />}
             >
-              <FiPlus className="w-4 h-4" /> New Session
-            </button>
-            <button
+              New Session
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
               onClick={fetchSessions}
               disabled={loading}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm border border-border rounded-md hover:bg-muted transition-colors disabled:opacity-50"
             >
               <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -140,9 +143,9 @@ const AdminDataScraperPage: React.FC<RouteComponentProps> = () => {
           <div className="p-4 rounded-xl border border-border bg-card">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-foreground">Create Session</h3>
-              <button onClick={() => setShowCreate(false)}>
-                <FiX className="w-4 h-4 text-muted-foreground hover:text-foreground" />
-              </button>
+              <Button variant="ghost" size="icon" onClick={() => setShowCreate(false)}>
+                <FiX className="w-4 h-4" />
+              </Button>
             </div>
             <div className="flex items-end gap-3">
               <div className="flex-1">
@@ -165,13 +168,14 @@ const AdminDataScraperPage: React.FC<RouteComponentProps> = () => {
                   className="w-full px-3 py-1.5 text-sm border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
                 />
               </div>
-              <button
+              <Button
+                variant="primary"
+                size="sm"
                 onClick={handleCreate}
                 disabled={creating || !seedUrl.trim()}
-                className="px-4 py-1.5 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 transition-colors"
               >
                 {creating ? 'Creating...' : 'Create'}
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -180,18 +184,18 @@ const AdminDataScraperPage: React.FC<RouteComponentProps> = () => {
         <div className="rounded-lg border border-border overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-muted/50">
-                <th className="text-left p-3 font-medium text-muted-foreground">URL</th>
-                <th className="text-center p-3 font-medium text-muted-foreground">Status</th>
-                <th className="text-right p-3 font-medium text-muted-foreground">Processed</th>
-                <th className="text-right p-3 font-medium text-muted-foreground">Pending</th>
-                <th className="text-left p-3 font-medium text-muted-foreground">Created</th>
-                <th className="text-center p-3 font-medium text-muted-foreground">Actions</th>
+              <tr className="bg-muted/30">
+                <th className="text-left p-3 font-semibold text-xs text-muted-foreground tracking-wide">URL</th>
+                <th className="text-center p-3 font-semibold text-xs text-muted-foreground tracking-wide">Status</th>
+                <th className="text-right p-3 font-semibold text-xs text-muted-foreground tracking-wide">Processed</th>
+                <th className="text-right p-3 font-semibold text-xs text-muted-foreground tracking-wide">Pending</th>
+                <th className="text-left p-3 font-semibold text-xs text-muted-foreground tracking-wide">Created</th>
+                <th className="text-center p-3 font-semibold text-xs text-muted-foreground tracking-wide">Actions</th>
               </tr>
             </thead>
             <tbody>
               {sessions.map((session) => (
-                <tr key={session.session_id} className="border-t border-border hover:bg-muted/30">
+                <tr key={session.session_id} className="border-t border-border hover:bg-muted/40">
                   <td className="p-3 max-w-64 truncate font-mono text-xs">{session.seed_url}</td>
                   <td className="p-3 text-center">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[session.status]}`}>
@@ -205,12 +209,13 @@ const AdminDataScraperPage: React.FC<RouteComponentProps> = () => {
                   </td>
                   <td className="p-3 text-center">
                     {session.status === 'running' && (
-                      <button
+                      <Button
+                        variant="danger"
+                        size="sm"
                         onClick={() => handleCancel(session.session_id)}
-                        className="text-xs text-red-600 hover:text-red-700 px-2 py-0.5 rounded border border-red-200 hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
                       >
                         Cancel
-                      </button>
+                      </Button>
                     )}
                     {session.error && (
                       <span className="text-xs text-red-500" title={session.error}>⚠</span>

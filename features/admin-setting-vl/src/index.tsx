@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import type { AdminFeatureModule, RouteComponentProps } from '@xgen/types';
-import { ContentArea } from '@xgen/ui';
+import { ContentArea, Button } from '@xgen/ui';
 import { useTranslation } from '@xgen/i18n';
 import { BaseConfigPanel, fetchAllConfigs } from '@xgen/admin-setting-shared';
 import type { ConfigItem, FieldConfig } from '@xgen/admin-setting-shared';
@@ -201,13 +201,14 @@ const AdminSettingVlPage: React.FC<RouteComponentProps> = () => {
             <h1 className="text-xl font-bold text-foreground">{t(`${SS}.title`)}</h1>
             <p className="mt-1 text-sm text-muted-foreground">{t(`${SS}.description`)}</p>
           </div>
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={loadConfigs}
-            className="flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-muted"
+            leftIcon={<FiRefreshCw className="h-3.5 w-3.5" />}
           >
-            <FiRefreshCw className="h-3.5 w-3.5" />
             {t(`${SS}.refresh`)}
-          </button>
+          </Button>
         </div>
 
         {/* Tabs */}

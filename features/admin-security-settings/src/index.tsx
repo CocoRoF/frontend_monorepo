@@ -284,17 +284,17 @@ const AdminSecuritySettingsPage: React.FC<RouteComponentProps> = () => {
               <div className="rounded-xl border border-border overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-muted/50 text-left">
-                      <th className="px-4 py-3 font-medium text-muted-foreground">{t('common.name', 'Name')}</th>
-                      <th className="px-4 py-3 font-medium text-muted-foreground">{t('admin.security.category', 'Category')}</th>
-                      <th className="px-4 py-3 font-medium text-muted-foreground">{t('common.status', 'Status')}</th>
-                      <th className="px-4 py-3 font-medium text-muted-foreground">{t('common.updatedAt', 'Updated')}</th>
-                      <th className="px-4 py-3 font-medium text-muted-foreground w-24">{t('common.actions', 'Actions')}</th>
+                    <tr className="bg-muted/30 text-left">
+                      <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('common.name', 'Name')}</th>
+                      <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.security.category', 'Category')}</th>
+                      <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('common.status', 'Status')}</th>
+                      <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('common.updatedAt', 'Updated')}</th>
+                      <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide w-24">{t('common.actions', 'Actions')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
                     {filteredPolicies.map(p => (
-                      <tr key={p.id} className="hover:bg-muted/30 transition-colors">
+                      <tr key={p.id} className="hover:bg-muted/40 transition-colors">
                         <td className="px-4 py-3">
                           <button
                             onClick={() => setSelectedPolicy(p)}
@@ -350,16 +350,16 @@ const AdminSecuritySettingsPage: React.FC<RouteComponentProps> = () => {
               <div className="rounded-xl border border-border overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-muted/50 text-left">
-                      <th className="px-4 py-3 font-medium text-muted-foreground">{t('admin.security.ipAddress', 'IP / CIDR')}</th>
-                      <th className="px-4 py-3 font-medium text-muted-foreground">{t('common.type', 'Type')}</th>
-                      <th className="px-4 py-3 font-medium text-muted-foreground">{t('common.description', 'Description')}</th>
-                      <th className="px-4 py-3 font-medium text-muted-foreground">{t('common.createdAt', 'Created')}</th>
+                    <tr className="bg-muted/30 text-left">
+                      <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.security.ipAddress', 'IP / CIDR')}</th>
+                      <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('common.type', 'Type')}</th>
+                      <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('common.description', 'Description')}</th>
+                      <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('common.createdAt', 'Created')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
                     {filteredIPRules.map(r => (
-                      <tr key={r.id} className="hover:bg-muted/30 transition-colors">
+                      <tr key={r.id} className="hover:bg-muted/40 transition-colors">
                         <td className="px-4 py-3 font-mono text-foreground">{r.ip}</td>
                         <td className="px-4 py-3">
                           <StatusBadge status={r.type === 'allow' ? 'success' : 'error'}>
@@ -382,17 +382,17 @@ const AdminSecuritySettingsPage: React.FC<RouteComponentProps> = () => {
               <div className="rounded-xl border border-border overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-muted/50 text-left">
-                      <th className="px-4 py-3 font-medium text-muted-foreground">{t('common.name', 'Name')}</th>
-                      <th className="px-4 py-3 font-medium text-muted-foreground">{t('admin.security.expiresIn', 'Expires In')}</th>
-                      <th className="px-4 py-3 font-medium text-muted-foreground">{t('admin.security.maxActive', 'Max Active')}</th>
-                      <th className="px-4 py-3 font-medium text-muted-foreground">{t('admin.security.refresh', 'Refresh')}</th>
-                      <th className="px-4 py-3 font-medium text-muted-foreground">{t('common.updatedAt', 'Updated')}</th>
+                    <tr className="bg-muted/30 text-left">
+                      <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('common.name', 'Name')}</th>
+                      <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.security.expiresIn', 'Expires In')}</th>
+                      <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.security.maxActive', 'Max Active')}</th>
+                      <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.security.refresh', 'Refresh')}</th>
+                      <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('common.updatedAt', 'Updated')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
                     {filteredTokens.map(tp => (
-                      <tr key={tp.id} className="hover:bg-muted/30 transition-colors">
+                      <tr key={tp.id} className="hover:bg-muted/40 transition-colors">
                         <td className="px-4 py-3 font-medium text-foreground">{tp.name}</td>
                         <td className="px-4 py-3 text-muted-foreground">
                           {tp.expiresIn >= 24 ? `${Math.floor(tp.expiresIn / 24)}d` : `${tp.expiresIn}h`}

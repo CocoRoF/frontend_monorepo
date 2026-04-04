@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import type { AdminFeatureModule, RouteComponentProps } from '@xgen/types';
-import { ContentArea } from '@xgen/ui';
+import { ContentArea, Button } from '@xgen/ui';
 import { useTranslation } from '@xgen/i18n';
 import {
   FiArrowLeft, FiChevronRight, FiMic, FiServer, FiDatabase,
@@ -80,16 +80,17 @@ const AdminSystemSettingsPage: React.FC<RouteComponentProps> = () => {
       <div className="flex flex-col">
         {/* Back button bar */}
         <div className="border-b border-border bg-card px-6 py-3">
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => setActiveSubPage(null)}
-            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            leftIcon={<FiArrowLeft className="h-4 w-4" />}
           >
-            <FiArrowLeft className="h-4 w-4" />
             {t(`${SS}.back`)}
             {activeLink && (
               <span className="ml-1 text-foreground">/ {t(activeLink.nameKey)}</span>
             )}
-          </button>
+          </Button>
         </div>
 
         {/* Sub-feature content */}

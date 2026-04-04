@@ -19,11 +19,11 @@ export interface StatusBadgeProps {
 }
 
 const variantStyles: Record<StatusBadgeVariant, string> = {
-  success: 'bg-success/10 text-success border-success/20',
-  warning: 'bg-warning/10 text-warning border-warning/20',
-  error:   'bg-error/10 text-error border-error/20',
-  info:    'bg-info/10 text-info border-info/20',
-  neutral: 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800/50 dark:text-gray-400 dark:border-gray-700',
+  success: 'bg-success/8 text-success border-success/15',
+  warning: 'bg-warning/8 text-warning border-warning/15',
+  error:   'bg-error/8 text-error border-error/15',
+  info:    'bg-info/8 text-info border-info/15',
+  neutral: 'bg-gray-50 text-gray-500 border-gray-200',
 };
 
 const dotStyles: Record<StatusBadgeVariant, string> = {
@@ -43,7 +43,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium',
+        'inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-medium',
         variantStyles[variant],
         className,
       )}

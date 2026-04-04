@@ -110,13 +110,13 @@ const UsageLogTab: React.FC<{ workflowId: string }> = ({ workflowId }: { workflo
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/30">
-              <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">{t('common.action', 'Action')}</th>
-              <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">{t('common.target', 'Target')}</th>
-              <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">{t('common.description', 'Description')}</th>
-              <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">{t('admin.gov.performer', 'Performer')}</th>
-              <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">{t('admin.gov.ip', 'IP')}</th>
-              <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">{t('common.time', 'Time')}</th>
-              <th className="py-2.5 px-4 text-right font-medium text-muted-foreground" />
+              <th className="py-2.5 px-4 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t('common.action', 'Action')}</th>
+              <th className="py-2.5 px-4 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t('common.target', 'Target')}</th>
+              <th className="py-2.5 px-4 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t('common.description', 'Description')}</th>
+              <th className="py-2.5 px-4 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.gov.performer', 'Performer')}</th>
+              <th className="py-2.5 px-4 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.gov.ip', 'IP')}</th>
+              <th className="py-2.5 px-4 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t('common.time', 'Time')}</th>
+              <th className="py-2.5 px-4 text-right font-semibold text-xs text-muted-foreground tracking-wide" />
             </tr>
           </thead>
           <tbody>
@@ -125,7 +125,7 @@ const UsageLogTab: React.FC<{ workflowId: string }> = ({ workflowId }: { workflo
             ) : pagedLogs.length === 0 ? (
               <tr><td colSpan={7} className="py-10 text-center text-muted-foreground">{t('admin.governance.auditTracking.noExecutionLogs', 'No usage logs found')}</td></tr>
             ) : pagedLogs.map((log: AuditLogEntry) => (
-              <tr key={log.id} className="border-b border-border last:border-0 hover:bg-muted/20">
+              <tr key={log.id} className="border-b border-border last:border-0 hover:bg-muted/40">
                 <td className="py-2.5 px-4">
                   <span className="inline-block px-2 py-0.5 text-xs rounded-full font-medium" style={getActionStyle(log.action)}>
                     {log.action}
@@ -667,25 +667,25 @@ const AdminGovAuditTrackingPage: React.FC<RouteComponentProps> = () => {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border bg-muted/30">
-                    <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">
+                    <th className="py-2.5 px-4 text-left font-semibold text-xs text-muted-foreground tracking-wide">
                       {t('admin.governance.auditTracking.workflowName', 'Workflow Name')}
                     </th>
-                    <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">
+                    <th className="py-2.5 px-4 text-left font-semibold text-xs text-muted-foreground tracking-wide">
                       {t('admin.governance.auditTracking.owner', 'Owner')}
                     </th>
-                    <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">
+                    <th className="py-2.5 px-4 text-left font-semibold text-xs text-muted-foreground tracking-wide">
                       {t('admin.governance.auditTracking.department', 'Department')}
                     </th>
-                    <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">
+                    <th className="py-2.5 px-4 text-left font-semibold text-xs text-muted-foreground tracking-wide">
                       {t('admin.governance.auditTracking.deployStatus', 'Deploy')}
                     </th>
-                    <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">
+                    <th className="py-2.5 px-4 text-left font-semibold text-xs text-muted-foreground tracking-wide">
                       {t('admin.governance.auditTracking.governanceStatus', 'Governance')}
                     </th>
-                    <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">
+                    <th className="py-2.5 px-4 text-left font-semibold text-xs text-muted-foreground tracking-wide">
                       {t('admin.governance.auditTracking.lastUpdated', 'Last Audit')}
                     </th>
-                    <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">
+                    <th className="py-2.5 px-4 text-left font-semibold text-xs text-muted-foreground tracking-wide">
                       {t('admin.gov.auditEntries', 'Audits')}
                     </th>
                   </tr>
@@ -707,7 +707,7 @@ const AdminGovAuditTrackingPage: React.FC<RouteComponentProps> = () => {
                     filteredWorkflows.map((wf: TrackedWorkflow) => (
                       <tr
                         key={wf.workflowId}
-                        className="border-b border-border last:border-0 hover:bg-muted/20 cursor-pointer"
+                        className="border-b border-border last:border-0 hover:bg-muted/40 cursor-pointer"
                         onClick={() => handleSelectWorkflow(wf)}
                       >
                         <td className="py-2.5 px-4 font-semibold text-foreground">{wf.workflowName}</td>

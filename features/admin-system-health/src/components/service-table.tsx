@@ -40,11 +40,11 @@ export const ServiceTable: React.FC<ServiceTableProps> = ({ services, onSelect }
       <div className="rounded-lg border border-border overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-muted/50">
-              <th className="text-left p-3 font-medium text-muted-foreground">Service</th>
-              <th className="text-center p-3 font-medium text-muted-foreground">Health</th>
-              <th className="text-left p-3 font-medium text-muted-foreground">Version</th>
-              <th className="text-center p-3 font-medium text-muted-foreground">Compatible</th>
+            <tr className="bg-muted/30">
+              <th className="text-left p-3 font-semibold text-xs text-muted-foreground tracking-wide">Service</th>
+              <th className="text-center p-3 font-semibold text-xs text-muted-foreground tracking-wide">Health</th>
+              <th className="text-left p-3 font-semibold text-xs text-muted-foreground tracking-wide">Version</th>
+              <th className="text-center p-3 font-semibold text-xs text-muted-foreground tracking-wide">Compatible</th>
             </tr>
           </thead>
           <tbody>

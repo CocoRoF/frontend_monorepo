@@ -147,9 +147,8 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({
             <FiSettings className="h-3.5 w-3.5" />
           </Button>
           <Button
-            variant="ghost"
+            variant="danger"
             size="sm"
-            className="text-destructive hover:text-destructive"
             onClick={(e) => {
               e.stopPropagation();
               onDelete?.();

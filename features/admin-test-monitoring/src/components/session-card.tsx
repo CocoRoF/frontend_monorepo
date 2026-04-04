@@ -47,7 +47,7 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results, t }) => (
   <div className="overflow-x-auto">
     <table className="w-full border-collapse text-xs">
       <thead>
-        <tr className="border-b border-border bg-muted">
+        <tr className="border-b border-border bg-muted/30">
           <th className="whitespace-nowrap px-3 py-2 text-left font-semibold text-muted-foreground">
             {t('admin.workflowManagement.testMonitoring.columns.index')}
           </th>

@@ -383,13 +383,13 @@ const AdminMcpStationPage: React.FC<RouteComponentProps> = () => {
             <div className="mt-4">
               <div className="flex items-center justify-between mb-2">
                 <label className="text-xs text-muted-foreground">{t('admin.mcp.envVars', 'Environment Variables')}</label>
-                <button onClick={() => setFormEnv((prev: Array<{ key: string; value: string }>) => [...prev, { key: '', value: '' }])} className="text-xs text-primary hover:underline">+ Add</button>
+                <Button variant="ghost" size="sm" onClick={() => setFormEnv((prev: Array<{ key: string; value: string }>) => [...prev, { key: '', value: '' }])}>+ Add</Button>
               </div>
               {formEnv.map((env: { key: string; value: string }, idx: number) => (
                 <div key={idx} className="flex gap-2 mb-2">
                   <input value={env.key} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormEnv((prev: Array<{ key: string; value: string }>) => prev.map((v: { key: string; value: string }, i: number) => i === idx ? { ...v, key: e.target.value } : v))} className="flex-1 px-3 py-1.5 text-sm rounded-lg border border-border bg-background text-foreground font-mono" placeholder="KEY" />
                   <input value={env.value} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormEnv((prev: Array<{ key: string; value: string }>) => prev.map((v: { key: string; value: string }, i: number) => i === idx ? { ...v, value: e.target.value } : v))} className="flex-1 px-3 py-1.5 text-sm rounded-lg border border-border bg-background text-foreground font-mono" placeholder="value" />
-                  <button onClick={() => setFormEnv((prev: Array<{ key: string; value: string }>) => prev.filter((_: { key: string; value: string }, i: number) => i !== idx))} className="px-2 text-sm text-red-500 hover:text-red-700">&times;</button>
+                  <Button variant="danger" size="icon" onClick={() => setFormEnv((prev: Array<{ key: string; value: string }>) => prev.filter((_: { key: string; value: string }, i: number) => i !== idx))}>&times;</Button>
                 </div>
               ))}
             </div>
@@ -482,11 +482,10 @@ const AdminMcpStationPage: React.FC<RouteComponentProps> = () => {
                           )
                         )}
                         <Button
-                          variant="outline"
+                          variant="danger"
                           size="sm"
                           onClick={() => handleDelete(session.session_id)}
                           disabled={deleting === session.session_id}
-                          className="text-red-500 border-red-200 hover:bg-red-50"
                         >
                           {deleting === session.session_id ? '...' : t('common.delete', 'Delete')}
                         </Button>
@@ -552,13 +551,14 @@ const AdminMcpStationPage: React.FC<RouteComponentProps> = () => {
                 <code className="text-2xl font-mono font-bold text-foreground tracking-widest">
                   {deviceCodeModal.deviceCode}
                 </code>
-                <button
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => handleCopyCode(deviceCodeModal.deviceCode)}
-                  className="px-2 py-1 text-xs rounded border border-border bg-card text-muted-foreground hover:bg-muted transition-colors"
                   title={t('admin.pages.mcpStation.modal.copyCode', 'Copy code')}
                 >
                   {t('admin.pages.mcpStation.modal.copyCode', 'Copy')}
-                </button>
+                </Button>
               </div>
               <a
                 href={deviceCodeModal.verificationUrl}

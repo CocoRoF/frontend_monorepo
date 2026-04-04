@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import type { AdminFeatureModule, RouteComponentProps } from '@xgen/types';
-import { ContentArea, useToast } from '@xgen/ui';
+import { ContentArea, useToast, Button } from '@xgen/ui';
 import { useTranslation } from '@xgen/i18n';
 import { FiServer, FiCpu, FiRefreshCw } from '@xgen/icons';
 import { createApiClient } from '@xgen/api-client';
@@ -82,14 +82,15 @@ const AdminSettingModelServingPage: React.FC<RouteComponentProps> = () => {
             <h1 className="text-xl font-bold text-foreground">{t(`${SS}.title`)}</h1>
             <p className="mt-1 text-sm text-muted-foreground">{t(`${SS}.description`)}</p>
           </div>
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={handleRetry}
             disabled={loading}
-            className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
+            leftIcon={<FiRefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />}
           >
-            <FiRefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             {t(`${SS}.refresh`)}
-          </button>
+          </Button>
         </div>
 
         {/* Loading State */}
@@ -103,12 +104,13 @@ const AdminSettingModelServingPage: React.FC<RouteComponentProps> = () => {
         {error && !loading && (
           <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-8 text-center">
             <p className="text-sm text-destructive">{error}</p>
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleRetry}
-              className="rounded-md border border-border bg-card px-4 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
             >
               {t(`${SS}.retry`)}
-            </button>
+            </Button>
           </div>
         )}
 
@@ -149,10 +151,10 @@ const AdminSettingModelServingPage: React.FC<RouteComponentProps> = () => {
                 <div className="overflow-hidden rounded-lg border border-border">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-border bg-muted/50">
-                        <th className="px-4 py-2.5 text-left font-medium text-muted-foreground">{t(`${SS}.model.name`)}</th>
-                        <th className="px-4 py-2.5 text-left font-medium text-muted-foreground">{t(`${SS}.model.type`)}</th>
-                        <th className="px-4 py-2.5 text-left font-medium text-muted-foreground">{t(`${SS}.model.status`)}</th>
+                      <tr className="border-b border-border bg-muted/30">
+                        <th className="px-4 py-2.5 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t(`${SS}.model.name`)}</th>
+                        <th className="px-4 py-2.5 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t(`${SS}.model.type`)}</th>
+                        <th className="px-4 py-2.5 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t(`${SS}.model.status`)}</th>
                       </tr>
                     </thead>
                     <tbody>

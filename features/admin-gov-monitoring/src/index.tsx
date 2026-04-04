@@ -340,35 +340,35 @@ const AdminGovMonitoringPage: React.FC<RouteComponentProps> = () => {
       <div className="overflow-x-auto rounded-xl border border-border">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border bg-muted/50">
+            <tr className="border-b border-border bg-muted/30">
               <th
-                className="px-4 py-3 text-left font-medium text-muted-foreground cursor-pointer hover:text-foreground"
+                className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide cursor-pointer hover:text-foreground"
                 onClick={() => handleSort('workflowName')}
               >
                 {t('admin.governance.common.workflow', 'Workflow')}
                 {sortField === 'workflowName' && <span className="ml-1">{sortDirection === 'asc' ? '▲' : '▼'}</span>}
               </th>
               <th
-                className="px-4 py-3 text-left font-medium text-muted-foreground cursor-pointer hover:text-foreground"
+                className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide cursor-pointer hover:text-foreground"
                 onClick={() => handleSort('inspectionDate')}
               >
                 {t('admin.governance.monitoring.lastInspection', 'Last Inspection')}
                 {sortField === 'inspectionDate' && <span className="ml-1">{sortDirection === 'asc' ? '▲' : '▼'}</span>}
               </th>
               <th
-                className="px-4 py-3 text-left font-medium text-muted-foreground cursor-pointer hover:text-foreground"
+                className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide cursor-pointer hover:text-foreground"
                 onClick={() => handleSort('nextInspectionDate')}
               >
                 {t('admin.governance.monitoring.nextInspection', 'Next Inspection')}
                 {sortField === 'nextInspectionDate' && <span className="ml-1">{sortDirection === 'asc' ? '▲' : '▼'}</span>}
               </th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+              <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide">
                 {t('admin.governance.monitoring.manager', 'Manager')}
               </th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+              <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide">
                 {t('admin.governance.monitoring.result', 'Result')}
               </th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+              <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide">
                 {t('admin.governance.common.actions', 'Actions')}
               </th>
             </tr>
@@ -392,7 +392,7 @@ const AdminGovMonitoringPage: React.FC<RouteComponentProps> = () => {
               filteredInspections.map((record: InspectionRecord) => (
                 <tr
                   key={record.id}
-                  className="border-b border-border hover:bg-muted/30 cursor-pointer transition-colors"
+                  className="border-b border-border hover:bg-muted/40 cursor-pointer transition-colors"
                   onClick={() => openDetail(record)}
                 >
                   <td className="px-4 py-3 font-medium text-foreground">{record.workflowName}</td>
@@ -412,27 +412,31 @@ const AdminGovMonitoringPage: React.FC<RouteComponentProps> = () => {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <button
-                        className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         title={t('admin.governance.monitoring.viewDetail', 'View detail')}
                         onClick={(e: React.MouseEvent) => { e.stopPropagation(); openDetail(record); }}
                       >
                         🔍
-                      </button>
-                      <button
-                        className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         title={t('admin.governance.common.edit', 'Edit')}
                         onClick={(e: React.MouseEvent) => { e.stopPropagation(); openEditModal(record); }}
                       >
                         ✏️
-                      </button>
-                      <button
-                        className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-red-500 transition-colors"
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="hover:text-red-500"
                         title={t('admin.governance.common.delete', 'Delete')}
                         onClick={(e: React.MouseEvent) => { e.stopPropagation(); handleDelete(record.id); }}
                       >
                         🗑️
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -456,13 +460,13 @@ const AdminGovMonitoringPage: React.FC<RouteComponentProps> = () => {
       <div className="overflow-x-auto rounded-xl border border-border">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border bg-muted/50">
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t('admin.governance.common.workflow', 'Workflow')}</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t('admin.governance.monitoring.inspectionCount', 'Inspection Count')}</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t('admin.governance.monitoring.lastInspection', 'Last Inspection')}</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t('admin.governance.monitoring.nextInspection', 'Next Inspection')}</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t('admin.governance.monitoring.result', 'Result')}</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t('admin.governance.common.actions', 'Actions')}</th>
+            <tr className="border-b border-border bg-muted/30">
+              <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.governance.common.workflow', 'Workflow')}</th>
+              <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.governance.monitoring.inspectionCount', 'Inspection Count')}</th>
+              <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.governance.monitoring.lastInspection', 'Last Inspection')}</th>
+              <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.governance.monitoring.nextInspection', 'Next Inspection')}</th>
+              <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.governance.monitoring.result', 'Result')}</th>
+              <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.governance.common.actions', 'Actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -484,7 +488,7 @@ const AdminGovMonitoringPage: React.FC<RouteComponentProps> = () => {
               workflows.map((wf: WorkflowSummary) => {
                 const latest = wf.latestInspection;
                 return (
-                  <tr key={wf.workflowId} className="border-b border-border hover:bg-muted/30 transition-colors">
+                  <tr key={wf.workflowId} className="border-b border-border hover:bg-muted/40 transition-colors">
                     <td className="px-4 py-3 font-medium text-foreground">{wf.workflowName}</td>
                     <td className="px-4 py-3 text-muted-foreground">{wf.inspectionCount}</td>
                     <td className="px-4 py-3 text-muted-foreground">{latest ? formatDate(latest.inspectionDate) : '-'}</td>
@@ -511,13 +515,14 @@ const AdminGovMonitoringPage: React.FC<RouteComponentProps> = () => {
                     </td>
                     <td className="px-4 py-3">
                       {latest ? (
-                        <button
-                          className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           title={t('admin.governance.monitoring.viewDetail', 'View detail')}
                           onClick={() => openDetail(latest)}
                         >
                           🔍
-                        </button>
+                        </Button>
                       ) : null}
                     </td>
                   </tr>
@@ -539,13 +544,13 @@ const AdminGovMonitoringPage: React.FC<RouteComponentProps> = () => {
       <div className="overflow-x-auto rounded-xl border border-border">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border bg-muted/50">
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t('admin.governance.common.workflow', 'Workflow')}</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t('admin.governance.monitoring.inspectionCycle', 'Cycle')}</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t('admin.governance.monitoring.expectedDate', 'Expected Date')}</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t('admin.governance.monitoring.overdueDays', 'Overdue Days')}</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t('admin.governance.monitoring.manager', 'Manager')}</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t('admin.governance.common.actions', 'Actions')}</th>
+            <tr className="border-b border-border bg-muted/30">
+              <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.governance.common.workflow', 'Workflow')}</th>
+              <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.governance.monitoring.inspectionCycle', 'Cycle')}</th>
+              <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.governance.monitoring.expectedDate', 'Expected Date')}</th>
+              <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.governance.monitoring.overdueDays', 'Overdue Days')}</th>
+              <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.governance.monitoring.manager', 'Manager')}</th>
+              <th className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.governance.common.actions', 'Actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -565,7 +570,7 @@ const AdminGovMonitoringPage: React.FC<RouteComponentProps> = () => {
               </tr>
             ) : (
               overdueList.map((item: OverdueItem) => (
-                <tr key={item.id} className="border-b border-border hover:bg-muted/30 transition-colors">
+                <tr key={item.id} className="border-b border-border hover:bg-muted/40 transition-colors">
                   <td className="px-4 py-3 font-medium text-foreground">{item.workflowName}</td>
                   <td className="px-4 py-3 text-muted-foreground">{CYCLE_LABELS[item.inspectionCycle] || item.inspectionCycle}</td>
                   <td className="px-4 py-3 text-muted-foreground">{formatDate(item.expectedDate)}</td>

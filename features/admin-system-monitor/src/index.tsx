@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import type { AdminFeatureModule, RouteComponentProps } from '@xgen/types';
-import { ContentArea } from '@xgen/ui';
+import { ContentArea, Button } from '@xgen/ui';
 import { useTranslation } from '@xgen/i18n';
 import { streamSystemStatus, getSystemStatus } from '@xgen/api-client';
 import type { SystemData, ConnectionState, HistoryEntry } from './types';
@@ -132,12 +132,13 @@ const AdminSystemMonitorPage: React.FC<RouteComponentProps> = () => {
               <p className="text-sm text-muted-foreground">
                 {t('admin.pages.systemMonitor.unavailable', 'System monitoring data is unavailable. The backend may be offline.')}
               </p>
-              <button
+              <Button
+                variant="primary"
+                size="sm"
                 onClick={() => { startStream(); setIsStreaming(true); }}
-                className="text-sm px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 {t('common.retry', 'Retry')}
-              </button>
+              </Button>
             </div>
           </div>
         ) : (

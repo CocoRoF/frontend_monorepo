@@ -501,11 +501,11 @@ const AdminGovRiskManagementPage: React.FC<RouteComponentProps> = () => {
     return (
       <table className="w-full text-sm border-collapse">
         <thead>
-          <tr className="bg-muted/50 text-left">
-            <th className="px-3 py-2 font-medium text-muted-foreground text-xs">{t('admin.governance.riskManagement.historyDate')}</th>
-            <th className="px-3 py-2 font-medium text-muted-foreground text-xs">{t('admin.governance.riskManagement.riskLevel')}</th>
-            <th className="px-3 py-2 font-medium text-muted-foreground text-xs">{t('admin.governance.riskManagement.historyModifier')}</th>
-            <th className="px-3 py-2 font-medium text-muted-foreground text-xs">{t('admin.governance.riskManagement.historyRationale')}</th>
+          <tr className="bg-muted/30 text-left">
+            <th className="px-3 py-2 font-semibold text-xs text-muted-foreground tracking-wide text-xs">{t('admin.governance.riskManagement.historyDate')}</th>
+            <th className="px-3 py-2 font-semibold text-xs text-muted-foreground tracking-wide text-xs">{t('admin.governance.riskManagement.riskLevel')}</th>
+            <th className="px-3 py-2 font-semibold text-xs text-muted-foreground tracking-wide text-xs">{t('admin.governance.riskManagement.historyModifier')}</th>
+            <th className="px-3 py-2 font-semibold text-xs text-muted-foreground tracking-wide text-xs">{t('admin.governance.riskManagement.historyRationale')}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
@@ -601,23 +601,23 @@ const AdminGovRiskManagementPage: React.FC<RouteComponentProps> = () => {
           <div className="rounded-xl border border-border overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-muted/50 text-left">
-                  <th className="px-4 py-3 font-medium text-muted-foreground cursor-pointer select-none" onClick={() => handleSort('workflowName')}>
+                <tr className="bg-muted/30 text-left">
+                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide cursor-pointer select-none" onClick={() => handleSort('workflowName')}>
                     {t('admin.governance.common.workflow')}
                     {sortField === 'workflowName' && <span className="ml-1">{sortDirection === 'asc' ? '▲' : '▼'}</span>}
                   </th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground">{t('admin.governance.common.creator')}</th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground">{t('admin.governance.common.department')}</th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground cursor-pointer select-none" onClick={() => handleSort('lastModified')}>
+                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.governance.common.creator')}</th>
+                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.governance.common.department')}</th>
+                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide cursor-pointer select-none" onClick={() => handleSort('lastModified')}>
                     {t('admin.governance.common.lastModified')}
                     {sortField === 'lastModified' && <span className="ml-1">{sortDirection === 'asc' ? '▲' : '▼'}</span>}
                   </th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground cursor-pointer select-none" onClick={() => handleSort('riskLevel')}>
+                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide cursor-pointer select-none" onClick={() => handleSort('riskLevel')}>
                     {t('admin.governance.riskManagement.riskLevel')}
                     {sortField === 'riskLevel' && <span className="ml-1">{sortDirection === 'asc' ? '▲' : '▼'}</span>}
                   </th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground">{t('admin.governance.riskManagement.impactScope')}</th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground">{t('admin.governance.common.actions')}</th>
+                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.governance.riskManagement.impactScope')}</th>
+                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.governance.common.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -812,13 +812,13 @@ const AdminGovRiskManagementPage: React.FC<RouteComponentProps> = () => {
                       {t(RISK_LEVEL_CONFIG[level].labelKey)}
                     </button>
                   ))}
-                  <button
-                    type="button"
-                    className="px-3 py-1.5 text-xs rounded-lg border border-border text-muted-foreground hover:border-primary/50 transition-colors"
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={handleChecklistOpen}
                   >
                     Checklist
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -926,13 +926,13 @@ const AdminGovRiskManagementPage: React.FC<RouteComponentProps> = () => {
               <div className="rounded-xl border border-border overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-muted/50 text-left">
-                      <th className="px-3 py-2 font-medium text-muted-foreground text-xs">부문</th>
-                      <th className="px-3 py-2 font-medium text-muted-foreground text-xs">위험 인식/측정</th>
-                      <th className="px-3 py-2 font-medium text-muted-foreground text-xs text-center">배점</th>
-                      <th className="px-3 py-2 font-medium text-muted-foreground text-xs text-center">위험 점수</th>
-                      <th className="px-3 py-2 font-medium text-muted-foreground text-xs text-center">위험경감</th>
-                      <th className="px-3 py-2 font-medium text-muted-foreground text-xs text-center">잔여위험</th>
+                    <tr className="bg-muted/30 text-left">
+                      <th className="px-3 py-2 font-semibold text-xs text-muted-foreground tracking-wide text-xs">부문</th>
+                      <th className="px-3 py-2 font-semibold text-xs text-muted-foreground tracking-wide text-xs">위험 인식/측정</th>
+                      <th className="px-3 py-2 font-semibold text-xs text-muted-foreground tracking-wide text-xs text-center">배점</th>
+                      <th className="px-3 py-2 font-semibold text-xs text-muted-foreground tracking-wide text-xs text-center">위험 점수</th>
+                      <th className="px-3 py-2 font-semibold text-xs text-muted-foreground tracking-wide text-xs text-center">위험경감</th>
+                      <th className="px-3 py-2 font-semibold text-xs text-muted-foreground tracking-wide text-xs text-center">잔여위험</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">

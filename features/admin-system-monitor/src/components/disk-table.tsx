@@ -20,19 +20,19 @@ export const DiskTable: React.FC<DiskTableProps> = ({ disks }) => {
       <div className="rounded-lg border border-border overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-muted/50">
-              <th className="text-left p-3 font-medium text-muted-foreground">Device</th>
-              <th className="text-left p-3 font-medium text-muted-foreground">Mount</th>
-              <th className="text-left p-3 font-medium text-muted-foreground">Type</th>
-              <th className="text-right p-3 font-medium text-muted-foreground">Total</th>
-              <th className="text-right p-3 font-medium text-muted-foreground">Used</th>
-              <th className="text-right p-3 font-medium text-muted-foreground">Free</th>
-              <th className="text-right p-3 font-medium text-muted-foreground">Usage</th>
+            <tr className="bg-muted/30">
+              <th className="text-left p-3 font-semibold text-xs text-muted-foreground tracking-wide">Device</th>
+              <th className="text-left p-3 font-semibold text-xs text-muted-foreground tracking-wide">Mount</th>
+              <th className="text-left p-3 font-semibold text-xs text-muted-foreground tracking-wide">Type</th>
+              <th className="text-right p-3 font-semibold text-xs text-muted-foreground tracking-wide">Total</th>
+              <th className="text-right p-3 font-semibold text-xs text-muted-foreground tracking-wide">Used</th>
+              <th className="text-right p-3 font-semibold text-xs text-muted-foreground tracking-wide">Free</th>
+              <th className="text-right p-3 font-semibold text-xs text-muted-foreground tracking-wide">Usage</th>
             </tr>
           </thead>
           <tbody>
             {disks.map((disk, i) => (
-              <tr key={i} className="border-t border-border hover:bg-muted/30">
+              <tr key={i} className="border-t border-border hover:bg-muted/40">
                 <td className="p-3 font-mono text-xs">{disk.device}</td>
                 <td className="p-3 font-mono text-xs">{disk.mountpoint}</td>
                 <td className="p-3 text-muted-foreground">{disk.fstype}</td>

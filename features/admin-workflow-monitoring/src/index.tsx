@@ -329,7 +329,7 @@ const AdminWorkflowMonitoringPage: React.FC<RouteComponentProps> = () => {
                   <div className="rounded-lg border border-border overflow-auto">
                     <table className="w-full text-sm">
                       <thead>
-                        <tr className="border-b border-border bg-muted/50">
+                        <tr className="border-b border-border bg-muted/30">
                           <th className="px-4 py-2 text-left font-medium">{t('admin.workflowManagement.monitoring.perf.nodeName')}</th>
                           <th className="px-4 py-2 text-right font-medium">{t('admin.workflowManagement.monitoring.perf.execCount')}</th>
                           <th className="px-4 py-2 text-right font-medium">{t('admin.workflowManagement.monitoring.perf.avgTime')}</th>
@@ -357,9 +357,8 @@ const AdminWorkflowMonitoringPage: React.FC<RouteComponentProps> = () => {
                 {/* Delete performance data */}
                 <div className="flex justify-end">
                   <Button
-                    variant="outline"
+                    variant="danger"
                     size="sm"
-                    className="text-destructive hover:text-destructive"
                     onClick={handleDeletePerformance}
                   >
                     {t('admin.workflowManagement.monitoring.deletePerformance')}

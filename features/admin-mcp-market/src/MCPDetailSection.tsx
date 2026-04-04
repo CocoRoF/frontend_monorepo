@@ -423,10 +423,10 @@ const MCPDetailSection: React.FC<MCPDetailSectionProps> = ({ item, onBack }) => 
                     </div>
                   </div>
                   <Button
-                    variant="outline"
+                    variant="danger"
                     size="sm"
                     onClick={() => handleDeleteSession(session.session_id)}
-                    className="text-red-500 border-red-200 hover:bg-red-50 flex-shrink-0"
+                    className="flex-shrink-0"
                   >
                     {t('admin.pages.mcpMarket.detail.activeSessions.delete', 'Delete')}
                   </Button>

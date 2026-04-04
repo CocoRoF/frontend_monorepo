@@ -796,15 +796,13 @@ const AdminGovControlPolicyPage: React.FC<RouteComponentProps> = () => {
             </div>
           </div>
           <div className="flex gap-2">
-            <button type="button" onClick={generateWordPattern}
-              className="px-3 py-1.5 text-xs rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+            <Button variant="primary" size="sm" onClick={generateWordPattern}>
               {t('admin.settings.guarder.piis.generateRegex')}
-            </button>
-            <button type="button" onClick={handleAppendWordPattern}
-              className="px-3 py-1.5 text-xs rounded-lg border border-border text-foreground hover:bg-muted/50 transition-colors disabled:opacity-40"
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleAppendWordPattern}
               disabled={!formData.pattern}>
               {t('admin.settings.guarder.piis.addToPattern')}
-            </button>
+            </Button>
           </div>
           {wordInputText && (
             <div className="flex flex-wrap gap-1 mt-1">
@@ -930,12 +928,10 @@ const AdminGovControlPolicyPage: React.FC<RouteComponentProps> = () => {
                 required placeholder={t('admin.settings.guarder.piis.regexPatternPlaceholder')} />
               {formData.pattern && (
                 <div className="flex gap-1">
-                  <button type="button" onClick={handleCopyPattern}
-                    className="px-2 py-1 text-xs rounded border border-border text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors"
-                    title={t('admin.settings.guarder.piis.copyPattern')}>{t('admin.settings.guarder.piis.copyPattern')}</button>
-                  <button type="button" onClick={handleClearPattern}
-                    className="px-2 py-1 text-xs rounded border border-red-500/30 text-red-500 hover:bg-red-500/10 transition-colors"
-                    title={t('admin.settings.guarder.piis.clearPattern')}>{'\u2715'}</button>
+                  <Button variant="outline" size="sm" onClick={handleCopyPattern}
+                    title={t('admin.settings.guarder.piis.copyPattern')}>{t('admin.settings.guarder.piis.copyPattern')}</Button>
+                  <Button variant="danger" size="sm" onClick={handleClearPattern}
+                    title={t('admin.settings.guarder.piis.clearPattern')}>{'\u2715'}</Button>
                 </div>
               )}
             </div>
@@ -1026,12 +1022,11 @@ const AdminGovControlPolicyPage: React.FC<RouteComponentProps> = () => {
           <SearchInput value={searchQuery} onChange={setSearchQuery}
             placeholder={t('admin.settings.guarder.piis.searchPlaceholder')} />
         </div>
-        <button onClick={handleReload} disabled={currentLoading}
-          className="p-2 rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors disabled:opacity-40">
+        <Button variant="outline" size="icon" onClick={handleReload} disabled={currentLoading}>
           <svg className={`w-4 h-4 ${currentLoading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
-        </button>
+        </Button>
         <div className="flex-1" />
         <Button size="sm" onClick={handleCreateClick}>
           + {activeTab === 'pii' ? t('admin.settings.guarder.piis.createPii') : t('admin.settings.guarder.piis.createForbiddenWord')}
@@ -1042,19 +1037,19 @@ const AdminGovControlPolicyPage: React.FC<RouteComponentProps> = () => {
       <div className="rounded-xl border border-border overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-muted/50 text-left">
-              <th className="px-4 py-3 font-medium text-muted-foreground cursor-pointer select-none hover:text-foreground" onClick={() => handleSort('name')}>
+            <tr className="bg-muted/30 text-left">
+              <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide cursor-pointer select-none hover:text-foreground" onClick={() => handleSort('name')}>
                 {t('admin.settings.guarder.piis.policyName')}
                 {sortField === 'name' && <span className="ml-1">{sortDirection === 'asc' ? '\u2191' : '\u2193'}</span>}
               </th>
-              <th className="px-4 py-3 font-medium text-muted-foreground">{t('admin.settings.guarder.piis.descriptionLabel')}</th>
-              <th className="px-4 py-3 font-medium text-muted-foreground">{t('admin.settings.guarder.piis.regexPattern')}</th>
-              <th className="px-4 py-3 font-medium text-muted-foreground">{t('admin.settings.guarder.piis.maskingSettings')}</th>
-              <th className="px-4 py-3 font-medium text-muted-foreground cursor-pointer select-none hover:text-foreground" onClick={() => handleSort('enabled')}>
+              <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.settings.guarder.piis.descriptionLabel')}</th>
+              <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.settings.guarder.piis.regexPattern')}</th>
+              <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.settings.guarder.piis.maskingSettings')}</th>
+              <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide cursor-pointer select-none hover:text-foreground" onClick={() => handleSort('enabled')}>
                 {t('admin.governance.common.status')}
                 {sortField === 'enabled' && <span className="ml-1">{sortDirection === 'asc' ? '\u2191' : '\u2193'}</span>}
               </th>
-              <th className="px-4 py-3 font-medium text-muted-foreground w-32">{t('admin.governance.common.actions')}</th>
+              <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide w-32">{t('admin.governance.common.actions')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -1064,7 +1059,7 @@ const AdminGovControlPolicyPage: React.FC<RouteComponentProps> = () => {
               </td></tr>
             ) : (
               filteredList.map((item: PolicyRule) => (
-                <tr key={item.id} className="hover:bg-muted/30 transition-colors cursor-pointer" onClick={() => handleEditClick(item)}>
+                <tr key={item.id} className="hover:bg-muted/40 transition-colors cursor-pointer" onClick={() => handleEditClick(item)}>
                   <td className="px-4 py-3 font-medium text-foreground">{item.name}</td>
                   <td className="px-4 py-3 text-muted-foreground text-xs max-w-xs truncate">{item.description || '-'}</td>
                   <td className="px-4 py-3"><code className="text-xs font-mono text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded max-w-xs truncate block">{item.pattern}</code></td>
@@ -1081,7 +1076,7 @@ const AdminGovControlPolicyPage: React.FC<RouteComponentProps> = () => {
                   <td className="px-4 py-3">
                     <div className="flex gap-1" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                       <Button variant="outline" size="sm" onClick={() => handleEditClick(item)}>{t('admin.governance.common.edit')}</Button>
-                      <Button variant="outline" size="sm" onClick={() => setDeleteTarget({ id: item.id, name: item.name })} className="text-red-500 hover:text-red-600">{t('admin.governance.common.delete')}</Button>
+                      <Button variant="danger" size="sm" onClick={() => setDeleteTarget({ id: item.id, name: item.name })}>{t('admin.governance.common.delete')}</Button>
                     </div>
                   </td>
                 </tr>
@@ -1156,10 +1151,10 @@ const AdminGovControlPolicyPage: React.FC<RouteComponentProps> = () => {
                   <input type="color" value={cat.color}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleRiskUpdateCategory(cat.id, 'color', e.target.value)}
                     className="w-6 h-6 rounded cursor-pointer border-none" />
-                  <button onClick={() => handleRiskRemoveCategory(cat.id)}
-                    className="text-red-500 hover:text-red-600 text-lg" title={t('admin.settings.guarder.piis.deleteCategory')}>
+                  <Button variant="danger" size="icon" onClick={() => handleRiskRemoveCategory(cat.id)}
+                    title={t('admin.settings.guarder.piis.deleteCategory')}>
                     &times;
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -1268,7 +1263,7 @@ const AdminGovControlPolicyPage: React.FC<RouteComponentProps> = () => {
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-sm font-semibold text-foreground">{t('admin.settings.guarder.piis.policyHistory')}</h4>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={handleClearHistory} className="text-red-500">{t('admin.settings.guarder.piis.clearHistory')}</Button>
+                <Button variant="danger" size="sm" onClick={handleClearHistory}>{t('admin.settings.guarder.piis.clearHistory')}</Button>
                 <Button variant="outline" size="sm" onClick={() => setShowHistoryPanel(false)}>{t('admin.settings.guarder.piis.close')}</Button>
               </div>
             </div>

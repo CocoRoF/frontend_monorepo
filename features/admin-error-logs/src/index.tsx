@@ -221,13 +221,13 @@ const AdminErrorLogsPage: React.FC<RouteComponentProps> = () => {
           <div className="rounded-xl border border-border overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-muted/50 text-left">
-                  <th className="px-4 py-3 font-medium text-muted-foreground">{t('admin.errors.level', 'Level')}</th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground">{t('admin.errors.service', 'Service')}</th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground">{t('admin.errors.message', 'Message')}</th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground">{t('admin.errors.occurrences', 'Count')}</th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground">{t('admin.errors.lastSeen', 'Last Seen')}</th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground">{t('common.status', 'Status')}</th>
+                <tr className="bg-muted/30 text-left">
+                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.errors.level', 'Level')}</th>
+                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.errors.service', 'Service')}</th>
+                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.errors.message', 'Message')}</th>
+                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.errors.occurrences', 'Count')}</th>
+                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.errors.lastSeen', 'Last Seen')}</th>
+                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('common.status', 'Status')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">

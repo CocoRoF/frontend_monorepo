@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import type { AdminFeatureModule, RouteComponentProps } from '@xgen/types';
-import { ContentArea, useToast } from '@xgen/ui';
+import { ContentArea, useToast, Button } from '@xgen/ui';
 import { useTranslation } from '@xgen/i18n';
 import { FiPlus, FiEdit3, FiTrash2, FiCheck, FiX } from '@xgen/icons';
 import { createApiClient } from '@xgen/api-client';
@@ -223,13 +223,14 @@ const AdminSettingGuarderPage: React.FC<RouteComponentProps> = () => {
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-base font-semibold text-foreground">{t(`${SS}.pii.title`)}</h2>
             {!isAdding && (
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setIsAdding(true)}
-                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                leftIcon={<FiPlus className="h-4 w-4" />}
               >
-                <FiPlus className="h-4 w-4" />
                 {t(`${SS}.pii.add`)}
-              </button>
+              </Button>
             )}
           </div>
 
@@ -280,20 +281,23 @@ const AdminSettingGuarderPage: React.FC<RouteComponentProps> = () => {
                   </select>
                 </div>
                 <div className="flex gap-1">
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={handleAddPii}
                     disabled={submitting}
-                    className="rounded p-1.5 text-primary hover:bg-primary/10 disabled:opacity-50"
+                    className="text-primary hover:bg-primary/10"
                   >
                     <FiCheck className="h-4 w-4" />
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={() => { setIsAdding(false); setAddForm({ policy_name: '', regex_pattern: '', action: 'mask' }); }}
                     disabled={submitting}
-                    className="rounded p-1.5 text-muted-foreground hover:bg-muted"
                   >
                     <FiX className="h-4 w-4" />
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -312,11 +316,11 @@ const AdminSettingGuarderPage: React.FC<RouteComponentProps> = () => {
             <div className="overflow-hidden rounded-lg border border-border">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border bg-muted/50">
-                    <th className="px-4 py-2.5 text-left font-medium text-muted-foreground">{t(`${SS}.pii.policyName`)}</th>
-                    <th className="px-4 py-2.5 text-left font-medium text-muted-foreground">{t(`${SS}.pii.regexPattern`)}</th>
-                    <th className="px-4 py-2.5 text-left font-medium text-muted-foreground">{t(`${SS}.pii.action`)}</th>
-                    <th className="px-4 py-2.5 text-right font-medium text-muted-foreground">{t(`${SS}.pii.actions`)}</th>
+                  <tr className="border-b border-border bg-muted/30">
+                    <th className="px-4 py-2.5 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t(`${SS}.pii.policyName`)}</th>
+                    <th className="px-4 py-2.5 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t(`${SS}.pii.regexPattern`)}</th>
+                    <th className="px-4 py-2.5 text-left font-semibold text-xs text-muted-foreground tracking-wide">{t(`${SS}.pii.action`)}</th>
+                    <th className="px-4 py-2.5 text-right font-semibold text-xs text-muted-foreground tracking-wide">{t(`${SS}.pii.actions`)}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -353,12 +357,12 @@ const AdminSettingGuarderPage: React.FC<RouteComponentProps> = () => {
                             </td>
                             <td className="px-4 py-2 text-right">
                               <div className="inline-flex gap-1">
-                                <button onClick={handleEditSave} disabled={submitting} className="rounded p-1.5 text-primary hover:bg-primary/10 disabled:opacity-50">
+                                <Button variant="ghost" size="icon" onClick={handleEditSave} disabled={submitting} className="text-primary hover:bg-primary/10">
                                   <FiCheck className="h-3.5 w-3.5" />
-                                </button>
-                                <button onClick={handleEditCancel} disabled={submitting} className="rounded p-1.5 text-muted-foreground hover:bg-muted">
+                                </Button>
+                                <Button variant="ghost" size="icon" onClick={handleEditCancel} disabled={submitting}>
                                   <FiX className="h-3.5 w-3.5" />
-                                </button>
+                                </Button>
                               </div>
                             </td>
                           </>
@@ -377,12 +381,12 @@ const AdminSettingGuarderPage: React.FC<RouteComponentProps> = () => {
                             </td>
                             <td className="px-4 py-2.5 text-right">
                               <div className="inline-flex gap-1">
-                                <button onClick={() => handleEditStart(policy)} disabled={submitting} className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground">
+                                <Button variant="ghost" size="icon" onClick={() => handleEditStart(policy)} disabled={submitting}>
                                   <FiEdit3 className="h-3.5 w-3.5" />
-                                </button>
-                                <button onClick={() => handleDelete(policy.policy_name)} disabled={submitting} className="rounded p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
+                                </Button>
+                                <Button variant="danger" size="icon" onClick={() => handleDelete(policy.policy_name)} disabled={submitting}>
                                   <FiTrash2 className="h-3.5 w-3.5" />
-                                </button>
+                                </Button>
                               </div>
                             </td>
                           </>

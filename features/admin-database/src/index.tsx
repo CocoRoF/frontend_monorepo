@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import type { AdminFeatureModule, RouteComponentProps } from '@xgen/types';
-import { ContentArea } from '@xgen/ui';
+import { ContentArea, Button } from '@xgen/ui';
 import { useTranslation } from '@xgen/i18n';
 import { FiDatabase, FiRefreshCw } from '@xgen/icons';
 import {
@@ -100,13 +100,14 @@ const AdminDatabasePage: React.FC<RouteComponentProps> = () => {
               {t('admin.pages.database.description', 'Browse tables and execute queries')}
             </p>
           </div>
-          <button
+          <Button
+            variant="outline"
+            size="icon"
             onClick={fetchData}
             disabled={loading}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm border border-border rounded-md hover:bg-muted transition-colors disabled:opacity-50"
           >
             <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          </button>
+          </Button>
         </div>
 
         {/* Connection Info */}
@@ -173,13 +174,14 @@ const AdminDatabasePage: React.FC<RouteComponentProps> = () => {
                   placeholder="SELECT * FROM ..."
                 />
               </div>
-              <button
+              <Button
+                variant="primary"
+                size="sm"
                 onClick={handleExecuteQuery}
                 disabled={queryLoading || !queryText.trim()}
-                className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 transition-colors whitespace-nowrap"
               >
                 {queryLoading ? 'Running...' : 'Execute'}
-              </button>
+              </Button>
             </div>
 
             {/* Results */}
@@ -193,7 +195,7 @@ const AdminDatabasePage: React.FC<RouteComponentProps> = () => {
                   <div className="rounded-lg border border-border overflow-auto max-h-[400px]">
                     <table className="w-full text-sm">
                       <thead className="sticky top-0">
-                        <tr className="bg-muted/80">
+                        <tr className="bg-muted/30">
                           {columns.map((col) => (
                             <th
                               key={col}
@@ -205,7 +207,7 @@ const AdminDatabasePage: React.FC<RouteComponentProps> = () => {
                                   setSortDir('asc');
                                 }
                               }}
-                              className="text-left p-2 font-medium text-muted-foreground cursor-pointer hover:text-foreground text-xs whitespace-nowrap"
+                              className="text-left p-2 font-semibold text-xs text-muted-foreground tracking-wide cursor-pointer hover:text-foreground whitespace-nowrap"
                             >
                               {col} {sortCol === col && (sortDir === 'asc' ? '↑' : '↓')}
                             </th>
@@ -214,7 +216,7 @@ const AdminDatabasePage: React.FC<RouteComponentProps> = () => {
                       </thead>
                       <tbody>
                         {sortedData.map((row, ri) => (
-                          <tr key={ri} className="border-t border-border hover:bg-muted/30">
+                          <tr key={ri} className="border-t border-border hover:bg-muted/40">
                             {columns.map((col) => {
                               const val = row[col];
                               const str = val === null ? 'NULL' : String(val);
