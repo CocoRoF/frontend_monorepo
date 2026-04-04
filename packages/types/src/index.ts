@@ -7,6 +7,7 @@ import type React from 'react';
 export interface RouteComponentProps {
   params?: Record<string, string>;
   searchParams?: Record<string, string | string[] | undefined>;
+  onNavigate?: (itemId: string) => void;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -28,8 +29,10 @@ export type SidebarSectionId =
 export interface SidebarMenuItem {
   /** 고유 ID */
   id: string;
-  /** i18n 타이틀 키 */
+  /** i18n 타이틀 키 (기본값) */
   titleKey: string;
+  /** 직접 지정 타이틀 (titleKey보다 우선) */
+  title?: string;
   /** i18n 설명 키 */
   descriptionKey?: string;
   /** 아이콘 컴포넌트 */
@@ -46,8 +49,10 @@ export interface SidebarMenuItem {
 export interface SidebarSection {
   /** 섹션 고유 ID */
   id: SidebarSectionId;
-  /** i18n 섹션 타이틀 키 */
+  /** i18n 섹션 타이틀 키 (기본값) */
   titleKey: string;
+  /** 직접 지정 섹션 타이틀 (titleKey보다 우선) */
+  title?: string;
   /** 섹션 아이콘 컴포넌트 */
   icon?: ComponentType<{ className?: string }>;
   /** 섹션 내 메뉴 아이템들 */
@@ -138,6 +143,35 @@ export interface SidebarConfig {
   className?: string;
 }
 
+/**
+ * 사이드바 라벨 오버라이드
+ * 앱 레벨에서 섹션/아이템 타이틀을 커스텀할 때 사용
+ *
+ * @example
+ * const overrides: SidebarLabelOverrides = {
+ *   workflow: {
+ *     title: 'My Workflows',
+ *     items: {
+ *       'tool-storage': { title: 'My Tools' },
+ *       'prompt-storage': { title: 'My Prompts' },
+ *     },
+ *   },
+ * };
+ */
+export interface SidebarLabelOverrides {
+  [sectionId: string]: {
+    /** 섹션 타이틀 오버라이드 */
+    title?: string;
+    /** 섹션 내 아이템 타이틀 오버라이드 */
+    items?: {
+      [itemId: string]: {
+        /** 아이템 타이틀 오버라이드 */
+        title?: string;
+      };
+    };
+  };
+}
+
 // 하위 호환을 위한 기존 타입 (deprecated, 향후 제거 예정)
 /** @deprecated SidebarMenuItem 사용 권장 */
 export interface SidebarItem {
@@ -192,9 +226,7 @@ export type AdminSidebarSectionId =
   | 'admin-setting'
   | 'admin-system'
   | 'admin-data'
-  | 'admin-security'
   | 'admin-mcp'
-  | 'admin-ml'
   | 'admin-governance'
   | string;
 

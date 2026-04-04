@@ -222,16 +222,15 @@ const AdminWorkflowManagementPage: React.FC<RouteComponentProps> = () => {
       cell: (row) => (
         <div className="flex gap-1 flex-wrap">
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={(e) => { e.stopPropagation(); setEditingWorkflow(row); }}
           >
             {t('admin.workflowManagement.workflowControl.settings')}
           </Button>
           <Button
-            variant="ghost"
+            variant="danger"
             size="sm"
-            className="text-destructive hover:text-destructive"
             onClick={(e) => { e.stopPropagation(); handleDelete(row); }}
           >
             {t('admin.workflowManagement.workflowControl.delete')}
@@ -239,17 +238,16 @@ const AdminWorkflowManagementPage: React.FC<RouteComponentProps> = () => {
           {row.inquire_deploy && (
             <>
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                className="text-emerald-600 hover:text-emerald-700"
+                className="text-emerald-600 border-emerald-200 hover:bg-emerald-50 hover:border-emerald-300"
                 onClick={(e) => { e.stopPropagation(); handleDeployApprove(row); }}
               >
                 {t('admin.workflowManagement.workflowControl.approve')}
               </Button>
               <Button
-                variant="ghost"
+                variant="danger"
                 size="sm"
-                className="text-red-500 hover:text-red-600"
                 onClick={(e) => { e.stopPropagation(); handleDeployReject(row); }}
               >
                 {t('admin.workflowManagement.workflowControl.reject')}

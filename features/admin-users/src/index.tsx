@@ -208,7 +208,7 @@ const AdminUsersPage: React.FC<RouteComponentProps> = () => {
         cell: (row) => (
           <div className="flex gap-1">
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
@@ -218,9 +218,8 @@ const AdminUsersPage: React.FC<RouteComponentProps> = () => {
               {t('admin.userManagement.userList.edit')}
             </Button>
             <Button
-              variant="ghost"
+              variant="danger"
               size="sm"
-              className="text-destructive hover:text-destructive"
               onClick={(e) => {
                 e.stopPropagation();
                 handleDelete(row);

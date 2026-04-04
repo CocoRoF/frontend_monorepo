@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import type { AdminFeatureModule, RouteComponentProps } from '@xgen/types';
 import type { AdminWorkflowMeta, AdminIOLog, AdminPerformanceData } from '@xgen/api-client';
 import {
-  ContentArea, DataTable, StatusBadge, SearchInput, FilterTabs, Button, useToast,
+  ContentArea, DataTable, StatusBadge, SearchInput, FilterTabs, Button, StatCard, useToast,
 } from '@xgen/ui';
 import type { DataTableColumn, FilterTab } from '@xgen/ui';
 import { useTranslation } from '@xgen/i18n';
@@ -302,22 +302,26 @@ const AdminWorkflowMonitoringPage: React.FC<RouteComponentProps> = () => {
               <>
                 {/* Summary cards */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="rounded-lg border border-border p-4">
-                    <p className="text-xs text-muted-foreground">{t('admin.workflowManagement.monitoring.perf.totalExecutions')}</p>
-                    <p className="text-2xl font-bold text-foreground">{perfData.summary.total_executions}</p>
-                  </div>
-                  <div className="rounded-lg border border-border p-4">
-                    <p className="text-xs text-muted-foreground">{t('admin.workflowManagement.monitoring.perf.avgTime')}</p>
-                    <p className="text-2xl font-bold text-foreground">{perfData.summary.avg_processing_time_ms.toFixed(0)}ms</p>
-                  </div>
-                  <div className="rounded-lg border border-border p-4">
-                    <p className="text-xs text-muted-foreground">{t('admin.workflowManagement.monitoring.perf.avgCpu')}</p>
-                    <p className="text-2xl font-bold text-foreground">{perfData.summary.avg_cpu_usage_percent.toFixed(1)}%</p>
-                  </div>
-                  <div className="rounded-lg border border-border p-4">
-                    <p className="text-xs text-muted-foreground">{t('admin.workflowManagement.monitoring.perf.avgRam')}</p>
-                    <p className="text-2xl font-bold text-foreground">{perfData.summary.avg_ram_usage_mb.toFixed(1)}MB</p>
-                  </div>
+                  <StatCard
+                    label={t('admin.workflowManagement.monitoring.perf.totalExecutions')}
+                    value={perfData.summary.total_executions}
+                    variant="info"
+                  />
+                  <StatCard
+                    label={t('admin.workflowManagement.monitoring.perf.avgTime')}
+                    value={`${perfData.summary.avg_processing_time_ms.toFixed(0)}ms`}
+                    variant="neutral"
+                  />
+                  <StatCard
+                    label={t('admin.workflowManagement.monitoring.perf.avgCpu')}
+                    value={`${perfData.summary.avg_cpu_usage_percent.toFixed(1)}%`}
+                    variant="warning"
+                  />
+                  <StatCard
+                    label={t('admin.workflowManagement.monitoring.perf.avgRam')}
+                    value={`${perfData.summary.avg_ram_usage_mb.toFixed(1)}MB`}
+                    variant="success"
+                  />
                 </div>
 
                 {/* Node performance table */}
@@ -325,7 +329,7 @@ const AdminWorkflowMonitoringPage: React.FC<RouteComponentProps> = () => {
                   <div className="rounded-lg border border-border overflow-auto">
                     <table className="w-full text-sm">
                       <thead>
-                        <tr className="border-b border-border bg-muted/50">
+                        <tr className="border-b border-border bg-muted/30">
                           <th className="px-4 py-2 text-left font-medium">{t('admin.workflowManagement.monitoring.perf.nodeName')}</th>
                           <th className="px-4 py-2 text-right font-medium">{t('admin.workflowManagement.monitoring.perf.execCount')}</th>
                           <th className="px-4 py-2 text-right font-medium">{t('admin.workflowManagement.monitoring.perf.avgTime')}</th>
@@ -353,9 +357,8 @@ const AdminWorkflowMonitoringPage: React.FC<RouteComponentProps> = () => {
                 {/* Delete performance data */}
                 <div className="flex justify-end">
                   <Button
-                    variant="outline"
+                    variant="danger"
                     size="sm"
-                    className="text-destructive hover:text-destructive"
                     onClick={handleDeletePerformance}
                   >
                     {t('admin.workflowManagement.monitoring.deletePerformance')}

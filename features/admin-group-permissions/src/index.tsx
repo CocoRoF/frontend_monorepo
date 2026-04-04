@@ -236,7 +236,7 @@ const AdminGroupPermissionsPage: React.FC<RouteComponentProps> = () => {
         cell: (row) => (
           <div className="flex gap-1">
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
@@ -246,9 +246,8 @@ const AdminGroupPermissionsPage: React.FC<RouteComponentProps> = () => {
               {t('admin.userManagement.groupPermissions.editPermissions')}
             </Button>
             <Button
-              variant="ghost"
+              variant="danger"
               size="sm"
-              className="text-destructive hover:text-destructive"
               onClick={(e) => {
                 e.stopPropagation();
                 handleDeleteGroup(row);
@@ -321,9 +320,8 @@ const AdminGroupPermissionsPage: React.FC<RouteComponentProps> = () => {
         header: t('admin.userManagement.userList.tableHeaders.actions'),
         cell: (row) => (
           <Button
-            variant="ghost"
+            variant="danger"
             size="sm"
-            className="text-destructive hover:text-destructive"
             onClick={(e) => {
               e.stopPropagation();
               handleRemoveMember(row);

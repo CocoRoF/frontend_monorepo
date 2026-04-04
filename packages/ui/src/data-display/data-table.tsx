@@ -219,16 +219,16 @@ export function DataTable<T>({
   }
 
   return (
-    <div className={cn('rounded-lg border border-border', className)}>
+    <div className={cn('rounded-lg border border-border overflow-hidden', className)}>
       <Table>
         <TableHeader>
-          <TableRow className="hover:bg-transparent">
+          <TableRow className="hover:bg-transparent border-border">
             {columns.map((col) => (
               <TableHead
                 key={col.id}
                 className={cn(
                   col.sortable &&
-                    'cursor-pointer select-none hover:bg-accent/50 transition-colors',
+                    'cursor-pointer select-none hover:bg-muted/50 transition-colors duration-150',
                   col.headerClassName,
                 )}
                 style={col.minWidth ? { minWidth: col.minWidth } : undefined}

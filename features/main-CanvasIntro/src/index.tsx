@@ -131,7 +131,7 @@ const CanvasIntroPage: React.FC<CanvasIntroPageProps> = ({ onNavigate, onCreateC
             <Button onClick={() => handleSelectTemplate('blank')}>
               {t('canvasIntro.hero.createBlank')}
             </Button>
-            <Button variant="outline" onClick={() => onNavigate?.('workflow-intro')}>
+            <Button variant="outline" onClick={() => onNavigate?.('workflows')}>
               {t('canvasIntro.hero.browseWorkflows')}
             </Button>
           </div>

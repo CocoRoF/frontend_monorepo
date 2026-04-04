@@ -13,13 +13,11 @@ export const routeMappings: Record<string, string> = {
   'dashboard': 'dashboard',
 
   // Chat Section
-  'chat-intro': 'chat-intro',
   'chat-history': 'chat-history',
   'chat-new': 'chat-new',
   'chat-current': 'chat-current',
 
   // Workflow Section
-  'workflow-intro': 'workflow-intro',
   'canvas-intro': 'canvas-intro',
   'workflows': 'workflows',
   'documents': 'documents',
