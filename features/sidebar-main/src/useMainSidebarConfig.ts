@@ -25,6 +25,7 @@ interface UseMainSidebarConfigOptions {
   onToggle: () => void;
   onLogout: () => void;
   onAdminClick?: () => void;
+  onUserClick?: () => void;
   /** 섹션/아이템 타이틀 오버라이드 (앱 레벨 커스텀) */
   labelOverrides?: SidebarLabelOverrides;
 }
@@ -43,6 +44,7 @@ export function useMainSidebarConfig({
   onToggle,
   onLogout,
   onAdminClick,
+  onUserClick,
   labelOverrides,
 }: UseMainSidebarConfigOptions): SidebarConfig {
   const { t } = useTranslation();
@@ -90,11 +92,12 @@ export function useMainSidebarConfig({
       onNavigate,
       onLogoClick: () => onNavigate('main-dashboard'),
       onLogout,
+      onUserClick,
       collapsed,
       onToggle,
       activeItemId,
       variant: 'main',
     }),
-    [sidebarSections, activeItemId, collapsed, userName, isAdmin, onNavigate, onToggle, onLogout, onAdminClick],
+    [sidebarSections, activeItemId, collapsed, userName, isAdmin, onNavigate, onToggle, onLogout, onAdminClick, onUserClick],
   );
 }

@@ -39,7 +39,7 @@ function calculateAverageRating(workflow: WorkflowStoreItem): number {
 // Component
 // ─────────────────────────────────────────────────────────────
 
-export const WorkflowStore: React.FC<WorkflowStoreProps> = ({ onStorageRefresh }) => {
+export const WorkflowStore: React.FC<WorkflowStoreProps> = ({ onStorageRefresh, onSubToolbarChange }) => {
   const { t } = useTranslation();
   const { user, isInitialized } = useAuth();
 
@@ -173,9 +173,9 @@ export const WorkflowStore: React.FC<WorkflowStoreProps> = ({ onStorageRefresh }
     { key: 'shared', label: t('workflows.store.filter.shared') },
   ];
 
-  return (
-    <div className="flex flex-col h-full gap-6">
-      {/* Header */}
+  // Push subToolbar content to orchestrator
+  useEffect(() => {
+    onSubToolbarChange?.(
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-4 flex-1 min-w-[200px] max-w-[400px]">
           <div className="relative w-full">
@@ -218,7 +218,16 @@ export const WorkflowStore: React.FC<WorkflowStoreProps> = ({ onStorageRefresh }
           </Button>
         </div>
       </div>
+    );
+  }, [onSubToolbarChange, searchTerm, filterMode, loading, handleUploadClick, fetchWorkflows, t]);
 
+  // Cleanup subToolbar on unmount
+  useEffect(() => {
+    return () => { onSubToolbarChange?.(null); };
+  }, [onSubToolbarChange]);
+
+  return (
+    <div className="flex flex-col flex-1 min-h-0 p-6">
       {/* Content */}
       <div className="flex-1 min-h-0 overflow-y-auto">
         {!isInitialized ? (

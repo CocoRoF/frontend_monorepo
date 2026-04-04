@@ -1,2 +1,2 @@
 export { MypageSidebar, type MypageSidebarProps } from './MypageSidebar';
-export { mypageSidebarConfig, type MypageSidebarItem, type MypageSidebarSection } from './mypageSidebarConfig';
+export { mypageSidebarConfig, toSidebarSections, type MypageSidebarSectionConfig } from './mypageSidebarConfig';

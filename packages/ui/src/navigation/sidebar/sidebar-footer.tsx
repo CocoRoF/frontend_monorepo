@@ -32,7 +32,7 @@ export interface SidebarDividerProps {
 }
 
 export const SidebarDivider: React.FC<SidebarDividerProps> = ({ className }) => {
-  return <hr className={cn('border-none border-t border-[var(--color-line-50)] m-0 w-full flex-shrink-0', className)} />;
+  return <hr className={cn('border-0 border-t border-solid border-[var(--color-line-50)] m-0 w-full flex-shrink-0', className)} />;
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -115,7 +115,6 @@ export const SidebarFooterButton: React.FC<SidebarFooterButtonProps> = ({
         'flex items-center justify-center',
         'text-[var(--color-gray-800)] transition-colors duration-200',
         'hover:bg-[var(--color-bg-50)] hover:border-[var(--color-gray-500)]',
-        variant === 'logout' && 'mr-3',
         className,
       )}
       title={title}

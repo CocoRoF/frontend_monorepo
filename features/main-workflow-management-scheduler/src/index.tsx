@@ -44,7 +44,7 @@ function formatDate(dateString?: string): string {
 // Component
 // ─────────────────────────────────────────────────────────────
 
-export const WorkflowScheduler: React.FC<WorkflowSchedulerProps> = ({ className }) => {
+export const WorkflowScheduler: React.FC<WorkflowSchedulerProps> = ({ className, onSubToolbarChange }) => {
   const { t } = useTranslation();
   const { user, isInitialized } = useAuth();
 
@@ -184,9 +184,9 @@ export const WorkflowScheduler: React.FC<WorkflowSchedulerProps> = ({ className 
     { key: 'failed', label: t('workflows.scheduler.filter.failed') },
   ];
 
-  return (
-    <div className={`flex flex-col h-full gap-6 ${className || ''}`}>
-      {/* Header */}
+  // Push subToolbar content to orchestrator
+  useEffect(() => {
+    onSubToolbarChange?.(
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-4">
           <FilterTabs
@@ -219,7 +219,16 @@ export const WorkflowScheduler: React.FC<WorkflowSchedulerProps> = ({ className 
           </Button>
         </div>
       </div>
+    );
+  }, [onSubToolbarChange, filterStatus, loading, handleCreateClick, fetchSchedules, t]);
 
+  // Cleanup subToolbar on unmount
+  useEffect(() => {
+    return () => { onSubToolbarChange?.(null); };
+  }, [onSubToolbarChange]);
+
+  return (
+    <div className={`flex flex-col flex-1 min-h-0 p-6 ${className || ''}`}>
       {/* Content */}
       <div className="flex-1 min-h-0 overflow-y-auto">
         {!isInitialized ? (

@@ -127,6 +127,8 @@ export interface SidebarConfig {
   user?: SidebarUserProfile;
   /** 로그아웃 핸들러 */
   onLogout?: () => void;
+  /** 사용자 프로필 클릭 핸들러 (마이페이지 이동) */
+  onUserClick?: () => void;
   /** 메뉴 클릭 핸들러 */
   onNavigate: (itemId: string, href?: string) => void;
   /** 로고 클릭 핸들러 */
@@ -1051,6 +1053,8 @@ export interface WorkflowTabPlugin {
 export interface WorkflowTabPluginProps {
   /** 다른 섹션으로 이동 */
   onNavigate?: (sectionId: string) => void;
+  /** 서브 툴바 콘텐츠를 상위로 전달 */
+  onSubToolbarChange?: (content: React.ReactNode) => void;
 }
 
 // ─────────────────────────────────────────────────────────────

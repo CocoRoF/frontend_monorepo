@@ -86,7 +86,7 @@ export interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ config }) => {
   const { t } = useTranslation();
   const {
-    logo, header, sections, support, user, onLogout, onNavigate, onLogoClick,
+    logo, header, sections, support, user, onLogout, onUserClick, onNavigate, onLogoClick,
     collapsed = false, onToggle, activeItemId = '', variant = 'main', className,
   } = config;
 
@@ -269,10 +269,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ config }) => {
         )}
 
         {user && (
-          <div className={cn('flex items-center gap-2 w-full', collapsed && 'justify-center')}>
-            <SidebarUserProfile name={user.name} isSidebarClosed={collapsed} />
+          <div className={cn('flex flex-col w-full', collapsed && 'items-center')}>
+            <SidebarUserProfile name={user.name} isSidebarClosed={collapsed} onClick={onUserClick} title={user.name} />
             {!collapsed && (
-              <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-2 px-[26px] pb-3">
                 {header?.showAdminButton && header?.onAdminClick && (
                   <SidebarFooterButton
                     onClick={header.onAdminClick}

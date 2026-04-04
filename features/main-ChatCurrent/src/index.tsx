@@ -53,15 +53,6 @@ const SettingsIcon: React.FC = () => (
   </svg>
 );
 
-const ChevronIcon: React.FC<{ expanded?: boolean }> = ({ expanded }) => (
-  <svg
-    width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"
-    className={`transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
-  >
-    <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
 // ─────────────────────────────────────────────────────────────
 // Utilities
 // ─────────────────────────────────────────────────────────────
@@ -88,44 +79,33 @@ const generateMessageId = (): string => {
 };
 
 // ─────────────────────────────────────────────────────────────
-// Workflow Info Panel (collapsible) — page-specific
+// Workflow Info Toolbar — page-specific subheader
 // ─────────────────────────────────────────────────────────────
 
-interface WorkflowInfoPanelProps {
+interface WorkflowInfoToolbarProps {
   workflowName: string;
   interactionId: string;
 }
 
-const WorkflowInfoPanel: React.FC<WorkflowInfoPanelProps> = ({ workflowName, interactionId }) => {
-  const [expanded, setExpanded] = useState(true);
-
+const WorkflowInfoToolbar: React.FC<WorkflowInfoToolbarProps> = ({ workflowName, interactionId }) => {
   return (
-    <div className="border-b border-border bg-muted/30 shrink-0">
-      <button
-        className="flex items-center justify-between w-full px-6 py-2 text-left bg-transparent border-none cursor-pointer hover:bg-muted/50 transition-colors"
-        onClick={() => setExpanded(!expanded)}
-      >
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="w-2 h-2 rounded-full bg-emerald-500" />
-          <span className="font-medium">{workflowName}</span>
-          <span className="text-muted-foreground/50">·</span>
-          <span className="text-muted-foreground/50">1 agents</span>
-        </div>
-        <ChevronIcon expanded={expanded} />
-      </button>
-      {expanded && (
-        <div className="px-6 pb-2.5">
-          <div className="flex items-center justify-between px-3 py-2 bg-white rounded-lg border border-border/50">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="text-xs font-medium text-foreground">Agent Xgen</span>
-              <span className="text-[10px] text-muted-foreground/50 font-mono truncate">{interactionId}</span>
-            </div>
-            <div className="flex items-center justify-center w-6 h-6 text-muted-foreground/40 cursor-pointer hover:text-muted-foreground transition-colors [&_svg]:w-3.5 [&_svg]:h-3.5">
-              <SettingsIcon />
-            </div>
-          </div>
-        </div>
-      )}
+    <div className="flex items-center justify-between w-full">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+        <span className="font-medium text-foreground">{workflowName}</span>
+        <span className="text-muted-foreground/50">·</span>
+        <span>1 agents</span>
+      </div>
+      <div className="flex items-center gap-2 text-xs text-muted-foreground min-w-0">
+        <span className="font-medium text-foreground">Agent Xgen</span>
+        <span className="text-[10px] text-muted-foreground/50 font-mono truncate max-w-[200px]">{interactionId}</span>
+        <button
+          type="button"
+          className="flex items-center justify-center w-6 h-6 p-0 bg-transparent border-none text-muted-foreground/40 cursor-pointer hover:text-muted-foreground transition-colors [&_svg]:w-3.5 [&_svg]:h-3.5"
+        >
+          <SettingsIcon />
+        </button>
+      </div>
     </div>
   );
 };
@@ -456,14 +436,15 @@ const ChatCurrentPage: React.FC<RouteComponentProps & ChatCurrentPageProps> = ({
           </div>
         </>
       }
+      toolbar={
+        <WorkflowInfoToolbar
+          workflowName={chatData.workflowName}
+          interactionId={chatData.interactionId}
+        />
+      }
       contentPadding={false}
+      contentClassName="flex flex-col"
     >
-      {/* ── Workflow Info Panel ── */}
-      <WorkflowInfoPanel
-        workflowName={chatData.workflowName}
-        interactionId={chatData.interactionId}
-      />
-
       {/* ── Shared ChatPanel ── */}
       <ChatPanel
         messages={panelMessages}
