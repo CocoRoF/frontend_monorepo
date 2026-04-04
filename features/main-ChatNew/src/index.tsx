@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import type { RouteComponentProps, MainFeatureModule, WorkflowOption } from '@xgen/types';
-import { SearchInput, EmptyState, FilterTabs } from '@xgen/ui';
+import { SearchInput, EmptyState, FilterTabs, ContentArea } from '@xgen/ui';
 import { useTranslation } from '@xgen/i18n';
 import './locales';
 import { listWorkflowsDetail } from '@xgen/api-client';
@@ -346,12 +346,9 @@ const ChatNewPage: React.FC<RouteComponentProps & ChatNewPageProps> = ({
   // ─────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-[#f8f9fa]">
-      {/* ── Header ── */}
-      <header className="flex items-center justify-between px-6 py-4 bg-white border-b border-border shrink-0">
-        <div className="flex flex-col gap-0.5">
-          <h1 className="text-xl font-bold text-foreground m-0">{t('chatNew.title')}</h1>
-        </div>
+    <ContentArea
+      title={t('chatNew.title')}
+      headerActions={
         <button
           onClick={loadWorkflows}
           className={`inline-flex items-center justify-center w-9 h-9 border border-border rounded-lg bg-white text-muted-foreground cursor-pointer transition-all hover:border-primary hover:text-primary hover:bg-primary/5 disabled:opacity-60 disabled:cursor-not-allowed ${loading ? '[&_svg]:animate-spin' : ''}`}
@@ -360,12 +357,8 @@ const ChatNewPage: React.FC<RouteComponentProps & ChatNewPageProps> = ({
         >
           <RefreshIcon />
         </button>
-      </header>
-
-      {/* ── Scrollable Content ── */}
-      <div className="flex-1 overflow-y-auto min-h-0">
-        <div className="flex flex-col gap-5 p-6">
-        {/* Toolbar: Filter + Search */}
+      }
+      toolbar={
         <div className="flex items-center justify-between gap-4">
           <FilterTabs
             tabs={ownerTabs}
@@ -382,7 +375,8 @@ const ChatNewPage: React.FC<RouteComponentProps & ChatNewPageProps> = ({
             />
           </div>
         </div>
-
+      }
+    >
         {/* Error */}
         {error && (
           <div className="flex items-center justify-between gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
@@ -454,9 +448,7 @@ const ChatNewPage: React.FC<RouteComponentProps & ChatNewPageProps> = ({
             </section>
           </div>
         )}
-      </div>
-      </div>
-    </div>
+    </ContentArea>
   );
 };
 

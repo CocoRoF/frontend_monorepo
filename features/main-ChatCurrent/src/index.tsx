@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import type { RouteComponentProps, MainFeatureModule, ChatMessage, ChatMessageSender } from '@xgen/types';
-import { ChatPanel, ChatEmptyState, ChatBubbleIcon } from '@xgen/ui';
+import { ChatPanel, ChatEmptyState, ChatBubbleIcon, ContentArea } from '@xgen/ui';
 import type { ChatPanelMessage } from '@xgen/ui';
 import { useTranslation } from '@xgen/i18n';
 import './locales';
@@ -373,12 +373,10 @@ const ChatCurrentPage: React.FC<RouteComponentProps & ChatCurrentPageProps> = ({
 
   if (loading) {
     return (
-      <div className="flex flex-col h-screen bg-[#f8f9fa]">
-        <div className="flex-1 flex flex-col items-center justify-center gap-3 text-muted-foreground/60">
-          <div className="w-8 h-8 border-[3px] border-border border-t-primary rounded-full animate-spin" />
-          <p className="m-0 text-sm">{t('common.loading')}</p>
-        </div>
-      </div>
+      <ContentArea showHeader={false} contentPadding={false} contentClassName="flex flex-col items-center justify-center gap-3 text-muted-foreground/60">
+        <div className="w-8 h-8 border-[3px] border-border border-t-primary rounded-full animate-spin" />
+        <p className="m-0 text-sm">{t('common.loading')}</p>
+      </ContentArea>
     );
   }
 
@@ -386,20 +384,18 @@ const ChatCurrentPage: React.FC<RouteComponentProps & ChatCurrentPageProps> = ({
 
   if (error || !chatData) {
     return (
-      <div className="flex flex-col h-screen bg-[#f8f9fa]">
-        <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center px-8">
-          <div className="text-muted-foreground/30 [&_svg]:w-12 [&_svg]:h-12">
-            <ChatBubbleIcon />
-          </div>
-          <p className="m-0 text-base text-muted-foreground">{error || t('chat.error.noSession')}</p>
-          <button
-            className="px-6 py-2.5 text-sm font-medium text-white bg-primary border-none rounded-lg cursor-pointer transition-colors hover:bg-primary/90"
-            onClick={() => onNavigate?.('new-chat')}
-          >
-            {t('chat.startNewChat')}
-          </button>
+      <ContentArea showHeader={false} contentPadding={false} contentClassName="flex flex-col items-center justify-center gap-4 text-center px-8">
+        <div className="text-muted-foreground/30 [&_svg]:w-12 [&_svg]:h-12">
+          <ChatBubbleIcon />
         </div>
-      </div>
+        <p className="m-0 text-base text-muted-foreground">{error || t('chat.error.noSession')}</p>
+        <button
+          className="px-6 py-2.5 text-sm font-medium text-white bg-primary border-none rounded-lg cursor-pointer transition-colors hover:bg-primary/90"
+          onClick={() => onNavigate?.('new-chat')}
+        >
+          {t('chat.startNewChat')}
+        </button>
+      </ContentArea>
     );
   }
 
@@ -423,43 +419,45 @@ const ChatCurrentPage: React.FC<RouteComponentProps & ChatCurrentPageProps> = ({
   // ── Render: Main Chat Interface ───────────────────────────
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-[#f8f9fa]">
-      {/* ── Header ── */}
-      <header className="flex items-center justify-between px-6 py-4 bg-white border-b border-border shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-400 flex items-center justify-center shrink-0 text-white [&_svg]:w-5 [&_svg]:h-5">
-            <WorkflowIcon />
+    <ContentArea
+      headerContent={
+        <>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-400 flex items-center justify-center shrink-0 text-white [&_svg]:w-5 [&_svg]:h-5">
+              <WorkflowIcon />
+            </div>
+            <div className="flex flex-col">
+              <h1 className="text-sm font-bold text-foreground m-0 leading-tight">{chatData.workflowName}</h1>
+              <p className="text-xs text-muted-foreground/60 m-0">
+                {messages.filter((m) => m.sender !== 'system').length > 0
+                  ? `${messages.filter((m) => m.sender !== 'system').length} ${t('chat.interactionCount')}`
+                  : t('chat.newChat')
+                }
+              </p>
+            </div>
           </div>
-          <div className="flex flex-col">
-            <h1 className="text-lg font-bold text-foreground m-0 leading-tight">{chatData.workflowName}</h1>
-            <p className="text-xs text-muted-foreground/60 m-0">
-              {messages.filter((m) => m.sender !== 'system').length > 0
-                ? `${messages.filter((m) => m.sender !== 'system').length} ${t('chat.interactionCount')}`
-                : t('chat.newChat')
-              }
-            </p>
+          <div className="flex items-center gap-2">
+            <button
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-muted-foreground bg-white border border-border rounded-lg cursor-pointer transition-all hover:border-primary hover:text-primary hover:bg-primary/5 [&_svg]:w-4 [&_svg]:h-4"
+              onClick={handleNewChat}
+              title={t('chat.newChat')}
+            >
+              <NewChatIcon />
+              <span className="hidden sm:inline">{t('chat.newChat')}</span>
+            </button>
+            <button
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-muted-foreground bg-white border border-border rounded-lg cursor-pointer transition-all hover:border-primary hover:text-primary hover:bg-primary/5 [&_svg]:w-4 [&_svg]:h-4"
+              onClick={handleViewHistory}
+              title={t('chat.viewHistory')}
+            >
+              <HistoryIcon />
+              <span className="hidden sm:inline">{t('chat.viewHistory')}</span>
+            </button>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-muted-foreground bg-white border border-border rounded-lg cursor-pointer transition-all hover:border-primary hover:text-primary hover:bg-primary/5 [&_svg]:w-4 [&_svg]:h-4"
-            onClick={handleNewChat}
-            title={t('chat.newChat')}
-          >
-            <NewChatIcon />
-            <span className="hidden sm:inline">{t('chat.newChat')}</span>
-          </button>
-          <button
-            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-muted-foreground bg-white border border-border rounded-lg cursor-pointer transition-all hover:border-primary hover:text-primary hover:bg-primary/5 [&_svg]:w-4 [&_svg]:h-4"
-            onClick={handleViewHistory}
-            title={t('chat.viewHistory')}
-          >
-            <HistoryIcon />
-            <span className="hidden sm:inline">{t('chat.viewHistory')}</span>
-          </button>
-        </div>
-      </header>
-
+        </>
+      }
+      contentPadding={false}
+    >
       {/* ── Workflow Info Panel ── */}
       <WorkflowInfoPanel
         workflowName={chatData.workflowName}
@@ -486,7 +484,7 @@ const ChatCurrentPage: React.FC<RouteComponentProps & ChatCurrentPageProps> = ({
         retryLabel={t('chat.retry')}
         errorLabel={t('chat.sendError')}
       />
-    </div>
+    </ContentArea>
   );
 };
 

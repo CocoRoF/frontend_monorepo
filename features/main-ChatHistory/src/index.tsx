@@ -304,9 +304,7 @@ const ChatHistoryPage: React.FC<RouteComponentProps & ChatHistoryPageProps> = ({
           <RefreshIcon />
         </button>
       }
-    >
-      <div className="flex flex-col gap-6">
-        {/* Header: Filters & Search */}
+      toolbar={
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <FilterTabs
             tabs={filterTabs}
@@ -321,7 +319,8 @@ const ChatHistoryPage: React.FC<RouteComponentProps & ChatHistoryPageProps> = ({
             size="sm"
           />
         </div>
-
+      }
+    >
         {/* Error State */}
         {error && (
           <div className="flex items-center justify-between px-6 py-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 [&_span]:text-sm [&_button]:bg-transparent [&_button]:border-none [&_button]:text-red-500 [&_button]:text-sm [&_button]:font-medium [&_button]:cursor-pointer [&_button]:underline">
@@ -401,7 +400,6 @@ const ChatHistoryPage: React.FC<RouteComponentProps & ChatHistoryPageProps> = ({
             ))}
           </div>
         )}
-      </div>
     </ContentArea>
   );
 };

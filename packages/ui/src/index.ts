@@ -41,7 +41,7 @@ export type {
 
 // Layout Components
 export { ContentArea } from './layout/content-area';
-export type { ContentAreaProps, ContentAreaVariant } from './layout/content-area';
+export type { ContentAreaProps } from './layout/content-area';
 
 export { ResizablePanel } from './layout/resizable-panel';
 export type { ResizablePanelProps } from './layout/resizable-panel';
