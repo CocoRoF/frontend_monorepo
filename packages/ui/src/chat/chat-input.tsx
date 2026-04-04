@@ -101,7 +101,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 
   // ── Full variant ────────────────────────────────────────────
   return (
-    <div className="shrink-0 px-6 py-4 bg-white border-t border-border">
+    <div className="shrink-0 px-6 py-4 bg-white border-t border-[var(--color-line-50)]">
       {/* Pending attachments */}
       {attachments && attachments.length > 0 && (
         <div className="flex flex-wrap gap-1.5 pb-2">
@@ -128,7 +128,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
       {/* Input row */}
       <div
         className={cn(
-          'flex items-end gap-3 bg-muted/50 border border-border rounded-xl px-3 py-2 transition-colors focus-within:border-primary focus-within:bg-white',
+          'flex items-end gap-3 bg-muted/50 border border-[var(--color-line-50)] rounded-xl px-3 py-2 transition-colors focus-within:border-primary focus-within:bg-white',
           isExecuting && 'opacity-50',
         )}
       >

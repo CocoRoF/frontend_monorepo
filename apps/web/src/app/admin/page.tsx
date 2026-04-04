@@ -116,6 +116,7 @@ function AdminPageContent() {
         userName={user?.username}
         onLogout={() => logout()}
         onBackToChat={handleBackToChat}
+        onUserClick={() => router.push('/mypage')}
       />
 
       <main className={`${styles.content} ${!sidebarOpen ? styles.sidebarCollapsed : ''}`}>

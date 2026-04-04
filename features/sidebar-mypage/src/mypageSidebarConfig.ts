@@ -1,23 +1,24 @@
 // ─────────────────────────────────────────────────────────────
 // MypageSidebar Configuration
 // i18n key 기반 — 런타임에 t()로 변환
+// AdminSidebar와 동일한 구조
 // ─────────────────────────────────────────────────────────────
 
-export interface MypageSidebarItem {
+import type { SidebarSection } from '@xgen/types';
+
+export interface MypageSidebarSectionConfig {
   id: string;
   titleKey: string;
-  descriptionKey: string;
+  items: {
+    id: string;
+    titleKey: string;
+    descriptionKey?: string;
+  }[];
 }
 
-export interface MypageSidebarSection {
-  id: string;
-  titleKey: string;
-  items: MypageSidebarItem[];
-}
-
-export const mypageSidebarConfig: MypageSidebarSection[] = [
+export const mypageSidebarConfig: MypageSidebarSectionConfig[] = [
   {
-    id: 'profile',
+    id: 'mypage-profile',
     titleKey: 'mypage.sidebar.sections.profile',
     items: [
       {
@@ -33,7 +34,7 @@ export const mypageSidebarConfig: MypageSidebarSection[] = [
     ],
   },
   {
-    id: 'settings',
+    id: 'mypage-settings',
     titleKey: 'mypage.sidebar.sections.settings',
     items: [
       {
@@ -55,5 +56,14 @@ export const mypageSidebarConfig: MypageSidebarSection[] = [
   },
 ];
 
-// Section Icons (inline SVG)
-export const MYPAGE_SECTION_ICONS: Record<string, React.ReactNode> = {};
+export function toSidebarSections(configs: MypageSidebarSectionConfig[]): SidebarSection[] {
+  return configs.map((cfg) => ({
+    id: cfg.id,
+    titleKey: cfg.titleKey,
+    items: cfg.items.map((item) => ({
+      id: item.id,
+      titleKey: item.titleKey,
+      descriptionKey: item.descriptionKey,
+    })),
+  }));
+}

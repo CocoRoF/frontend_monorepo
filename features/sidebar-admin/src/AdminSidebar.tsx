@@ -227,7 +227,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       {/* Footer */}
       <SidebarFooter>
         <SidebarDivider />
-        <div className={`flex items-center gap-2 w-full ${!isOpen ? 'justify-center' : ''}`}>
+        <div className={`flex flex-col w-full ${!isOpen ? 'items-center' : ''}`}>
           {userName && (
             <SidebarUserProfile
               name={userName}
@@ -237,7 +237,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             />
           )}
           {isOpen && (
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2 px-[26px] pb-3">
               {onBackToChat && (
                 <SidebarFooterButton
                   onClick={onBackToChat}

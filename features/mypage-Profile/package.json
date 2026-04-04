@@ -1,17 +1,16 @@
 {
-  "name": "@xgen/sidebar-mypage",
+  "name": "@xgen/mypage-Profile",
   "version": "0.1.0",
   "private": true,
   "main": "./src/index.tsx",
   "types": "./src/index.tsx",
   "dependencies": {
+    "@xgen/api-client": "workspace:*",
+    "@xgen/auth-provider": "workspace:*",
     "@xgen/i18n": "workspace:*",
+    "@xgen/sidebar-mypage": "workspace:*",
     "@xgen/types": "workspace:*",
     "@xgen/ui": "workspace:*",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
-  },
-  "devDependencies": {
-    "@types/react": "^19"
+    "react": "^19.1.0"
   }
 }

@@ -132,6 +132,7 @@ function MainPageContent() {
         onToggle={handleSidebarToggle}
         onLogout={() => logout()}
         onAdminClick={user?.is_admin ? () => router.push('/admin') : undefined}
+        onUserClick={() => router.push('/mypage')}
         labelOverrides={SIDEBAR_LABEL_OVERRIDES}
       />
 

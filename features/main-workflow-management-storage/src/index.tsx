@@ -54,7 +54,7 @@ function formatDate(dateString: string): string {
 
 export interface WorkflowStorageProps extends WorkflowTabPluginProps {}
 
-export const WorkflowStorage: React.FC<WorkflowStorageProps> = ({ onNavigate }) => {
+export const WorkflowStorage: React.FC<WorkflowStorageProps> = ({ onNavigate, onSubToolbarChange }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { user, isInitialized } = useAuth();
@@ -327,9 +327,9 @@ export const WorkflowStorage: React.FC<WorkflowStorageProps> = ({ onNavigate }) 
     t,
   ]);
 
-  return (
-    <div className="flex flex-col h-full gap-6">
-      {/* Header */}
+  // Push subToolbar content to orchestrator
+  useEffect(() => {
+    onSubToolbarChange?.(
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-4">
           <FilterTabs
@@ -374,7 +374,16 @@ export const WorkflowStorage: React.FC<WorkflowStorageProps> = ({ onNavigate }) 
           </Button>
         </div>
       </div>
+    );
+  }, [onSubToolbarChange, statusFilter, ownerFilter, isMultiSelectMode, selectedIds, loading, handleToggleMultiSelect, handleBulkDelete, fetchWorkflows, t]);
 
+  // Cleanup subToolbar on unmount
+  useEffect(() => {
+    return () => { onSubToolbarChange?.(null); };
+  }, [onSubToolbarChange]);
+
+  return (
+    <div className="flex flex-col flex-1 min-h-0 p-6">
       {/* Content */}
       <div className="flex-1 min-h-0 overflow-y-auto">
         {!isInitialized ? (

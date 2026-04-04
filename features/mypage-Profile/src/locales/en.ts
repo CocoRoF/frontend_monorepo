@@ -1,0 +1,108 @@
+import type { TranslationData } from '@xgen/i18n';
+
+export const en: TranslationData = {
+  mypage: {
+    sidebar: {
+      welcome: 'Welcome',
+      goToMain: 'Back to Main',
+      sections: {
+        profile: 'My Page',
+        settings: 'Settings',
+      },
+      profile: 'Profile',
+      profileDesc: 'View my profile information',
+      profileEdit: 'Edit Profile',
+      profileEditDesc: 'Edit my profile and change password',
+      settings: 'Preferences',
+      settingsDesc: 'Configure user preferences',
+      security: 'Security',
+      securityDesc: 'Password and security settings',
+      notifications: 'Notifications',
+      notificationsDesc: 'Manage notification settings',
+    },
+    profile: {
+      title: 'Profile',
+      description: 'View my profile information',
+      loading: 'Loading user information...',
+      loadError: 'Failed to load user information',
+      user: 'User',
+      userType: {
+        superuser: 'Super Admin',
+        admin: 'Admin',
+        manager: 'Manager',
+        user: 'User',
+      },
+      status: {
+        active: 'Active',
+        inactive: 'Inactive',
+      },
+      fields: {
+        username: 'Username',
+        email: 'Email',
+        group: 'Group',
+        adminPermission: 'Admin Permission',
+        joinDate: 'Join Date',
+        lastLogin: 'Last Login',
+        noRecord: 'No record',
+      },
+      permission: {
+        yes: 'Yes',
+        no: 'No',
+      },
+      accessPermission: {
+        title: 'Access Permissions',
+        userSection: 'User Sections',
+        adminSection: 'Admin Sections',
+      },
+    },
+    profileEdit: {
+      title: 'Edit Profile',
+      description: 'Edit my profile information',
+      sectionTitle: 'Edit Profile',
+      fields: {
+        username: 'Username',
+        usernameHelper: 'Username cannot be changed',
+        email: 'Email',
+        emailHelper: 'Email cannot be changed',
+        fullName: 'Full Name',
+        fullNamePlaceholder: 'Enter your name',
+      },
+      buttons: {
+        save: 'Save Profile',
+        saving: 'Saving...',
+      },
+      password: {
+        sectionTitle: 'Change Password',
+        current: 'Current Password',
+        currentPlaceholder: 'Enter current password',
+        new: 'New Password',
+        newPlaceholder: 'Enter new password',
+        confirm: 'Confirm New Password',
+        confirmPlaceholder: 'Re-enter new password',
+        changeButton: 'Change Password',
+        changing: 'Changing...',
+        match: 'Passwords match',
+        mismatch: 'Passwords do not match',
+      },
+      validation: {
+        minLength: 'At least 8 characters',
+        combination: 'At least 2 of: uppercase, lowercase, number, special character',
+      },
+      toast: {
+        nameRequired: 'Please enter your name',
+        profileSuccess: 'Profile updated successfully',
+        profileError: 'Failed to update profile',
+        currentPasswordRequired: 'Please enter current password',
+        newPasswordRequired: 'Please enter new password',
+        passwordCondition: 'Please meet password requirements',
+        passwordMismatch: 'New passwords do not match',
+        passwordSuccess: 'Password changed successfully',
+        passwordError: 'Failed to change password',
+      },
+    },
+    placeholder: {
+      title: 'Coming Soon',
+      description: 'This feature is under development.',
+    },
+  },
+};
