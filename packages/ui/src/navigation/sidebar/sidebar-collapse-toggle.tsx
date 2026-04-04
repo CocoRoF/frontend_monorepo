@@ -30,7 +30,7 @@ export const SidebarCollapseToggle: React.FC<SidebarCollapseToggleProps> = ({
       className={cn(
         'absolute top-1/2 right-0 translate-x-1/2 -translate-y-1/2',
         'w-[30px] h-[30px] rounded-full',
-        'bg-white border-none shadow-[var(--shadow-input-20,0_1px_3px_rgba(0,0,0,.1))]',
+        'bg-white border border-gray-300 shadow-sm',
         'cursor-pointer z-[101] flex items-center justify-center p-0',
         'hover:bg-[var(--color-bg-50)]',
         className,

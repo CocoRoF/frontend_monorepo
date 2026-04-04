@@ -24,6 +24,8 @@ export interface MainSidebarProps {
   onLogout: () => void;
   /** Admin page click handler (shows admin button when passed) */
   onAdminClick?: () => void;
+  /** User profile click handler (mypage navigation) */
+  onUserClick?: () => void;
   /** 섹션/아이템 타이틀 오버라이드 (앱 레벨 커스텀) */
   labelOverrides?: SidebarLabelOverrides;
 }
@@ -38,6 +40,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({
   onToggle,
   onLogout,
   onAdminClick,
+  onUserClick,
   labelOverrides,
 }) => {
   const config = useMainSidebarConfig({
@@ -50,6 +53,7 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({
     onToggle,
     onLogout,
     onAdminClick,
+    onUserClick,
     labelOverrides,
   });
 

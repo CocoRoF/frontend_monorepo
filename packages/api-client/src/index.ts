@@ -125,6 +125,17 @@ export type {
   JwtPayload,
 } from './auth';
 
+// User Profile API exports (mypage)
+export {
+  fetchUserProfile,
+  updateUserProfile,
+  updateUserPassword,
+} from './user-profile';
+export type {
+  UserProfileDetail,
+  UpdateUserProfileData,
+} from './user-profile';
+
 // Workflow API exports
 export {
   saveWorkflow,

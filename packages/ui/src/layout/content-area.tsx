@@ -29,6 +29,8 @@ export interface ContentAreaProps {
   showHeader?: boolean;
   /** 헤더 아래 고정 툴바 영역 (FilterTabs, SearchInput 등) */
   toolbar?: React.ReactNode;
+  /** 툴바 아래 추가 고정 서브 툴바 영역 (optional, 2차 필터/검색 등) */
+  subToolbar?: React.ReactNode;
   /** 메인 스크롤 영역 콘텐츠 */
   children: React.ReactNode;
   /** 하단 고정 영역 */
@@ -48,6 +50,7 @@ export const ContentArea: React.FC<ContentAreaProps> = ({
   headerContent,
   showHeader = true,
   toolbar,
+  subToolbar,
   children,
   footer,
   contentPadding = true,
@@ -83,6 +86,13 @@ export const ContentArea: React.FC<ContentAreaProps> = ({
       {toolbar && (
         <div className="px-6 py-3 bg-white border-b border-[var(--color-line-50)] shrink-0">
           {toolbar}
+        </div>
+      )}
+
+      {/* ── SubToolbar: 추가 고정 영역 (2차 필터/검색) ── */}
+      {subToolbar && (
+        <div className="px-6 py-3 bg-white border-b border-[var(--color-line-50)] shrink-0">
+          {subToolbar}
         </div>
       )}
 

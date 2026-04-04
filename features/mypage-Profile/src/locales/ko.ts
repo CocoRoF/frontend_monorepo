@@ -1,0 +1,108 @@
+import type { TranslationData } from '@xgen/i18n';
+
+export const ko: TranslationData = {
+  mypage: {
+    sidebar: {
+      welcome: '환영합니다',
+      goToMain: '메인으로 돌아가기',
+      sections: {
+        profile: '마이페이지',
+        settings: '설정',
+      },
+      profile: '프로필',
+      profileDesc: '내 프로필 정보를 확인합니다',
+      profileEdit: '프로필 수정',
+      profileEditDesc: '프로필 수정 및 비밀번호 변경',
+      settings: '환경설정',
+      settingsDesc: '사용자 환경설정을 구성합니다',
+      security: '보안',
+      securityDesc: '비밀번호 및 보안 설정',
+      notifications: '알림',
+      notificationsDesc: '알림 설정을 관리합니다',
+    },
+    profile: {
+      title: '프로필',
+      description: '내 프로필 정보를 확인합니다',
+      loading: '사용자 정보를 불러오는 중...',
+      loadError: '사용자 정보를 불러오는데 실패했습니다',
+      user: '사용자',
+      userType: {
+        superuser: '슈퍼 관리자',
+        admin: '관리자',
+        manager: '매니저',
+        user: '일반 사용자',
+      },
+      status: {
+        active: '활성',
+        inactive: '비활성',
+      },
+      fields: {
+        username: '사용자명',
+        email: '이메일',
+        group: '그룹',
+        adminPermission: '관리자 권한',
+        joinDate: '가입일',
+        lastLogin: '최근 로그인',
+        noRecord: '기록 없음',
+      },
+      permission: {
+        yes: '있음',
+        no: '없음',
+      },
+      accessPermission: {
+        title: '접근 권한',
+        userSection: '사용자 섹션',
+        adminSection: '관리자 섹션',
+      },
+    },
+    profileEdit: {
+      title: '프로필 수정',
+      description: '내 프로필 정보를 수정합니다',
+      sectionTitle: '프로필 수정',
+      fields: {
+        username: '사용자명',
+        usernameHelper: '사용자명은 변경할 수 없습니다',
+        email: '이메일',
+        emailHelper: '이메일은 변경할 수 없습니다',
+        fullName: '이름',
+        fullNamePlaceholder: '이름을 입력하세요',
+      },
+      buttons: {
+        save: '프로필 저장',
+        saving: '저장 중...',
+      },
+      password: {
+        sectionTitle: '비밀번호 변경',
+        current: '현재 비밀번호',
+        currentPlaceholder: '현재 비밀번호를 입력하세요',
+        new: '새 비밀번호',
+        newPlaceholder: '새 비밀번호를 입력하세요',
+        confirm: '새 비밀번호 확인',
+        confirmPlaceholder: '새 비밀번호를 다시 입력하세요',
+        changeButton: '비밀번호 변경',
+        changing: '변경 중...',
+        match: '비밀번호가 일치합니다',
+        mismatch: '비밀번호가 일치하지 않습니다',
+      },
+      validation: {
+        minLength: '최소 8자 이상',
+        combination: '대문자, 소문자, 숫자, 특수문자 중 2가지 이상 조합',
+      },
+      toast: {
+        nameRequired: '이름을 입력해주세요',
+        profileSuccess: '프로필이 성공적으로 업데이트되었습니다',
+        profileError: '프로필 업데이트에 실패했습니다',
+        currentPasswordRequired: '현재 비밀번호를 입력해주세요',
+        newPasswordRequired: '새 비밀번호를 입력해주세요',
+        passwordCondition: '비밀번호 조건을 충족해주세요',
+        passwordMismatch: '새 비밀번호가 일치하지 않습니다',
+        passwordSuccess: '비밀번호가 성공적으로 변경되었습니다',
+        passwordError: '비밀번호 변경에 실패했습니다',
+      },
+    },
+    placeholder: {
+      title: '준비 중',
+      description: '이 기능은 개발 중입니다.',
+    },
+  },
+};

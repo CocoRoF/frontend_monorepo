@@ -233,6 +233,9 @@ importers:
       '@xgen/main-workflow-management-tester':
         specifier: workspace:*
         version: link:../../features/main-workflow-management-tester
+      '@xgen/mypage-Profile':
+        specifier: workspace:*
+        version: link:../../features/mypage-Profile
       '@xgen/sidebar-admin':
         specifier: workspace:*
         version: link:../../features/sidebar-admin
@@ -1997,6 +2000,30 @@ importers:
         specifier: ^5
         version: 5.9.3
 
+  features/mypage-Profile:
+    dependencies:
+      '@xgen/api-client':
+        specifier: workspace:*
+        version: link:../../packages/api-client
+      '@xgen/auth-provider':
+        specifier: workspace:*
+        version: link:../../packages/auth-provider
+      '@xgen/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@xgen/sidebar-mypage':
+        specifier: workspace:*
+        version: link:../sidebar-mypage
+      '@xgen/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@xgen/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      react:
+        specifier: ^19.1.0
+        version: 19.2.4
+
   features/root-Landing:
     dependencies:
       '@xgen/types':
@@ -2157,12 +2184,16 @@ importers:
       '@xgen/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      framer-motion:
-        specifier: ^12.12.1
-        version: 12.38.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       react:
-        specifier: ^19.1.0
+        specifier: ^19.0.0
         version: 19.2.4
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
+    devDependencies:
+      '@types/react':
+        specifier: ^19
+        version: 19.2.14
 
   features/sidebar-support:
     dependencies:
