@@ -175,13 +175,11 @@ export async function initializeFeatures(): Promise<void> {
   const featureModules = await Promise.all([
     // Chat Section
     import('@xgen/feature-main-Dashboard'),
-    import('@xgen/feature-main-ChatIntro'),
     import('@xgen/feature-main-ChatHistory'),
     import('@xgen/main-chat-new'),
     import('@xgen/main-chat-current'),
 
     // Workflow Section
-    import('@xgen/main-workflow-intro'),
     import('@xgen/main-canvas-intro'),
     import('@xgen/main-workflow-management-orchestrator'),
     import('@xgen/main-tool-storage'),
