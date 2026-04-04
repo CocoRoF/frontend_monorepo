@@ -197,9 +197,21 @@ importers:
       '@xgen/main-chat-new':
         specifier: workspace:*
         version: link:../../features/main-ChatNew
-      '@xgen/main-documents':
+      '@xgen/main-document-management-collection':
         specifier: workspace:*
-        version: link:../../features/main-Documents
+        version: link:../../features/main-document-management-collection
+      '@xgen/main-document-management-database':
+        specifier: workspace:*
+        version: link:../../features/main-document-management-database
+      '@xgen/main-document-management-orchestrator':
+        specifier: workspace:*
+        version: link:../../features/main-document-management-orchestrator
+      '@xgen/main-document-management-repository':
+        specifier: workspace:*
+        version: link:../../features/main-document-management-repository
+      '@xgen/main-document-management-storage':
+        specifier: workspace:*
+        version: link:../../features/main-document-management-storage
       '@xgen/main-prompt-storage':
         specifier: workspace:*
         version: link:../../features/main-PromptStorage
@@ -1566,31 +1578,6 @@ importers:
         specifier: ^19.0.0
         version: 19.2.4
 
-  features/main-Documents:
-    dependencies:
-      '@xgen/api-client':
-        specifier: workspace:*
-        version: link:../../packages/api-client
-      '@xgen/i18n':
-        specifier: workspace:*
-        version: link:../../packages/i18n
-      '@xgen/types':
-        specifier: workspace:*
-        version: link:../../packages/types
-      '@xgen/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
-      react:
-        specifier: ^18.0.0
-        version: 18.3.1
-    devDependencies:
-      '@types/react':
-        specifier: ^18.0.0
-        version: 18.3.28
-      typescript:
-        specifier: ^5.0.0
-        version: 5.9.3
-
   features/main-FAQ:
     dependencies:
       '@xgen/i18n':
@@ -1683,6 +1670,155 @@ importers:
         version: 18.3.28
       typescript:
         specifier: ^5.0.0
+        version: 5.9.3
+
+  features/main-document-management-collection:
+    dependencies:
+      '@xgen/api-client':
+        specifier: workspace:*
+        version: link:../../packages/api-client
+      '@xgen/auth-provider':
+        specifier: workspace:*
+        version: link:../../packages/auth-provider
+      '@xgen/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@xgen/icons':
+        specifier: workspace:*
+        version: link:../../packages/icons
+      '@xgen/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@xgen/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
+    devDependencies:
+      '@types/react':
+        specifier: ^19
+        version: 19.2.14
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
+  features/main-document-management-database:
+    dependencies:
+      '@xgen/api-client':
+        specifier: workspace:*
+        version: link:../../packages/api-client
+      '@xgen/auth-provider':
+        specifier: workspace:*
+        version: link:../../packages/auth-provider
+      '@xgen/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@xgen/icons':
+        specifier: workspace:*
+        version: link:../../packages/icons
+      '@xgen/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@xgen/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
+    devDependencies:
+      '@types/react':
+        specifier: ^19
+        version: 19.2.14
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
+  features/main-document-management-orchestrator:
+    dependencies:
+      '@xgen/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@xgen/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@xgen/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      next:
+        specifier: ^15.1.0
+        version: 15.1.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(sass@1.98.0)
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
+    devDependencies:
+      '@types/react':
+        specifier: ^19
+        version: 19.2.14
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
+  features/main-document-management-repository:
+    dependencies:
+      '@xgen/api-client':
+        specifier: workspace:*
+        version: link:../../packages/api-client
+      '@xgen/auth-provider':
+        specifier: workspace:*
+        version: link:../../packages/auth-provider
+      '@xgen/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@xgen/icons':
+        specifier: workspace:*
+        version: link:../../packages/icons
+      '@xgen/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@xgen/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
+    devDependencies:
+      '@types/react':
+        specifier: ^19
+        version: 19.2.14
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
+  features/main-document-management-storage:
+    dependencies:
+      '@xgen/api-client':
+        specifier: workspace:*
+        version: link:../../packages/api-client
+      '@xgen/auth-provider':
+        specifier: workspace:*
+        version: link:../../packages/auth-provider
+      '@xgen/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@xgen/icons':
+        specifier: workspace:*
+        version: link:../../packages/icons
+      '@xgen/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@xgen/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
+    devDependencies:
+      '@types/react':
+        specifier: ^19
+        version: 19.2.14
+      typescript:
+        specifier: ^5
         version: 5.9.3
 
   features/main-workflow-management-orchestrator:
