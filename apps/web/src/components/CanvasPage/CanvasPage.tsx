@@ -952,6 +952,7 @@ const CanvasPage: React.FC<CanvasPageProps> = ({ onNavigate, sidebarCollapsed })
                     position,
                     isExpanded: true,
                 } as any);
+                setDirectPanel(null);
             }
         } catch (error) {
             toast.error(t('canvas.toast.dropNodeFailed'));
@@ -1169,6 +1170,7 @@ const CanvasPage: React.FC<CanvasPageProps> = ({ onNavigate, sidebarCollapsed })
                     <SideMenu
                         menuRef={menuRef}
                         initialView={directPanel}
+                        onClose={() => setDirectPanel(null)}
                         AddNodePanel={AddNodePanelWrapped}
                         TemplatePanel={TemplatePanelWrapped}
                         WorkflowPanel={WorkflowPanelWrapped}

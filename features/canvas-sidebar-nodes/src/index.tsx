@@ -35,6 +35,7 @@ export interface AddNodePanelProps {
 // ── Component ──────────────────────────────────────────────────
 
 const AddNodePanel: React.FC<AddNodePanelProps> = ({
+    onBack,
     nodeSpecs = [],
     nodesLoading = false,
     nodesError = null,
@@ -88,6 +89,11 @@ const AddNodePanel: React.FC<AddNodePanelProps> = ({
                             {t('canvas.addNodePanel.subtitle', 'Drag or double-click to add')}
                         </p>
                     </div>
+                    {onBack && (
+                        <div className={styles.headerActions}>
+                            <button onClick={onBack} className={styles.closeButton} title={t('common.close', 'Close')} type="button">✕</button>
+                        </div>
+                    )}
                 </div>
                 <div className={styles.loadingContainer}>
                     {t('canvas.addNodePanel.loading', 'Loading nodes...')}
@@ -106,6 +112,11 @@ const AddNodePanel: React.FC<AddNodePanelProps> = ({
                             {t('canvas.addNodePanel.subtitle', 'Drag or double-click to add')}
                         </p>
                     </div>
+                    {onBack && (
+                        <div className={styles.headerActions}>
+                            <button onClick={onBack} className={styles.closeButton} title={t('common.close', 'Close')} type="button">✕</button>
+                        </div>
+                    )}
                 </div>
                 <div className={styles.errorContainer}>Error: {nodesError}</div>
             </div>
@@ -121,17 +132,29 @@ const AddNodePanel: React.FC<AddNodePanelProps> = ({
                         {t('canvas.addNodePanel.subtitle', 'Drag or double-click to add')}
                     </p>
                 </div>
-                {onRefreshNodes && (
-                    <button
-                        onClick={onRefreshNodes}
-                        className={`${styles.refreshButton} ${nodesLoading ? styles.loading : ''}`}
-                        disabled={nodesLoading}
-                        title={t('canvas.addNodePanel.refreshTooltip', 'Refresh node list')}
-                        type="button"
-                    >
-                        ↻
-                    </button>
-                )}
+                <div className={styles.headerActions}>
+                    {onRefreshNodes && (
+                        <button
+                            onClick={onRefreshNodes}
+                            className={`${styles.refreshButton} ${nodesLoading ? styles.loading : ''}`}
+                            disabled={nodesLoading}
+                            title={t('canvas.addNodePanel.refreshTooltip', 'Refresh node list')}
+                            type="button"
+                        >
+                            ↻
+                        </button>
+                    )}
+                    {onBack && (
+                        <button
+                            onClick={onBack}
+                            className={styles.closeButton}
+                            title={t('common.close', 'Close')}
+                            type="button"
+                        >
+                            ✕
+                        </button>
+                    )}
+                </div>
             </div>
 
             <div className={styles.addNodeBody}>
