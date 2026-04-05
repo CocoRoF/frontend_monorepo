@@ -41,7 +41,6 @@ class FeatureRegistry {
     'chat',
     'workflow',
     'knowledge',
-    'support',
     'settings',
   ];
 
@@ -189,9 +188,7 @@ export async function initializeFeatures(): Promise<void> {
     // Knowledge Section
     import('@xgen/main-document-management-orchestrator'),
 
-    // Support Section
-    import('@xgen/main-ServiceRequest'),
-    import('@xgen/main-FAQ'),
+
   ]);
 
   // Register all features

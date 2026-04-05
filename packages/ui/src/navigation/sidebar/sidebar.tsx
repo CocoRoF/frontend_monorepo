@@ -8,7 +8,7 @@ import { SidebarCollapseToggle } from './sidebar-collapse-toggle';
 import { SidebarHeader, SidebarHeaderTop, SidebarLogoButton, SidebarModeLabel } from './sidebar-header';
 import { SidebarContent } from './sidebar-content';
 import { SidebarSectionList, SidebarSectionToggle, SidebarSectionNav, SidebarNavItem } from './sidebar-section-primitives';
-import { SidebarFooter, SidebarDivider, SidebarUserProfile, SidebarFooterButton, SidebarSupportSection } from './sidebar-footer';
+import { SidebarFooter, SidebarDivider, SidebarUserProfile, SidebarFooterButton } from './sidebar-footer';
 import { SidebarPopover, type PopoverItem } from './sidebar-popover';
 import { cn } from '../../lib/utils';
 
@@ -86,27 +86,24 @@ export interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ config }) => {
   const { t } = useTranslation();
   const {
-    logo, header, sections, support, user, onLogout, onUserClick, onNavigate, onLogoClick,
+    logo, header, sections, user, onLogout, onUserClick, onNavigate, onLogoClick,
     collapsed = false, onToggle, activeItemId = '', variant = 'main', className,
   } = config;
 
   const isOpen = !collapsed;
 
   const [expandedSection, setExpandedSection] = useState<SidebarSectionId | null>(null);
-  const [supportExpanded, setSupportExpanded] = useState(false);
-  const [openPopover, setOpenPopover] = useState<SidebarSectionId | 'support' | null>(null);
+  const [openPopover, setOpenPopover] = useState<SidebarSectionId | null>(null);
   const [popoverAnchor, setPopoverAnchor] = useState<DOMRect | null>(null);
 
   useEffect(() => {
     if (collapsed) {
       setExpandedSection(null);
-      setSupportExpanded(false);
       return;
     }
     const activeSection = sections.find((s) => s.items.some((item) => item.id === activeItemId));
     if (activeSection) setExpandedSection(activeSection.id);
-    if (support?.items.some((item) => item.id === activeItemId)) setSupportExpanded(true);
-  }, [activeItemId, sections, support, collapsed]);
+  }, [activeItemId, sections, collapsed]);
 
   const toggleSection = useCallback((sectionId: SidebarSectionId) => {
     setExpandedSection((prev) => (prev === sectionId ? null : sectionId));
@@ -117,19 +114,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ config }) => {
     setOpenPopover(sectionId);
   }, []);
 
-  const handleSupportClickWhenCollapsed = useCallback((e: React.MouseEvent) => {
-    setPopoverAnchor((e.currentTarget as HTMLElement).getBoundingClientRect());
-    setOpenPopover('support');
-  }, []);
-
   const popoverItems = useMemo((): PopoverItem[] => {
-    if (openPopover === 'support' && support) {
-      return support.items.map((item) => ({ id: item.id, title: t(item.titleKey), href: item.href }));
-    }
     const section = sections.find((s) => s.id === openPopover);
     if (!section) return [];
     return section.items.map((item) => ({ id: item.id, title: t(item.titleKey), href: item.href }));
-  }, [openPopover, sections, support, t]);
+  }, [openPopover, sections, t]);
 
   const handlePopoverItemClick = useCallback((id: string, href?: string) => { onNavigate(id, href); }, [onNavigate]);
 
@@ -141,7 +130,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ config }) => {
     }
   }, [onLogoClick, onNavigate, sections]);
 
-  const isSupportActive = support?.items.some((item) => item.id === activeItemId) || false;
 
   return (
     <SidebarLayout
@@ -224,50 +212,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ config }) => {
       </SidebarContent>
 
       <SidebarFooter>
-        {support && (
-          <>
-            {!collapsed ? (
-              <SidebarSupportSection
-                label={t(support.titleKey)}
-                isExpanded={supportExpanded}
-                isActive={isSupportActive}
-                isSidebarClosed={collapsed}
-                onToggle={() => setSupportExpanded((prev) => !prev)}
-              >
-                {support.items.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className="w-full flex items-center px-4 py-[10px] text-[var(--color-gray-800)] bg-transparent border-none text-left cursor-pointer text-[var(--subtitle1-font-size,14px)] leading-[var(--subtitle1-line-height,20px)] hover:bg-[var(--color-bg-50)]"
-                    onClick={() => onNavigate(item.id, item.href)}
-                  >
-                    <span className="font-normal overflow-hidden text-ellipsis whitespace-nowrap">{t(item.titleKey)}</span>
-                  </button>
-                ))}
-              </SidebarSupportSection>
-            ) : (
-              <button
-                type="button"
-                onClick={handleSupportClickWhenCollapsed}
-                className={cn(
-                  'flex items-center justify-center p-[18px]',
-                  'bg-transparent border-none cursor-pointer w-full',
-                  'text-[var(--color-gray-800)]',
-                  (isSupportActive || openPopover === 'support') && 'bg-[var(--color-primary-w-50)]',
-                )}
-                data-sidebar-trigger
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                  <line x1="12" y1="17" x2="12.01" y2="17" />
-                </svg>
-              </button>
-            )}
-            <SidebarDivider />
-          </>
-        )}
-
+        <SidebarDivider />
         {user && (
           <div className={cn('flex flex-col w-full', collapsed && 'items-center')}>
             <SidebarUserProfile name={user.name} isSidebarClosed={collapsed} onClick={onUserClick} title={user.name} />
