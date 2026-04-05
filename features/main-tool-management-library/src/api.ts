@@ -124,3 +124,42 @@ export async function rateStoreTool(
   const response = await api.post(`/api/tools/store/rating/${encodeURIComponent(storeToolId)}?${params}`);
   return response.data;
 }
+
+// ─────────────────────────────────────────────────────────────
+// Upload Tool to Store
+// ─────────────────────────────────────────────────────────────
+
+export interface UploadToStoreData {
+  function_upload_id: string;
+  description: string;
+  tags: string[];
+  metadata: Record<string, unknown>;
+}
+
+export async function uploadToolToStore(toolId: number, data: UploadToStoreData): Promise<unknown> {
+  const api = createApiClient();
+  const response = await api.post(`/api/tools/store/upload`, { ...data, function_upload_id: toolId.toString() });
+  return response.data;
+}
+
+// ─────────────────────────────────────────────────────────────
+// List User's Storage Tools (for upload selector)
+// ─────────────────────────────────────────────────────────────
+
+export interface MyStorageTool {
+  id: number;
+  functionId: string;
+  functionName: string;
+  description: string;
+}
+
+export async function listMyStorageTools(): Promise<MyStorageTool[]> {
+  const api = createApiClient();
+  const response = await api.get<{ tools: Array<{ id: number; function_id: string; function_name: string; description: string }> }>('/api/tools/storage/list');
+  return (response.data.tools || []).map((t) => ({
+    id: t.id,
+    functionId: t.function_id,
+    functionName: t.function_name,
+    description: t.description,
+  }));
+}

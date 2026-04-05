@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import type { AdminFeatureModule, RouteComponentProps } from '@xgen/types';
-import { ContentArea, Button } from '@xgen/ui';
+import { ContentArea, DataTable, Button, SearchInput } from '@xgen/ui';
+import type { DataTableColumn } from '@xgen/ui';
 import { useTranslation } from '@xgen/i18n';
 import { getBackendLogs } from '@xgen/api-client';
 import { FiRefreshCw, FiChevronLeft, FiChevronRight } from '@xgen/icons';
@@ -90,147 +91,142 @@ const AdminBackendLogsPage: React.FC<RouteComponentProps> = () => {
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
+  /* ── Filter button ── */
+  const FilterBtn: React.FC<{ active: boolean; onClick: () => void; children: React.ReactNode }> = ({ active, onClick, children }) => (
+    <button
+      onClick={onClick}
+      className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+        active
+          ? 'bg-primary text-primary-foreground border-primary'
+          : 'bg-card text-muted-foreground border-border hover:border-primary/50'
+      }`}
+    >
+      {children}
+    </button>
+  );
+
+  /* ── DataTable columns ── */
+  const columns: DataTableColumn<BackendLog>[] = useMemo(() => [
+    {
+      id: 'log_level',
+      header: t('admin.pages.backendLogs.level', 'Level'),
+      field: 'log_level',
+      sortable: true,
+      sortFn: (a, b) => {
+        const diff = (LOG_LEVEL_PRIORITY[a.log_level] ?? 9) - (LOG_LEVEL_PRIORITY[b.log_level] ?? 9);
+        return diff;
+      },
+      cell: (row) => (
+        <span className={`text-xs px-2 py-0.5 rounded-full ${LOG_LEVEL_COLORS[row.log_level] ?? LOG_LEVEL_COLORS.debug}`}>
+          {row.log_level}
+        </span>
+      ),
+    },
+    {
+      id: 'message',
+      header: t('admin.pages.backendLogs.message', 'Message'),
+      cell: (row) => <span className="text-foreground max-w-md truncate block">{row.message}</span>,
+    },
+    {
+      id: 'function_name',
+      header: t('admin.pages.backendLogs.function', 'Function'),
+      cell: (row) => (
+        <span className="font-mono text-xs text-muted-foreground truncate max-w-36 block">
+          {row.function_name ?? '-'}
+        </span>
+      ),
+    },
+    {
+      id: 'api_endpoint',
+      header: t('admin.pages.backendLogs.endpoint', 'Endpoint'),
+      cell: (row) => (
+        <span className="font-mono text-xs text-muted-foreground truncate max-w-40 block">
+          {row.api_endpoint ?? '-'}
+        </span>
+      ),
+    },
+    {
+      id: 'created_at',
+      header: t('admin.pages.backendLogs.time', 'Time'),
+      field: 'created_at',
+      sortable: true,
+      cell: (row) => (
+        <span className="text-xs text-muted-foreground whitespace-nowrap">
+          {new Date(row.created_at).toLocaleString()}
+        </span>
+      ),
+    },
+  ], [t]);
+
   return (
     <ContentArea
       title={t('admin.pages.backendLogs.title', 'Backend Logs')}
       description={t('admin.pages.backendLogs.description', 'View and filter backend application logs')}
       headerActions={
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={fetchLogs}
-          disabled={loading}
-          leftIcon={<FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />}
-        >
-          {t('common.refresh', 'Refresh')}
+        <Button variant="outline" size="sm" onClick={fetchLogs} disabled={loading}>
+          <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
         </Button>
       }
-    >
-      {/* Filters */}
+      toolbar={
         <div className="flex items-center gap-3 flex-wrap">
-          <input
-            type="text"
+          <SearchInput
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={setSearch}
             placeholder={t('admin.pages.backendLogs.searchPlaceholder', 'Search logs...')}
-            className="px-3 py-1.5 text-sm border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 w-72"
+            className="w-72"
           />
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setLevelFilter('all')}
-              className={`px-2.5 py-1 text-xs rounded-md border transition-colors ${
-                levelFilter === 'all' ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:bg-muted'
-              }`}
-            >
-              All
-            </button>
+          <div className="flex gap-1.5">
+            <FilterBtn active={levelFilter === 'all'} onClick={() => setLevelFilter('all')}>
+              {t('common.all', 'All')}
+            </FilterBtn>
             {ALL_LEVELS.map((level) => (
-              <button
-                key={level}
-                onClick={() => setLevelFilter(level)}
-                className={`px-2.5 py-1 text-xs rounded-md border transition-colors capitalize ${
-                  levelFilter === level ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:bg-muted'
-                }`}
-              >
-                {level}
-              </button>
+              <FilterBtn key={level} active={levelFilter === level} onClick={() => setLevelFilter(level)}>
+                {level.charAt(0).toUpperCase() + level.slice(1)}
+              </FilterBtn>
             ))}
           </div>
         </div>
+      }
+    >
+      {/* Table */}
+      <DataTable
+        data={filtered}
+        columns={columns}
+        rowKey={(row) => row.log_id}
+        loading={loading}
+        emptyMessage={t('admin.pages.backendLogs.noLogs', 'No logs found')}
+        onRowClick={(row) => setSelectedLog(row)}
+      />
 
-        {/* Table */}
-        <div className="rounded-lg border border-border overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-muted/30">
-                <th
-                  className="text-left p-3 font-semibold text-xs text-muted-foreground tracking-wide cursor-pointer hover:text-foreground"
-                  onClick={() => toggleSort('log_level')}
-                >
-                  Level {sortField === 'log_level' && (sortDir === 'asc' ? '↑' : '↓')}
-                </th>
-                <th className="text-left p-3 font-semibold text-xs text-muted-foreground tracking-wide">Message</th>
-                <th className="text-left p-3 font-semibold text-xs text-muted-foreground tracking-wide">Function</th>
-                <th className="text-left p-3 font-semibold text-xs text-muted-foreground tracking-wide">Endpoint</th>
-                <th
-                  className="text-left p-3 font-semibold text-xs text-muted-foreground tracking-wide cursor-pointer hover:text-foreground"
-                  onClick={() => toggleSort('created_at')}
-                >
-                  Time {sortField === 'created_at' && (sortDir === 'asc' ? '↑' : '↓')}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading && logs.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="p-8 text-center text-muted-foreground">
-                    Loading...
-                  </td>
-                </tr>
-              ) : filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="p-8 text-center text-muted-foreground">
-                    {t('admin.pages.backendLogs.noLogs', 'No logs found')}
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((log) => (
-                  <tr
-                    key={log.log_id}
-                    onClick={() => setSelectedLog(log)}
-                    className="border-t border-border hover:bg-muted/30 cursor-pointer"
-                  >
-                    <td className="p-3">
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${LOG_LEVEL_COLORS[log.log_level] ?? LOG_LEVEL_COLORS.debug}`}>
-                        {log.log_level}
-                      </span>
-                    </td>
-                    <td className="p-3 max-w-md truncate text-foreground">{log.message}</td>
-                    <td className="p-3 font-mono text-xs text-muted-foreground truncate max-w-36">
-                      {log.function_name ?? '-'}
-                    </td>
-                    <td className="p-3 font-mono text-xs text-muted-foreground truncate max-w-40">
-                      {log.api_endpoint ?? '-'}
-                    </td>
-                    <td className="p-3 text-xs text-muted-foreground whitespace-nowrap">
-                      {new Date(log.created_at).toLocaleString()}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+      {/* Pagination */}
+      <div className="flex items-center justify-between mt-4">
+        <span className="text-sm text-muted-foreground">
+          {t('admin.pages.backendLogs.totalLogs', '{{count}} logs total', { count: total })} • {t('admin.pages.backendLogs.pageInfo', 'Page {{page}} of {{total}}', { page, total: totalPages || 1 })}
+        </span>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1}
+          >
+            <FiChevronLeft className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page >= totalPages}
+          >
+            <FiChevronRight className="w-4 h-4" />
+          </Button>
         </div>
+      </div>
 
-        {/* Pagination */}
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">
-            {total} logs total • Page {page} of {totalPages || 1}
-          </span>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page <= 1}
-            >
-              <FiChevronLeft className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page >= totalPages}
-            >
-              <FiChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Detail Modal */}
-        {selectedLog && (
-          <LogDetailModal log={selectedLog} onClose={() => setSelectedLog(null)} />
-        )}
+      {/* Detail Modal */}
+      {selectedLog && (
+        <LogDetailModal log={selectedLog} onClose={() => setSelectedLog(null)} />
+      )}
     </ContentArea>
   );
 };

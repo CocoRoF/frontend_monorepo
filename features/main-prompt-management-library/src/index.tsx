@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import type { CardBadge, PromptTabPlugin, PromptTabPluginProps } from '@xgen/types';
-import { Button, EmptyState, ResourceCardGrid, FilterTabs } from '@xgen/ui';
-import { FiDownload, FiTrash2, FiUser, FiClock, FiStar, FiRefreshCw, FiFileText, FiHash } from '@xgen/icons';
+import type { CardBadge, PromptTabPluginProps } from '@xgen/types';
+import { Button, EmptyState, ResourceCardGrid, FilterTabs, SearchInput, useToast } from '@xgen/ui';
+import { FiDownload, FiTrash2, FiUser, FiClock, FiStar, FiRefreshCw, FiFileText, FiHash, FiUpload } from '@xgen/icons';
 import { useTranslation } from '@xgen/i18n';
 import { useAuth } from '@xgen/auth-provider';
-import { listPromptStore, downloadFromPromptStore, deleteFromPromptStore } from './api';
+import { listPromptStore, downloadFromPromptStore, deleteFromPromptStore, ratePrompt } from './api';
 import type { StorePrompt } from './api';
+import { PromptLibraryDetailModal } from './prompt-library-detail-modal';
+import { PromptStoreUploadModal } from './prompt-store-upload-modal';
 import './locales';
 
 // ─────────────────────────────────────────────────────────────
@@ -38,6 +40,7 @@ export interface PromptLibraryProps extends PromptTabPluginProps {}
 
 export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onNavigate, onSubToolbarChange }) => {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const { user, isInitialized } = useAuth();
 
   // State
@@ -45,6 +48,10 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onNavigate, onSubT
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<LibraryFilter>('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [detailPrompt, setDetailPrompt] = useState<StorePrompt | null>(null);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [optimisticRatings, setOptimisticRatings] = useState<Record<string, number>>({});
 
   // Load prompts
   const fetchPrompts = useCallback(async () => {
@@ -78,35 +85,88 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onNavigate, onSubT
 
   // Filter
   const filteredPrompts = useMemo(() => {
-    if (filter === 'my') {
-      return prompts.filter((prompt) => isOwner(prompt.userId));
-    }
-    return prompts;
-  }, [prompts, filter, isOwner]);
+    return prompts.filter((prompt) => {
+      if (filter === 'my' && !isOwner(prompt.userId)) return false;
+      if (searchTerm.trim()) {
+        const q = searchTerm.toLowerCase();
+        const matchesTitle = prompt.title.toLowerCase().includes(q);
+        const matchesContent = prompt.content.toLowerCase().includes(q);
+        const matchesAuthor = prompt.author.toLowerCase().includes(q);
+        const matchesVars = prompt.variables.some((v) => v.toLowerCase().includes(q));
+        if (!matchesTitle && !matchesContent && !matchesAuthor && !matchesVars) return false;
+      }
+      return true;
+    });
+  }, [prompts, filter, isOwner, searchTerm]);
 
   // Handlers
   const handleDownload = useCallback(
     async (prompt: StorePrompt) => {
       try {
         await downloadFromPromptStore(prompt.keyValue);
+        toast.success(t('promptManagementLibrary.messages.downloadSuccess'));
       } catch (err) {
         console.error('Failed to download prompt:', err);
+        toast.error(t('promptManagementLibrary.messages.downloadFailed'));
       }
     },
-    [],
+    [t, toast],
   );
 
   const handleDelete = useCallback(
     async (prompt: StorePrompt) => {
-      if (!confirm(t('promptManagementLibrary.confirm.delete', { name: prompt.title }))) return;
+      const ok = await toast.confirm({
+        title: t('promptManagementLibrary.confirm.deleteTitle'),
+        message: t('promptManagementLibrary.confirm.delete', { name: prompt.title }),
+        variant: 'danger',
+        confirmText: t('promptManagementLibrary.confirm.confirmDelete'),
+        cancelText: t('promptManagementLibrary.confirm.cancel'),
+      });
+      if (!ok) return;
+
       try {
         await deleteFromPromptStore(prompt.uploadId);
+        toast.success(t('promptManagementLibrary.messages.deleteSuccess', { name: prompt.title }));
         await fetchPrompts();
       } catch (err) {
         console.error('Failed to delete store prompt:', err);
+        toast.error(t('promptManagementLibrary.messages.deleteFailed', { name: prompt.title }));
       }
     },
-    [fetchPrompts, t],
+    [fetchPrompts, t, toast],
+  );
+
+  const handleRate = useCallback(
+    async (prompt: StorePrompt, rating: number) => {
+      if (!user) {
+        toast.error(t('promptManagementLibrary.messages.loginRequired'));
+        return;
+      }
+
+      // Optimistic update
+      setOptimisticRatings((prev) => ({ ...prev, [prompt.uploadId]: rating }));
+
+      try {
+        await ratePrompt(prompt.uploadId, String(user.id), prompt.isTemplate, rating);
+        toast.success(t('promptManagementLibrary.messages.rateSuccess', { rating }));
+        await fetchPrompts();
+        setOptimisticRatings((prev) => {
+          const next = { ...prev };
+          delete next[prompt.uploadId];
+          return next;
+        });
+      } catch (err) {
+        // Rollback
+        setOptimisticRatings((prev) => {
+          const next = { ...prev };
+          delete next[prompt.uploadId];
+          return next;
+        });
+        console.error('Failed to rate prompt:', err);
+        toast.error(t('promptManagementLibrary.messages.rateFailed'));
+      }
+    },
+    [user, fetchPrompts, t, toast],
   );
 
   // Filter tabs
@@ -129,8 +189,13 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onNavigate, onSubT
         badges.push({ text: t('promptManagementLibrary.badges.template'), variant: 'warning' });
       }
 
+      const currentRating =
+        optimisticRatings[prompt.uploadId] !== undefined
+          ? optimisticRatings[prompt.uploadId]
+          : prompt.ratingAvg;
+
       const ratingText = prompt.ratingCount > 0
-        ? t('promptManagementLibrary.card.rating', { rating: prompt.ratingAvg.toFixed(1), count: prompt.ratingCount })
+        ? t('promptManagementLibrary.card.rating', { rating: currentRating.toFixed(1), count: prompt.ratingCount })
         : t('promptManagementLibrary.card.noRating');
 
       const primaryActions = [
@@ -177,10 +242,10 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onNavigate, onSubT
         metadata,
         primaryActions,
         dropdownActions,
-        onClick: () => {},
+        onClick: () => setDetailPrompt(prompt),
       };
     });
-  }, [filteredPrompts, isOwner, handleDownload, handleDelete, t]);
+  }, [filteredPrompts, isOwner, optimisticRatings, handleDownload, handleDelete, t]);
 
   // Push subToolbar content to orchestrator
   useEffect(() => {
@@ -196,6 +261,13 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onNavigate, onSubT
         </div>
 
         <div className="flex items-center gap-2">
+          <SearchInput
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder={t('promptManagementLibrary.searchPlaceholder')}
+            size="sm"
+            showClear
+          />
           <Button
             variant="outline"
             size="sm"
@@ -204,10 +276,18 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onNavigate, onSubT
           >
             <FiRefreshCw className={loading ? 'animate-spin' : ''} />
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setUploadModalOpen(true)}
+            title={t('promptManagementLibrary.upload.title')}
+          >
+            <FiUpload />
+          </Button>
         </div>
       </div>,
     );
-  }, [onSubToolbarChange, filter, loading, fetchPrompts, t]);
+  }, [onSubToolbarChange, filter, loading, searchTerm, fetchPrompts, t]);
 
   // Cleanup subToolbar on unmount
   useEffect(() => {
@@ -244,6 +324,28 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onNavigate, onSubT
           />
         )}
       </div>
+
+      {/* Upload Modal */}
+      <PromptStoreUploadModal
+        isOpen={uploadModalOpen}
+        onClose={() => setUploadModalOpen(false)}
+        onSuccess={fetchPrompts}
+      />
+
+      {/* Detail Modal with Rating */}
+      {detailPrompt && (
+        <PromptLibraryDetailModal
+          isOpen={!!detailPrompt}
+          onClose={() => setDetailPrompt(null)}
+          prompt={detailPrompt}
+          currentRating={
+            optimisticRatings[detailPrompt.uploadId] !== undefined
+              ? optimisticRatings[detailPrompt.uploadId]
+              : detailPrompt.ratingAvg
+          }
+          onRate={handleRate}
+        />
+      )}
     </div>
   );
 };

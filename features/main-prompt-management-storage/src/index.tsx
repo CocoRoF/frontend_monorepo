@@ -1,13 +1,16 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import type { CardBadge, PromptTabPlugin, PromptTabPluginProps } from '@xgen/types';
-import { Button, EmptyState, ResourceCardGrid, FilterTabs } from '@xgen/ui';
+import type { CardBadge, PromptTabPluginProps } from '@xgen/types';
+import { Button, EmptyState, ResourceCardGrid, FilterTabs, SearchInput, useToast } from '@xgen/ui';
 import { FiEdit2, FiCopy, FiTrash2, FiUpload, FiUser, FiClock, FiRefreshCw, FiFileText, FiPlus, FiHash } from '@xgen/icons';
 import { useTranslation } from '@xgen/i18n';
 import { useAuth } from '@xgen/auth-provider';
 import { listPrompts, deletePrompt, createPrompt, uploadToPromptStore } from './api';
 import type { PromptDetail } from './api';
+import { PromptCreateModal } from './prompt-create-modal';
+import { PromptEditModal } from './prompt-edit-modal';
+import { PromptDetailModal } from './prompt-detail-modal';
 import './locales';
 
 // ─────────────────────────────────────────────────────────────
@@ -40,6 +43,7 @@ export interface PromptStorageProps extends PromptTabPluginProps {}
 
 export const PromptStorage: React.FC<PromptStorageProps> = ({ onNavigate, onSubToolbarChange }) => {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const { user, isInitialized } = useAuth();
 
   // State
@@ -48,6 +52,12 @@ export const PromptStorage: React.FC<PromptStorageProps> = ({ onNavigate, onSubT
   const [error, setError] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
   const [ownerFilter, setOwnerFilter] = useState<OwnerFilter>('all');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Modal state
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [editingPrompt, setEditingPrompt] = useState<PromptDetail | null>(null);
+  const [detailPrompt, setDetailPrompt] = useState<PromptDetail | null>(null);
 
   // Load prompts
   const fetchPrompts = useCallback(async () => {
@@ -89,51 +99,84 @@ export const PromptStorage: React.FC<PromptStorageProps> = ({ onNavigate, onSubT
       }
       if (ownerFilter === 'personal' && prompt.isPublic) return false;
       if (ownerFilter === 'shared' && !prompt.isPublic) return false;
+      if (searchTerm.trim()) {
+        const q = searchTerm.toLowerCase();
+        const matchesTitle = prompt.title.toLowerCase().includes(q);
+        const matchesContent = prompt.content.toLowerCase().includes(q);
+        const matchesAuthor = prompt.author.toLowerCase().includes(q);
+        const matchesVars = prompt.variables.some((v) => v.toLowerCase().includes(q));
+        if (!matchesTitle && !matchesContent && !matchesAuthor && !matchesVars) return false;
+      }
       return true;
     });
-  }, [prompts, typeFilter, ownerFilter]);
+  }, [prompts, typeFilter, ownerFilter, searchTerm]);
 
   // Handlers
   const handleDelete = useCallback(
     async (prompt: PromptDetail) => {
-      if (!confirm(t('promptManagementStorage.confirm.delete', { name: prompt.title }))) return;
+      const ok = await toast.confirm({
+        title: t('promptManagementStorage.confirm.deleteTitle'),
+        message: t('promptManagementStorage.confirm.delete', { name: prompt.title }),
+        variant: 'danger',
+        confirmText: t('promptManagementStorage.confirm.confirmDelete'),
+        cancelText: t('promptManagementStorage.confirm.cancel'),
+      });
+      if (!ok) return;
+
       try {
         await deletePrompt(prompt.uid);
+        toast.success(t('promptManagementStorage.messages.deleteSuccess', { name: prompt.title }));
         await fetchPrompts();
       } catch (err) {
         console.error('Failed to delete prompt:', err);
+        toast.error(t('promptManagementStorage.messages.deleteFailed', { name: prompt.title }));
       }
     },
-    [fetchPrompts, t],
+    [fetchPrompts, t, toast],
   );
 
   const handleDuplicate = useCallback(
     async (prompt: PromptDetail) => {
       try {
+        // Incremental naming: "Title" → "Title 2" → "Title 3"
+        const baseTitle = prompt.title.replace(/\s+\d+$/, '');
+        const existingNumbers = prompts
+          .filter((p) => p.title === baseTitle || p.title.match(new RegExp(`^${baseTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+\\d+$`)))
+          .map((p) => {
+            const match = p.title.match(/\s+(\d+)$/);
+            return match ? parseInt(match[1], 10) : 1;
+          });
+        const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 2;
+        const newTitle = `${baseTitle} ${nextNumber}`;
+
         await createPrompt({
-          prompt_title: `${prompt.title} (Copy)`,
+          prompt_title: newTitle,
           prompt_content: prompt.content,
           public_available: false,
           language: prompt.language,
           prompt_type: prompt.type,
         });
+        toast.success(t('promptManagementStorage.messages.duplicateSuccess', { name: newTitle }));
         await fetchPrompts();
       } catch (err) {
         console.error('Failed to duplicate prompt:', err);
+        toast.error(t('promptManagementStorage.messages.duplicateFailed'));
       }
     },
-    [fetchPrompts],
+    [fetchPrompts, prompts, t, toast],
   );
 
   const handleUploadToStore = useCallback(
     async (prompt: PromptDetail) => {
       try {
         await uploadToPromptStore(prompt.keyValue);
+        toast.success(t('promptManagementStorage.messages.uploadSuccess', { name: prompt.title }));
       } catch (err) {
         console.error('Failed to upload to store:', err);
+        toast.error(t('promptManagementStorage.messages.uploadFailed'));
       }
     },
-    [],
+    [t, toast],
   );
 
   // Filter tabs
@@ -174,7 +217,7 @@ export const PromptStorage: React.FC<PromptStorageProps> = ({ onNavigate, onSubT
           id: 'edit',
           icon: <FiEdit2 />,
           label: t('promptManagementStorage.actions.edit'),
-          onClick: () => {},
+          onClick: () => setEditingPrompt(prompt),
         },
         {
           id: 'copy',
@@ -231,7 +274,7 @@ export const PromptStorage: React.FC<PromptStorageProps> = ({ onNavigate, onSubT
         metadata,
         primaryActions,
         dropdownActions,
-        onClick: () => {},
+        onClick: () => setDetailPrompt(prompt),
       };
     });
   }, [filteredPrompts, isOwner, handleDelete, handleDuplicate, handleUploadToStore, t]);
@@ -256,17 +299,24 @@ export const PromptStorage: React.FC<PromptStorageProps> = ({ onNavigate, onSubT
         </div>
 
         <div className="flex items-center gap-2">
+          <SearchInput
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder={t('promptManagementStorage.searchPlaceholder')}
+            size="sm"
+            showClear
+          />
           <Button variant="outline" size="sm" onClick={fetchPrompts} disabled={loading}>
             <FiRefreshCw className={loading ? 'animate-spin' : ''} />
           </Button>
-          <Button size="sm">
+          <Button size="sm" onClick={() => setCreateModalOpen(true)}>
             <FiPlus />
             {t('promptManagementStorage.createNew')}
           </Button>
         </div>
       </div>,
     );
-  }, [onSubToolbarChange, typeFilter, ownerFilter, loading, fetchPrompts, t, typeTabs]);
+  }, [onSubToolbarChange, typeFilter, ownerFilter, loading, searchTerm, fetchPrompts, t, typeTabs]);
 
   // Cleanup subToolbar on unmount
   useEffect(() => {
@@ -303,6 +353,32 @@ export const PromptStorage: React.FC<PromptStorageProps> = ({ onNavigate, onSubT
           />
         )}
       </div>
+
+      {/* Create Modal */}
+      <PromptCreateModal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onSuccess={fetchPrompts}
+      />
+
+      {/* Edit Modal */}
+      {editingPrompt && (
+        <PromptEditModal
+          isOpen={!!editingPrompt}
+          onClose={() => setEditingPrompt(null)}
+          onSuccess={fetchPrompts}
+          prompt={editingPrompt}
+        />
+      )}
+
+      {/* Detail Modal */}
+      {detailPrompt && (
+        <PromptDetailModal
+          isOpen={!!detailPrompt}
+          onClose={() => setDetailPrompt(null)}
+          prompt={detailPrompt}
+        />
+      )}
     </div>
   );
 };

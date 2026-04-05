@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import type { AdminFeatureModule, RouteComponentProps } from '@xgen/types';
-import { ContentArea, Button, SearchInput, StatusBadge, Modal } from '@xgen/ui';
+import { ContentArea, DataTable, Button, SearchInput, StatCard, StatusBadge, Modal } from '@xgen/ui';
+import type { DataTableColumn } from '@xgen/ui';
 import { useTranslation } from '@xgen/i18n';
+import { FiRefreshCw } from '@xgen/icons';
 import { getSystemAuditLogs } from '@xgen/api-client';
 
 /* ------------------------------------------------------------------ */
@@ -95,33 +97,36 @@ const AdminAuditLogsPage: React.FC<RouteComponentProps> = () => {
   const [page, setPage] = useState(0);
   const [selectedEvent, setSelectedEvent] = useState<AuditEvent | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await getSystemAuditLogs();
-        if (data.events && data.events.length > 0) {
-          setEvents(data.events.map(e => ({
-            id: e.id,
-            timestamp: e.timestamp ?? new Date().toISOString(),
-            userId: e.userEmail ?? '',
-            userName: e.userName,
-            action: e.action,
-            category: e.category === 'config' || e.category === 'workflow' ? 'admin' : e.category as AuditEvent['category'],
-            resource: e.resource,
-            ipAddress: e.ipAddress,
-            userAgent: e.userAgent,
-            status: e.status === 'info' ? 'success' : e.status as AuditEvent['status'],
-            details: typeof e.details === 'string' ? { info: e.details } : (e.details as unknown as Record<string, string>) ?? {},
-          })));
-        } else {
-          setEvents(generateAuditEvents());
-        }
-      } catch {
+  const fetchEvents = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await getSystemAuditLogs();
+      if (data.events && data.events.length > 0) {
+        setEvents(data.events.map((e: Record<string, unknown>) => ({
+          id: e.id as string,
+          timestamp: (e.timestamp as string) ?? new Date().toISOString(),
+          userId: (e.userEmail as string) ?? '',
+          userName: e.userName as string,
+          action: e.action as string,
+          category: (e.category === 'config' || e.category === 'workflow' ? 'admin' : e.category) as AuditEvent['category'],
+          resource: e.resource as string,
+          ipAddress: e.ipAddress as string,
+          userAgent: e.userAgent as string,
+          status: (e.status === 'info' ? 'success' : e.status) as AuditEvent['status'],
+          details: typeof e.details === 'string' ? { info: e.details } : (e.details as Record<string, string>) ?? {},
+        })));
+      } else {
         setEvents(generateAuditEvents());
       }
-      setLoading(false);
-    })();
+    } catch {
+      setEvents(generateAuditEvents());
+    }
+    setLoading(false);
   }, []);
+
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
 
   const filtered = useMemo(() => {
     return events.filter(e => {
@@ -148,183 +153,184 @@ const AdminAuditLogsPage: React.FC<RouteComponentProps> = () => {
     warning: events.filter(e => e.status === 'warning').length,
   }), [events]);
 
-  const statusBadge = (status: AuditEvent['status']) => {
-    const map = { success: 'success', failure: 'error', warning: 'warning' } as const;
-    return <StatusBadge status={map[status]}>{status}</StatusBadge>;
-  };
+  /* ── DataTable columns ── */
+  const columns: DataTableColumn<AuditEvent>[] = useMemo(() => [
+    {
+      id: 'timestamp',
+      header: t('admin.audit.time', 'Time'),
+      field: 'timestamp',
+      sortable: true,
+      cell: (row) => (
+        <span className="text-xs text-muted-foreground whitespace-nowrap">
+          {new Date(row.timestamp).toLocaleString()}
+        </span>
+      ),
+    },
+    {
+      id: 'userName',
+      header: t('admin.audit.user', 'User'),
+      field: 'userName',
+      sortable: true,
+      cell: (row) => <span className="font-medium text-foreground">{row.userName}</span>,
+    },
+    {
+      id: 'action',
+      header: t('admin.audit.action', 'Action'),
+      field: 'action',
+      sortable: true,
+      cell: (row) => <span className="font-mono text-xs text-foreground">{row.action}</span>,
+    },
+    {
+      id: 'category',
+      header: t('admin.audit.category', 'Category'),
+      field: 'category',
+      cell: (row) => (
+        <span className="px-2 py-0.5 text-xs rounded bg-muted text-muted-foreground">
+          {CATEGORY_LABELS[row.category]}
+        </span>
+      ),
+    },
+    {
+      id: 'resource',
+      header: t('admin.audit.resource', 'Resource'),
+      field: 'resource',
+      cell: (row) => <span className="font-mono text-xs text-muted-foreground">{row.resource}</span>,
+    },
+    {
+      id: 'ipAddress',
+      header: t('admin.audit.ip', 'IP'),
+      cell: (row) => <span className="font-mono text-xs text-muted-foreground">{row.ipAddress}</span>,
+    },
+    {
+      id: 'status',
+      header: t('common.status', 'Status'),
+      field: 'status',
+      cell: (row) => {
+        const map = { success: 'success', failure: 'error', warning: 'warning' } as const;
+        return <StatusBadge status={map[row.status]}>{row.status}</StatusBadge>;
+      },
+    },
+  ], [t]);
+
+  /* ── Filter button ── */
+  const FilterBtn: React.FC<{ active: boolean; onClick: () => void; children: React.ReactNode }> = ({ active, onClick, children }) => (
+    <button
+      onClick={onClick}
+      className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+        active
+          ? 'bg-primary text-primary-foreground border-primary'
+          : 'bg-card text-muted-foreground border-border hover:border-primary/50'
+      }`}
+    >
+      {children}
+    </button>
+  );
 
   return (
     <ContentArea
       title={t('admin.pages.auditLogs.title', 'Audit Logs')}
       description={t('admin.pages.auditLogs.description', 'Security and system audit event trail')}
+      headerActions={
+        <Button variant="outline" size="sm" onClick={fetchEvents} disabled={loading}>
+          <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+        </Button>
+      }
+      toolbar={
+        <div className="flex items-center gap-3 flex-wrap">
+          <SearchInput
+            value={search}
+            onChange={(v) => { setSearch(v); setPage(0); }}
+            placeholder={t('admin.audit.searchPlaceholder', 'Search by user, action, resource, IP...')}
+            className="w-72"
+          />
+          <div className="flex gap-1.5">
+            {(['all', 'auth', 'admin', 'data', 'system', 'api'] as const).map(cat => (
+              <FilterBtn key={cat} active={categoryFilter === cat} onClick={() => { setCategoryFilter(cat); setPage(0); }}>
+                {cat === 'all' ? t('common.all', 'All') : CATEGORY_LABELS[cat]}
+              </FilterBtn>
+            ))}
+          </div>
+          <div className="flex gap-1.5 ml-auto">
+            {(['all', 'success', 'failure', 'warning'] as const).map(st => (
+              <FilterBtn key={st} active={statusFilter === st} onClick={() => { setStatusFilter(st); setPage(0); }}>
+                {st === 'all' ? t('common.allStatus', 'All Status') : st}
+              </FilterBtn>
+            ))}
+          </div>
+        </div>
+      }
     >
       {/* Stats */}
-        <div className="grid grid-cols-4 gap-4">
-          {[
-            { label: t('admin.audit.totalEvents', 'Total Events'), value: stats.total, color: 'text-blue-600' },
-            { label: t('common.success', 'Success'), value: stats.success, color: 'text-green-600' },
-            { label: t('common.failure', 'Failure'), value: stats.failure, color: 'text-red-600' },
-            { label: t('common.warning', 'Warning'), value: stats.warning, color: 'text-yellow-600' },
-          ].map(s => (
-            <div key={s.label} className="rounded-xl border border-border bg-card p-4">
-              <p className="text-xs text-muted-foreground">{s.label}</p>
-              <p className={`text-2xl font-bold mt-1 ${s.color}`}>{loading ? '—' : s.value}</p>
-            </div>
-          ))}
-        </div>
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        <StatCard label={t('admin.audit.totalEvents', 'Total Events')} value={stats.total} variant="info" loading={loading} />
+        <StatCard label={t('common.success', 'Success')} value={stats.success} variant="success" loading={loading} />
+        <StatCard label={t('common.failure', 'Failure')} value={stats.failure} variant="error" loading={loading} />
+        <StatCard label={t('common.warning', 'Warning')} value={stats.warning} variant="warning" loading={loading} />
+      </div>
 
-        {/* Toolbar */}
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="w-72">
-            <SearchInput value={search} onChange={(v) => { setSearch(v); setPage(0); }} placeholder={t('admin.audit.searchPlaceholder', 'Search by user, action, resource, IP...')} />
-          </div>
+      {/* Table */}
+      <DataTable
+        data={paged}
+        columns={columns}
+        rowKey={(row) => row.id}
+        loading={loading}
+        emptyMessage={t('common.noResults', 'No results found')}
+        onRowClick={(row) => setSelectedEvent(row)}
+      />
 
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-4">
+          <span className="text-sm text-muted-foreground">
+            {`${page * PAGE_SIZE + 1}-${Math.min((page + 1) * PAGE_SIZE, filtered.length)} / ${filtered.length}`}
+          </span>
           <div className="flex gap-2">
-            {(['all', 'auth', 'admin', 'data', 'system', 'api'] as const).map(cat => (
-              <button
-                key={cat}
-                onClick={() => { setCategoryFilter(cat); setPage(0); }}
-                className={`px-3 py-1 text-xs rounded-full border transition-colors ${
-                  categoryFilter === cat
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'bg-card text-muted-foreground border-border hover:border-primary/50'
-                }`}
-              >
-                {cat === 'all' ? t('common.all', 'All') : CATEGORY_LABELS[cat]}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex gap-2 ml-auto">
-            {(['all', 'success', 'failure', 'warning'] as const).map(st => (
-              <button
-                key={st}
-                onClick={() => { setStatusFilter(st); setPage(0); }}
-                className={`px-3 py-1 text-xs rounded-full border transition-colors ${
-                  statusFilter === st
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'bg-card text-muted-foreground border-border hover:border-primary/50'
-                }`}
-              >
-                {st === 'all' ? t('common.allStatus', 'All Status') : st}
-              </button>
-            ))}
+            <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)}>
+              {t('common.previous', 'Previous')}
+            </Button>
+            <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>
+              {t('common.next', 'Next')}
+            </Button>
           </div>
         </div>
+      )}
 
-        {/* Table */}
-        {loading ? (
-          <div className="flex items-center justify-center h-40">
-            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          </div>
-        ) : (
-          <div className="rounded-xl border border-border overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-muted/30 text-left">
-                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.audit.time', 'Time')}</th>
-                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.audit.user', 'User')}</th>
-                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.audit.action', 'Action')}</th>
-                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.audit.category', 'Category')}</th>
-                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.audit.resource', 'Resource')}</th>
-                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.audit.ip', 'IP')}</th>
-                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('common.status', 'Status')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {paged.map(e => (
-                  <tr
-                    key={e.id}
-                    onClick={() => setSelectedEvent(e)}
-                    className="hover:bg-muted/30 cursor-pointer transition-colors"
-                  >
-                    <td className="px-4 py-3 text-muted-foreground whitespace-nowrap text-xs">
-                      {new Date(e.timestamp).toLocaleString()}
-                    </td>
-                    <td className="px-4 py-3 font-medium text-foreground">{e.userName}</td>
-                    <td className="px-4 py-3 font-mono text-xs text-foreground">{e.action}</td>
-                    <td className="px-4 py-3">
-                      <span className="px-2 py-0.5 text-xs rounded bg-muted text-muted-foreground">
-                        {CATEGORY_LABELS[e.category]}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{e.resource}</td>
-                    <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{e.ipAddress}</td>
-                    <td className="px-4 py-3">{statusBadge(e.status)}</td>
-                  </tr>
-                ))}
-                {paged.length === 0 && (
-                  <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
-                      {t('common.noResults', 'No results found')}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">
-              {t('common.showingOf', { current: `${page * PAGE_SIZE + 1}-${Math.min((page + 1) * PAGE_SIZE, filtered.length)}`, total: filtered.length }, `${page * PAGE_SIZE + 1}-${Math.min((page + 1) * PAGE_SIZE, filtered.length)} of ${filtered.length}`)}
-            </span>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)}>
-                {t('common.previous', 'Previous')}
-              </Button>
-              <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>
-                {t('common.next', 'Next')}
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Detail Modal */}
-        {selectedEvent && (
-          <Modal isOpen onClose={() => setSelectedEvent(null)} title={`Audit Event: ${selectedEvent.action}`}>
-            <div className="flex flex-col gap-4 p-4">
-              {[
-                { label: 'Event ID', value: selectedEvent.id },
-                { label: 'Timestamp', value: new Date(selectedEvent.timestamp).toLocaleString() },
-                { label: 'User', value: `${selectedEvent.userName} (${selectedEvent.userId})` },
-                { label: 'Action', value: selectedEvent.action },
-                { label: 'Category', value: CATEGORY_LABELS[selectedEvent.category] },
-                { label: 'Resource', value: selectedEvent.resource },
-                { label: 'IP Address', value: selectedEvent.ipAddress },
-                { label: 'User Agent', value: selectedEvent.userAgent },
-                { label: 'Status', value: selectedEvent.status },
-              ].map(row => (
-                <div key={row.label} className="flex justify-between py-1 border-b border-border last:border-b-0">
-                  <span className="text-sm text-muted-foreground">{row.label}</span>
-                  <span className="text-sm text-foreground font-mono">{row.value}</span>
-                </div>
-              ))}
-
-              {Object.keys(selectedEvent.details).length > 0 && (
-                <div>
-                  <p className="text-xs text-muted-foreground mb-2">{t('common.details', 'Details')}</p>
-                  <div className="rounded-lg border border-border bg-muted/30 p-3 text-xs font-mono">
-                    {Object.entries(selectedEvent.details).map(([k, v]) => (
-                      <div key={k} className="flex justify-between py-0.5">
-                        <span className="text-muted-foreground">{k}</span>
-                        <span className="text-foreground">{v}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="flex justify-end pt-2">
-                <Button variant="outline" onClick={() => setSelectedEvent(null)}>
-                  {t('common.close', 'Close')}
-                </Button>
+      {/* Detail Modal */}
+      {selectedEvent && (
+        <Modal isOpen onClose={() => setSelectedEvent(null)} title={`Audit Event: ${selectedEvent.action}`}>
+          <div className="flex flex-col gap-4">
+            {[
+              { label: 'Event ID', value: selectedEvent.id },
+              { label: 'Timestamp', value: new Date(selectedEvent.timestamp).toLocaleString() },
+              { label: 'User', value: `${selectedEvent.userName} (${selectedEvent.userId})` },
+              { label: 'Action', value: selectedEvent.action },
+              { label: 'Category', value: CATEGORY_LABELS[selectedEvent.category] },
+              { label: 'Resource', value: selectedEvent.resource },
+              { label: 'IP Address', value: selectedEvent.ipAddress },
+              { label: 'User Agent', value: selectedEvent.userAgent },
+              { label: 'Status', value: selectedEvent.status },
+            ].map(row => (
+              <div key={row.label} className="flex justify-between py-1 border-b border-border last:border-b-0">
+                <span className="text-sm text-muted-foreground">{row.label}</span>
+                <span className="text-sm text-foreground font-mono">{row.value}</span>
               </div>
-            </div>
-          </Modal>
-        )}
+            ))}
+            {Object.keys(selectedEvent.details).length > 0 && (
+              <div>
+                <p className="text-xs text-muted-foreground mb-2">{t('common.details', 'Details')}</p>
+                <div className="rounded-lg border border-border bg-muted/30 p-3 text-xs font-mono">
+                  {Object.entries(selectedEvent.details).map(([k, v]) => (
+                    <div key={k} className="flex justify-between py-0.5">
+                      <span className="text-muted-foreground">{k}</span>
+                      <span className="text-foreground">{v}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </Modal>
+      )}
     </ContentArea>
   );
 };

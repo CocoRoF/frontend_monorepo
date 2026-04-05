@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import type { AdminFeatureModule, RouteComponentProps } from '@xgen/types';
-import { ContentArea, StatCard, Button } from '@xgen/ui';
+import { ContentArea, DataTable, StatCard, Button } from '@xgen/ui';
+import type { DataTableColumn } from '@xgen/ui';
 import { useTranslation } from '@xgen/i18n';
 import { FiRefreshCw, FiPlus, FiX } from '@xgen/icons';
 import {
@@ -93,6 +94,70 @@ const AdminDataScraperPage: React.FC<RouteComponentProps> = () => {
     { label: t('admin.pages.dataScraper.successRate', 'Success Rate'), value: `${stats.successRate}%` },
   ];
 
+  /* ── DataTable columns ── */
+  const columns: DataTableColumn<CrawlerSessionSummary>[] = useMemo(() => [
+    {
+      id: 'seed_url',
+      header: t('admin.pages.dataScraper.url', 'URL'),
+      cell: (row) => <span className="max-w-64 truncate block font-mono text-xs">{row.seed_url}</span>,
+    },
+    {
+      id: 'status',
+      header: t('common.status', 'Status'),
+      field: 'status' as keyof CrawlerSessionSummary,
+      cell: (row) => (
+        <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[row.status]}`}>
+          {row.status}
+        </span>
+      ),
+    },
+    {
+      id: 'processed_pages',
+      header: t('admin.pages.dataScraper.processed', 'Processed'),
+      field: 'processed_pages' as keyof CrawlerSessionSummary,
+      sortable: true,
+      cell: (row) => <span className="text-right block">{row.processed_pages}</span>,
+    },
+    {
+      id: 'pending_pages',
+      header: t('admin.pages.dataScraper.pending', 'Pending'),
+      field: 'pending_pages' as keyof CrawlerSessionSummary,
+      sortable: true,
+      cell: (row) => <span className="text-right block">{row.pending_pages}</span>,
+    },
+    {
+      id: 'created_at',
+      header: t('common.createdAt', 'Created'),
+      field: 'created_at' as keyof CrawlerSessionSummary,
+      sortable: true,
+      cell: (row) => (
+        <span className="text-xs text-muted-foreground whitespace-nowrap">
+          {new Date(row.created_at).toLocaleString()}
+        </span>
+      ),
+    },
+    {
+      id: 'actions',
+      header: t('common.actions', 'Actions'),
+      cell: (row) => (
+        <div className="text-center">
+          {row.status === 'running' && (
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={(e) => { e.stopPropagation(); handleCancel(row.session_id); }}
+            >
+              {t('common.cancel', 'Cancel')}
+            </Button>
+          )}
+          {row.error && (
+            <span className="text-xs text-red-500" title={row.error}>⚠</span>
+          )}
+        </div>
+      ),
+    },
+  ], [t, handleCancel]);
+
   return (
     <ContentArea
       title={t('admin.pages.dataScraper.title', 'Data Scraper')}
@@ -105,126 +170,83 @@ const AdminDataScraperPage: React.FC<RouteComponentProps> = () => {
             onClick={() => setShowCreate(true)}
             leftIcon={<FiPlus className="w-4 h-4" />}
           >
-            New Session
+            {t('admin.pages.dataScraper.newSession', 'New Session')}
           </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={fetchSessions}
-            disabled={loading}
-          >
+          <Button variant="outline" size="icon" onClick={fetchSessions} disabled={loading}>
             <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </Button>
         </div>
       }
     >
       {/* Stats */}
-        <div className="grid grid-cols-5 gap-4 max-lg:grid-cols-3 max-sm:grid-cols-2">
-          {statCards.map(({ label, value }, idx) => (
-            <StatCard
-              key={label}
-              label={label}
-              value={value}
-              variant={(['info', 'success', 'neutral', 'warning', 'error'] as const)[idx] ?? 'neutral'}
-            />
-          ))}
-        </div>
+      <div className="grid grid-cols-5 gap-4 max-lg:grid-cols-3 max-sm:grid-cols-2 mb-6">
+        {statCards.map(({ label, value }, idx) => (
+          <StatCard
+            key={label}
+            label={label}
+            value={value}
+            variant={(['info', 'success', 'neutral', 'warning', 'error'] as const)[idx] ?? 'neutral'}
+            loading={loading}
+          />
+        ))}
+      </div>
 
-        {/* Create Form */}
-        {showCreate && (
-          <div className="p-4 rounded-xl border border-border bg-card">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-foreground">Create Session</h3>
-              <Button variant="ghost" size="icon" onClick={() => setShowCreate(false)}>
-                <FiX className="w-4 h-4" />
-              </Button>
-            </div>
-            <div className="flex items-end gap-3">
-              <div className="flex-1">
-                <label className="text-xs text-muted-foreground mb-1 block">Seed URL</label>
-                <input
-                  type="url"
-                  value={seedUrl}
-                  onChange={(e) => setSeedUrl(e.target.value)}
-                  placeholder="https://example.com"
-                  className="w-full px-3 py-1.5 text-sm border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
-              </div>
-              <div className="w-32">
-                <label className="text-xs text-muted-foreground mb-1 block">Max Pages</label>
-                <input
-                  type="number"
-                  value={maxPages}
-                  onChange={(e) => setMaxPages(Number(e.target.value))}
-                  min={1}
-                  className="w-full px-3 py-1.5 text-sm border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
-              </div>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleCreate}
-                disabled={creating || !seedUrl.trim()}
-              >
-                {creating ? 'Creating...' : 'Create'}
-              </Button>
-            </div>
+      {/* Create Form */}
+      {showCreate && (
+        <div className="p-4 rounded-xl border border-border bg-card mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-foreground">
+              {t('admin.pages.dataScraper.createSession', 'Create Session')}
+            </h3>
+            <Button variant="ghost" size="icon" onClick={() => setShowCreate(false)}>
+              <FiX className="w-4 h-4" />
+            </Button>
           </div>
-        )}
-
-        {/* Session List */}
-        <div className="rounded-lg border border-border overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-muted/30">
-                <th className="text-left p-3 font-semibold text-xs text-muted-foreground tracking-wide">URL</th>
-                <th className="text-center p-3 font-semibold text-xs text-muted-foreground tracking-wide">Status</th>
-                <th className="text-right p-3 font-semibold text-xs text-muted-foreground tracking-wide">Processed</th>
-                <th className="text-right p-3 font-semibold text-xs text-muted-foreground tracking-wide">Pending</th>
-                <th className="text-left p-3 font-semibold text-xs text-muted-foreground tracking-wide">Created</th>
-                <th className="text-center p-3 font-semibold text-xs text-muted-foreground tracking-wide">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sessions.map((session) => (
-                <tr key={session.session_id} className="border-t border-border hover:bg-muted/40">
-                  <td className="p-3 max-w-64 truncate font-mono text-xs">{session.seed_url}</td>
-                  <td className="p-3 text-center">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[session.status]}`}>
-                      {session.status}
-                    </span>
-                  </td>
-                  <td className="p-3 text-right">{session.processed_pages}</td>
-                  <td className="p-3 text-right">{session.pending_pages}</td>
-                  <td className="p-3 text-xs text-muted-foreground whitespace-nowrap">
-                    {new Date(session.created_at).toLocaleString()}
-                  </td>
-                  <td className="p-3 text-center">
-                    {session.status === 'running' && (
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        onClick={() => handleCancel(session.session_id)}
-                      >
-                        Cancel
-                      </Button>
-                    )}
-                    {session.error && (
-                      <span className="text-xs text-red-500" title={session.error}>⚠</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-              {sessions.length === 0 && !loading && (
-                <tr>
-                  <td colSpan={6} className="p-8 text-center text-muted-foreground">
-                    {t('admin.pages.dataScraper.noSessions', 'No scraping sessions')}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+          <div className="flex items-end gap-3">
+            <div className="flex-1">
+              <label className="text-xs text-muted-foreground mb-1 block">
+                {t('admin.pages.dataScraper.seedUrl', 'Seed URL')}
+              </label>
+              <input
+                type="url"
+                value={seedUrl}
+                onChange={(e) => setSeedUrl(e.target.value)}
+                placeholder="https://example.com"
+                className="w-full px-3 py-1.5 text-sm border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
+            <div className="w-32">
+              <label className="text-xs text-muted-foreground mb-1 block">
+                {t('admin.pages.dataScraper.maxPages', 'Max Pages')}
+              </label>
+              <input
+                type="number"
+                value={maxPages}
+                onChange={(e) => setMaxPages(Number(e.target.value))}
+                min={1}
+                className="w-full px-3 py-1.5 text-sm border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleCreate}
+              disabled={creating || !seedUrl.trim()}
+            >
+              {creating ? t('common.creating', 'Creating...') : t('common.create', 'Create')}
+            </Button>
+          </div>
         </div>
+      )}
+
+      {/* Session List */}
+      <DataTable
+        data={sessions}
+        columns={columns}
+        rowKey={(row) => row.session_id}
+        loading={loading}
+        emptyMessage={t('admin.pages.dataScraper.noSessions', 'No scraping sessions')}
+      />
     </ContentArea>
   );
 };
