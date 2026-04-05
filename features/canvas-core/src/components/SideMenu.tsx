@@ -24,6 +24,8 @@ export interface SideMenuProps {
     TemplatePanel?: React.ComponentType<{ onBack: () => void }>;
     /** Initial view to display when opened (e.g. 'template' from empty state) */
     initialView?: MenuView | null;
+    /** Called to close the entire side menu */
+    onClose?: () => void;
 }
 
 // ── Main Menu ──────────────────────────────────────────────────
@@ -64,6 +66,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
     WorkflowPanel,
     TemplatePanel,
     initialView = null,
+    onClose,
 }) => {
     const [view, setView] = useState<MenuView>('main');
 
@@ -74,7 +77,13 @@ const SideMenu: React.FC<SideMenuProps> = ({
     }, [initialView]);
 
     const handleNavigate = (newView: MenuView): void => setView(newView);
-    const handleBackToMain = (): void => setView('main');
+    const handleBackToMain = (): void => {
+        if (initialView && onClose) {
+            onClose();
+        } else {
+            setView('main');
+        }
+    };
 
     return (
         <aside

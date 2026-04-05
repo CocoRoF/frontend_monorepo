@@ -102,6 +102,13 @@
     background: #ffffff;
 }
 
+.headerActions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+}
+
 .headerText {
     display: flex;
     flex-direction: column;
@@ -146,36 +153,6 @@
     }
 }
 
-.refreshButton {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 6px;
-    display: flex;
-    border-radius: 8px;
-    margin-left: auto;
-    transition: all 0.2s ease;
-
-    &:hover {
-        background-color: rgba(48, 94, 235, 0.06);
-    }
-
-    &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    &.loading {
-        animation: spin 1s linear infinite;
-    }
-}
-
-.refreshIcon {
-    width: 24px;
-    height: 24px;
-    display: block;
-    color: #40444d;
-}
 
 @keyframes spin {
     from {

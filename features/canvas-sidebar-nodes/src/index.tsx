@@ -2,7 +2,8 @@ import './locales';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from '@xgen/i18n';
 import type { CanvasPagePlugin } from '@xgen/types';
-import { Tabs, TabsList, TabsTrigger, SearchInput } from '@xgen/ui';
+import { Tabs, TabsList, TabsTrigger, SearchInput, Button } from '@xgen/ui';
+import { LuX, LuRefreshCw } from '@xgen/icons';
 import NodeList from './components/NodeList';
 import DraggableNodeItem, { type NodeData } from './components/DraggableNodeItem';
 import styles from './styles/side-menu.module.scss';
@@ -35,6 +36,7 @@ export interface AddNodePanelProps {
 // ── Component ──────────────────────────────────────────────────
 
 const AddNodePanel: React.FC<AddNodePanelProps> = ({
+    onBack,
     nodeSpecs = [],
     nodesLoading = false,
     nodesError = null,
@@ -88,6 +90,13 @@ const AddNodePanel: React.FC<AddNodePanelProps> = ({
                             {t('canvas.addNodePanel.subtitle', 'Drag or double-click to add')}
                         </p>
                     </div>
+                    {onBack && (
+                        <div className={styles.headerActions}>
+                            <Button variant="ghost" size="icon" onClick={onBack} title={t('common.close', 'Close')}>
+                                <LuX className="w-4 h-4" />
+                            </Button>
+                        </div>
+                    )}
                 </div>
                 <div className={styles.loadingContainer}>
                     {t('canvas.addNodePanel.loading', 'Loading nodes...')}
@@ -106,6 +115,13 @@ const AddNodePanel: React.FC<AddNodePanelProps> = ({
                             {t('canvas.addNodePanel.subtitle', 'Drag or double-click to add')}
                         </p>
                     </div>
+                    {onBack && (
+                        <div className={styles.headerActions}>
+                            <Button variant="ghost" size="icon" onClick={onBack} title={t('common.close', 'Close')}>
+                                <LuX className="w-4 h-4" />
+                            </Button>
+                        </div>
+                    )}
                 </div>
                 <div className={styles.errorContainer}>Error: {nodesError}</div>
             </div>
@@ -121,17 +137,24 @@ const AddNodePanel: React.FC<AddNodePanelProps> = ({
                         {t('canvas.addNodePanel.subtitle', 'Drag or double-click to add')}
                     </p>
                 </div>
-                {onRefreshNodes && (
-                    <button
-                        onClick={onRefreshNodes}
-                        className={`${styles.refreshButton} ${nodesLoading ? styles.loading : ''}`}
-                        disabled={nodesLoading}
-                        title={t('canvas.addNodePanel.refreshTooltip', 'Refresh node list')}
-                        type="button"
-                    >
-                        ↻
-                    </button>
-                )}
+                <div className={styles.headerActions}>
+                    {onRefreshNodes && (
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={onRefreshNodes}
+                            disabled={nodesLoading}
+                            title={t('canvas.addNodePanel.refreshTooltip', 'Refresh node list')}
+                        >
+                            <LuRefreshCw className={`w-4 h-4 ${nodesLoading ? 'animate-spin' : ''}`} />
+                        </Button>
+                    )}
+                    {onBack && (
+                        <Button variant="ghost" size="icon" onClick={onBack} title={t('common.close', 'Close')}>
+                            <LuX className="w-4 h-4" />
+                        </Button>
+                    )}
+                </div>
             </div>
 
             <div className={styles.addNodeBody}>
