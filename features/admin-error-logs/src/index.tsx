@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import type { AdminFeatureModule, RouteComponentProps } from '@xgen/types';
-import { ContentArea, Button, SearchInput, StatusBadge, Modal } from '@xgen/ui';
+import { ContentArea, DataTable, Button, SearchInput, StatCard, StatusBadge, Modal } from '@xgen/ui';
+import type { DataTableColumn } from '@xgen/ui';
 import { useTranslation } from '@xgen/i18n';
+import { FiRefreshCw } from '@xgen/icons';
 import { getSystemErrorLogs, resolveErrorLog } from '@xgen/api-client';
 
 /* ------------------------------------------------------------------ */
@@ -27,10 +29,10 @@ interface ErrorLogEntry {
 
 type LevelFilter = ErrorLogEntry['level'] | 'all';
 
-const LEVEL_CONFIG: Record<ErrorLogEntry['level'], { color: string; badgeStatus: 'error' | 'warning' }> = {
-  error: { color: 'text-orange-600', badgeStatus: 'warning' },
-  critical: { color: 'text-red-600', badgeStatus: 'error' },
-  fatal: { color: 'text-red-800', badgeStatus: 'error' },
+const LEVEL_CONFIG: Record<ErrorLogEntry['level'], { badgeStatus: 'error' | 'warning' }> = {
+  error: { badgeStatus: 'warning' },
+  critical: { badgeStatus: 'error' },
+  fatal: { badgeStatus: 'error' },
 };
 
 /* ------------------------------------------------------------------ */
@@ -87,35 +89,38 @@ const AdminErrorLogsPage: React.FC<RouteComponentProps> = () => {
   const [page, setPage] = useState(0);
   const [selectedError, setSelectedError] = useState<ErrorLogEntry | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await getSystemErrorLogs();
-        if (data.errors && data.errors.length > 0) {
-          setErrors(data.errors.map(e => ({
-            id: e.id,
-            timestamp: e.timestamp,
-            level: e.level === 'warning' ? 'error' as const : e.level as ErrorLogEntry['level'],
-            service: e.service,
-            message: e.message,
-            stackTrace: e.stackTrace,
-            requestId: e.requestId,
-            userId: null,
-            endpoint: e.endpoint,
-            count: 1,
-            firstSeen: e.timestamp,
-            lastSeen: e.timestamp,
-            resolved: e.resolved,
-          })));
-        } else {
-          setErrors(generateErrors());
-        }
-      } catch {
+  const fetchErrors = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await getSystemErrorLogs();
+      if (data.errors && data.errors.length > 0) {
+        setErrors(data.errors.map((e: Record<string, unknown>) => ({
+          id: e.id as string,
+          timestamp: e.timestamp as string,
+          level: (e.level === 'warning' ? 'error' : e.level) as ErrorLogEntry['level'],
+          service: e.service as string,
+          message: e.message as string,
+          stackTrace: (e.stackTrace as string) ?? '',
+          requestId: (e.requestId as string) ?? '',
+          userId: (e.userId as string) ?? null,
+          endpoint: (e.endpoint as string) ?? '',
+          count: (e.count as number) ?? 1,
+          firstSeen: (e.firstSeen as string) ?? (e.timestamp as string),
+          lastSeen: (e.lastSeen as string) ?? (e.timestamp as string),
+          resolved: (e.resolved as boolean) ?? false,
+        })));
+      } else {
         setErrors(generateErrors());
       }
-      setLoading(false);
-    })();
+    } catch {
+      setErrors(generateErrors());
+    }
+    setLoading(false);
   }, []);
+
+  useEffect(() => {
+    fetchErrors();
+  }, [fetchErrors]);
 
   const filtered = useMemo(() => {
     return errors.filter(e => {
@@ -142,57 +147,107 @@ const AdminErrorLogsPage: React.FC<RouteComponentProps> = () => {
     fatal: errors.filter(e => e.level === 'fatal' && !e.resolved).length,
   }), [errors]);
 
-  const toggleResolved = (id: string) => {
+  const toggleResolved = useCallback((id: string) => {
     setErrors(prev => {
       const updated = prev.map(e => e.id === id ? { ...e, resolved: !e.resolved } : e);
       const target = updated.find(e => e.id === id);
       if (target) resolveErrorLog(id, target.resolved).catch(() => {});
       return updated;
     });
-  };
+  }, []);
+
+  /* ── DataTable columns ── */
+  const columns: DataTableColumn<ErrorLogEntry>[] = useMemo(() => [
+    {
+      id: 'level',
+      header: t('admin.errors.level', 'Level'),
+      field: 'level',
+      cell: (row) => (
+        <StatusBadge status={LEVEL_CONFIG[row.level].badgeStatus}>
+          {row.level}
+        </StatusBadge>
+      ),
+    },
+    {
+      id: 'service',
+      header: t('admin.errors.service', 'Service'),
+      field: 'service',
+      sortable: true,
+      cell: (row) => <span className="font-mono text-xs text-foreground">{row.service}</span>,
+    },
+    {
+      id: 'message',
+      header: t('admin.errors.message', 'Message'),
+      field: 'message',
+      cell: (row) => <span className="text-foreground max-w-md truncate block">{row.message}</span>,
+    },
+    {
+      id: 'count',
+      header: t('admin.errors.occurrences', 'Count'),
+      field: 'count',
+      sortable: true,
+      cell: (row) => <span className="text-muted-foreground text-center block">{row.count}</span>,
+    },
+    {
+      id: 'lastSeen',
+      header: t('admin.errors.lastSeen', 'Last Seen'),
+      field: 'lastSeen',
+      sortable: true,
+      cell: (row) => (
+        <span className="text-muted-foreground text-xs whitespace-nowrap">
+          {new Date(row.lastSeen).toLocaleString()}
+        </span>
+      ),
+    },
+    {
+      id: 'status',
+      header: t('common.status', 'Status'),
+      cell: (row) => (
+        <StatusBadge status={row.resolved ? 'success' : 'warning'}>
+          {row.resolved ? t('admin.errors.resolved', 'Resolved') : t('admin.errors.open', 'Open')}
+        </StatusBadge>
+      ),
+    },
+  ], [t]);
+
+  /* ── Filter button ── */
+  const FilterBtn: React.FC<{ active: boolean; onClick: () => void; children: React.ReactNode }> = ({ active, onClick, children }) => (
+    <button
+      onClick={onClick}
+      className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+        active
+          ? 'bg-primary text-primary-foreground border-primary'
+          : 'bg-card text-muted-foreground border-border hover:border-primary/50'
+      }`}
+    >
+      {children}
+    </button>
+  );
 
   return (
     <ContentArea
       title={t('admin.pages.errorLogs.title', 'Error Logs')}
       description={t('admin.pages.errorLogs.description', 'Application error tracking and resolution')}
-    >
-      {/* Stats */}
-        <div className="grid grid-cols-4 gap-4">
-          {[
-            { label: t('admin.errors.unresolvedErrors', 'Unresolved Errors'), value: stats.total, color: 'text-blue-600' },
-            { label: t('admin.errors.error', 'Error'), value: stats.error, color: 'text-orange-600' },
-            { label: t('admin.errors.critical', 'Critical'), value: stats.critical, color: 'text-red-600' },
-            { label: t('admin.errors.fatal', 'Fatal'), value: stats.fatal, color: 'text-red-800' },
-          ].map(s => (
-            <div key={s.label} className="rounded-xl border border-border bg-card p-4">
-              <p className="text-xs text-muted-foreground">{s.label}</p>
-              <p className={`text-2xl font-bold mt-1 ${s.color}`}>{loading ? '—' : s.value}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Toolbar */}
+      headerActions={
+        <Button variant="outline" size="sm" onClick={fetchErrors} disabled={loading}>
+          <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+        </Button>
+      }
+      toolbar={
         <div className="flex items-center gap-3 flex-wrap">
-          <div className="w-72">
-            <SearchInput value={search} onChange={(v) => { setSearch(v); setPage(0); }} placeholder={t('admin.errors.searchPlaceholder', 'Search by message, service, endpoint...')} />
-          </div>
-
-          <div className="flex gap-2">
+          <SearchInput
+            value={search}
+            onChange={(v) => { setSearch(v); setPage(0); }}
+            placeholder={t('admin.errors.searchPlaceholder', 'Search by message, service, endpoint...')}
+            className="w-72"
+          />
+          <div className="flex gap-1.5">
             {(['all', 'error', 'critical', 'fatal'] as const).map(lvl => (
-              <button
-                key={lvl}
-                onClick={() => { setLevelFilter(lvl); setPage(0); }}
-                className={`px-3 py-1 text-xs rounded-full border transition-colors ${
-                  levelFilter === lvl
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'bg-card text-muted-foreground border-border hover:border-primary/50'
-                }`}
-              >
+              <FilterBtn key={lvl} active={levelFilter === lvl} onClick={() => { setLevelFilter(lvl); setPage(0); }}>
                 {lvl === 'all' ? t('common.all', 'All') : lvl.charAt(0).toUpperCase() + lvl.slice(1)}
-              </button>
+              </FilterBtn>
             ))}
           </div>
-
           <label className="flex items-center gap-2 ml-auto cursor-pointer select-none">
             <input
               type="checkbox"
@@ -203,128 +258,92 @@ const AdminErrorLogsPage: React.FC<RouteComponentProps> = () => {
             <span className="text-sm text-muted-foreground">{t('admin.errors.showResolved', 'Show Resolved')}</span>
           </label>
         </div>
+      }
+    >
+      {/* Stats */}
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        <StatCard label={t('admin.errors.unresolvedErrors', 'Unresolved Errors')} value={stats.total} variant="info" loading={loading} />
+        <StatCard label={t('admin.errors.error', 'Error')} value={stats.error} variant="warning" loading={loading} />
+        <StatCard label={t('admin.errors.critical', 'Critical')} value={stats.critical} variant="error" loading={loading} />
+        <StatCard label={t('admin.errors.fatal', 'Fatal')} value={stats.fatal} variant="critical" loading={loading} />
+      </div>
 
-        {/* Table */}
-        {loading ? (
-          <div className="flex items-center justify-center h-40">
-            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          </div>
-        ) : (
-          <div className="rounded-xl border border-border overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-muted/30 text-left">
-                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.errors.level', 'Level')}</th>
-                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.errors.service', 'Service')}</th>
-                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.errors.message', 'Message')}</th>
-                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.errors.occurrences', 'Count')}</th>
-                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('admin.errors.lastSeen', 'Last Seen')}</th>
-                  <th className="px-4 py-3 font-semibold text-xs text-muted-foreground tracking-wide">{t('common.status', 'Status')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {paged.map(e => (
-                  <tr
-                    key={e.id}
-                    onClick={() => setSelectedError(e)}
-                    className="hover:bg-muted/30 cursor-pointer transition-colors"
-                  >
-                    <td className="px-4 py-3">
-                      <StatusBadge status={LEVEL_CONFIG[e.level].badgeStatus}>
-                        {e.level}
-                      </StatusBadge>
-                    </td>
-                    <td className="px-4 py-3 font-mono text-xs text-foreground">{e.service}</td>
-                    <td className="px-4 py-3 text-foreground max-w-md truncate">{e.message}</td>
-                    <td className="px-4 py-3 text-muted-foreground text-center">{e.count}</td>
-                    <td className="px-4 py-3 text-muted-foreground text-xs whitespace-nowrap">
-                      {new Date(e.lastSeen).toLocaleString()}
-                    </td>
-                    <td className="px-4 py-3">
-                      <StatusBadge status={e.resolved ? 'success' : 'warning'}>
-                        {e.resolved ? t('admin.errors.resolved', 'Resolved') : t('admin.errors.open', 'Open')}
-                      </StatusBadge>
-                    </td>
-                  </tr>
-                ))}
-                {paged.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
-                      {t('common.noResults', 'No results found')}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
+      {/* Table */}
+      <DataTable
+        data={paged}
+        columns={columns}
+        rowKey={(row) => row.id}
+        loading={loading}
+        emptyMessage={t('common.noResults', 'No results found')}
+        onRowClick={(row) => setSelectedError(row)}
+      />
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">
-              {`${page * PAGE_SIZE + 1}-${Math.min((page + 1) * PAGE_SIZE, filtered.length)} of ${filtered.length}`}
-            </span>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)}>
-                {t('common.previous', 'Previous')}
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-4">
+          <span className="text-sm text-muted-foreground">
+            {`${page * PAGE_SIZE + 1}-${Math.min((page + 1) * PAGE_SIZE, filtered.length)} / ${filtered.length}`}
+          </span>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)}>
+              {t('common.previous', 'Previous')}
+            </Button>
+            <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>
+              {t('common.next', 'Next')}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Detail Modal */}
+      {selectedError && (
+        <Modal isOpen onClose={() => setSelectedError(null)} title={`Error: ${selectedError.message}`}>
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { label: 'Error ID', value: selectedError.id },
+                { label: 'Level', value: selectedError.level.toUpperCase() },
+                { label: 'Service', value: selectedError.service },
+                { label: 'Endpoint', value: selectedError.endpoint },
+                { label: 'Request ID', value: selectedError.requestId },
+                { label: 'User ID', value: selectedError.userId || '—' },
+                { label: 'Occurrences', value: String(selectedError.count) },
+                { label: 'Status', value: selectedError.resolved ? 'Resolved' : 'Open' },
+                { label: 'First Seen', value: new Date(selectedError.firstSeen).toLocaleString() },
+                { label: 'Last Seen', value: new Date(selectedError.lastSeen).toLocaleString() },
+              ].map(row => (
+                <div key={row.label}>
+                  <p className="text-xs text-muted-foreground">{row.label}</p>
+                  <p className="text-sm text-foreground font-mono mt-0.5">{row.value}</p>
+                </div>
+              ))}
+            </div>
+
+            <div>
+              <p className="text-xs text-muted-foreground mb-2">{t('admin.errors.stackTrace', 'Stack Trace')}</p>
+              <pre className="rounded-lg border border-border bg-muted/30 p-3 text-xs font-mono text-foreground overflow-x-auto whitespace-pre-wrap">
+                {selectedError.stackTrace}
+              </pre>
+            </div>
+
+            <div className="flex justify-between pt-2">
+              <Button
+                variant={selectedError.resolved ? 'outline' : 'default'}
+                size="sm"
+                onClick={() => {
+                  toggleResolved(selectedError.id);
+                  setSelectedError({ ...selectedError, resolved: !selectedError.resolved });
+                }}
+              >
+                {selectedError.resolved ? t('admin.errors.reopenError', 'Reopen') : t('admin.errors.markResolved', 'Mark Resolved')}
               </Button>
-              <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>
-                {t('common.next', 'Next')}
+              <Button variant="outline" onClick={() => setSelectedError(null)}>
+                {t('common.close', 'Close')}
               </Button>
             </div>
           </div>
-        )}
-
-        {/* Detail Modal */}
-        {selectedError && (
-          <Modal isOpen onClose={() => setSelectedError(null)} title={`Error: ${selectedError.message}`}>
-            <div className="flex flex-col gap-4 p-4">
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { label: 'Error ID', value: selectedError.id },
-                  { label: 'Level', value: selectedError.level.toUpperCase() },
-                  { label: 'Service', value: selectedError.service },
-                  { label: 'Endpoint', value: selectedError.endpoint },
-                  { label: 'Request ID', value: selectedError.requestId },
-                  { label: 'User ID', value: selectedError.userId || '—' },
-                  { label: 'Occurrences', value: String(selectedError.count) },
-                  { label: 'Status', value: selectedError.resolved ? 'Resolved' : 'Open' },
-                  { label: 'First Seen', value: new Date(selectedError.firstSeen).toLocaleString() },
-                  { label: 'Last Seen', value: new Date(selectedError.lastSeen).toLocaleString() },
-                ].map(row => (
-                  <div key={row.label}>
-                    <p className="text-xs text-muted-foreground">{row.label}</p>
-                    <p className="text-sm text-foreground font-mono mt-0.5">{row.value}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div>
-                <p className="text-xs text-muted-foreground mb-2">{t('admin.errors.stackTrace', 'Stack Trace')}</p>
-                <pre className="rounded-lg border border-border bg-muted/30 p-3 text-xs font-mono text-foreground overflow-x-auto whitespace-pre-wrap">
-                  {selectedError.stackTrace}
-                </pre>
-              </div>
-
-              <div className="flex justify-between pt-2">
-                <Button
-                  variant={selectedError.resolved ? 'outline' : 'default'}
-                  size="sm"
-                  onClick={() => {
-                    toggleResolved(selectedError.id);
-                    setSelectedError({ ...selectedError, resolved: !selectedError.resolved });
-                  }}
-                >
-                  {selectedError.resolved ? t('admin.errors.reopenError', 'Reopen') : t('admin.errors.markResolved', 'Mark Resolved')}
-                </Button>
-                <Button variant="outline" onClick={() => setSelectedError(null)}>
-                  {t('common.close', 'Close')}
-                </Button>
-              </div>
-            </div>
-          </Modal>
-        )}
+        </Modal>
+      )}
     </ContentArea>
   );
 };

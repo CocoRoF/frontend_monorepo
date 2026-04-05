@@ -126,3 +126,43 @@ export async function ratePrompt(
   const api = createApiClient();
   return api.post(`/api/prompt/rating/${promptUid}?user_id=${userId}&is_template=${isTemplate}&rating=${rating}`);
 }
+
+// ─────────────────────────────────────────────────────────────
+// Upload to Store (from user's storage)
+// ─────────────────────────────────────────────────────────────
+
+interface StoragePromptResponse {
+  id: number;
+  prompt_uid: string;
+  prompt_title: string;
+  prompt_type: string;
+  public_available: boolean;
+  language: string;
+}
+
+export interface StoragePromptItem {
+  id: number;
+  uid: string;
+  title: string;
+  type: string;
+  isPublic: boolean;
+  language: string;
+}
+
+export async function listMyStoragePrompts(): Promise<StoragePromptItem[]> {
+  const api = createApiClient();
+  const response = await api.get<{ prompts: StoragePromptResponse[] }>('/api/prompt/list?limit=300&offset=0');
+  return (response.data.prompts || []).map((p) => ({
+    id: p.id,
+    uid: p.prompt_uid,
+    title: p.prompt_title,
+    type: p.prompt_type,
+    isPublic: p.public_available,
+    language: p.language,
+  }));
+}
+
+export async function uploadPromptToStore(promptId: number): Promise<unknown> {
+  const api = createApiClient();
+  return api.post(`/api/prompt/store/upload?prompt_id=${promptId}`);
+}
