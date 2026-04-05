@@ -64,8 +64,7 @@
     "@xgen/feature-root-landing-hero": "workspace:*",
     "@xgen/i18n": "workspace:*",
     "@xgen/icons": "workspace:*",
-    "@xgen/main-FAQ": "workspace:*",
-    "@xgen/main-ServiceRequest": "workspace:*",
+
     "@xgen/main-auth-profile": "workspace:*",
     "@xgen/main-canvas-intro": "workspace:*",
     "@xgen/main-chat-current": "workspace:*",
@@ -90,7 +89,6 @@
     "@xgen/sidebar-admin": "workspace:*",
     "@xgen/sidebar-main": "workspace:*",
     "@xgen/sidebar-mypage": "workspace:*",
-    "@xgen/sidebar-support": "workspace:*",
     "@xgen/types": "workspace:*",
     "@xgen/ui": "workspace:*",
     "framer-motion": "^11.0.0",

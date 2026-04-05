@@ -25,9 +25,6 @@ export const routeMappings: Record<string, string> = {
   'prompt-storage': 'prompt-storage',
   'auth-profile': 'auth-profile',
 
-  // Support Section
-  'service-request': 'service-request',
-  'faq': 'faq',
 };
 
 // ─────────────────────────────────────────────────────────────

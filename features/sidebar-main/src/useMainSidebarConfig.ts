@@ -78,13 +78,7 @@ export function useMainSidebarConfig({
         onAdminClick,
       },
       sections: sidebarSections,
-      support: {
-        titleKey: 'sidebar.support.title',
-        items: [
-          { id: 'service-request', titleKey: 'sidebar.support.request.title', href: '/support?view=inquiry' },
-          { id: 'faq', titleKey: 'sidebar.support.faq.title' },
-        ],
-      },
+
       user: {
         name: userName || 'User',
         role: isAdmin ? 'Admin' : 'Member',

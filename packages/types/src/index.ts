@@ -20,7 +20,6 @@ export type SidebarSectionId =
   | 'workspace'
   | 'chat'
   | 'workflow'
-  | 'support'
   | 'admin'
   | 'mypage'
   | string; // 확장 가능
